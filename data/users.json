@@ -1,0 +1,24 @@
+[
+  {
+    "id": "usr-1788294333340",
+    "name": "asma sahraoui",
+    "email": "asma1@gmail.com",
+    "password": "Test@1234",
+    "role": "user",
+    "credits": 5,
+    "status": "active",
+    "createdAt": "2026-09-01T20:25:33.340Z",
+    "lastLoginAt": "2026-09-01T20:25:33.340Z"
+  },
+  {
+    "id": "usr-admin-01",
+    "name": "Administrateur My-CV AI",
+    "email": "admin@my-cv.ai",
+    "password": "admin123",
+    "role": "admin",
+    "credits": 999,
+    "status": "active",
+    "createdAt": "2026-01-01T00:00:00.000Z",
+    "lastLoginAt": "2026-09-01T01:00:00.000Z"
+  }
+]

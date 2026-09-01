@@ -1,0 +1,112 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+  }
+
+  body {
+    @apply bg-slate-50 text-slate-900 antialiased;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+}
+
+/* Document Font & Icon Alignment Engine */
+#resume-sheet-preview,
+#resume-sheet-preview * {
+  font-variant-ligatures: none !important;
+  font-feature-settings: normal !important;
+  letter-spacing: normal !important;
+  text-rendering: geometricPrecision !important;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Bullet & Icon Solid Alignment */
+.cv-icon {
+  display: inline-block !important;
+  vertical-align: -0.15em !important;
+  flex-shrink: 0 !important;
+}
+
+.cv-bullet {
+  display: inline-block !important;
+  vertical-align: middle !important;
+  line-height: 1 !important;
+}
+
+.cv-dot-separator {
+  display: inline-block !important;
+  padding-left: 0.35rem !important;
+  padding-right: 0.35rem !important;
+  vertical-align: middle !important;
+  opacity: 0.5 !important;
+}
+
+/* Page Break Protection */
+.break-inside-avoid,
+.cv-card,
+.cv-section {
+  break-inside: avoid !important;
+  page-break-inside: avoid !important;
+}
+
+/* Print CSS for High-Resolution Vector PDF (Exact 3mm margins on A4) */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 3mm; /* Exact 3mm margin all around */
+  }
+
+  html, body {
+    background: #ffffff !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    height: auto !important;
+  }
+
+  /* Hide app navigation UI elements during print, NEVER resume elements */
+  nav, footer, button, .export-ignore, .no-print, [role="dialog"] {
+    display: none !important;
+  }
+
+  /* Force all resume elements to be visible */
+  #resume-sheet-preview,
+  #resume-sheet-preview * {
+    visibility: visible !important;
+  }
+
+  #resume-sheet-preview {
+    box-shadow: none !important;
+    border: none !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    transform: none !important;
+  }
+
+  .break-inside-avoid {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+}
