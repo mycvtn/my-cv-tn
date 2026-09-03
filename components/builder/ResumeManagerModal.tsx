@@ -139,6 +139,7 @@ export const ResumeManagerModal: React.FC<Props> = ({
                       <option value="gradient_header">🌅 Gradient Header (Horizon)</option>
                       <option value="minimalist_clean">📄 Minimaliste Clean (Monochrome)</option>
                       <option value="nordic_light">❄️ Élégance Nordique (Pure Light)</option>
+                      <option value="classic_raw">📝 Classique Brut (Sans Design / Standard ATS)</option>
                     </optgroup>
                   </select>
                 </div>

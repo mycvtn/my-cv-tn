@@ -12,6 +12,7 @@ import { CompactMetroTemplate } from "./CompactMetroTemplate";
 import { GradientHeaderTemplate } from "./GradientHeaderTemplate";
 import { MinimalistCleanTemplate } from "./MinimalistCleanTemplate";
 import { NordicLightTemplate } from "./NordicLightTemplate";
+import { ClassicRawTemplate } from "./ClassicRawTemplate";
 import { FileText } from "lucide-react";
 
 interface Props {
@@ -31,6 +32,8 @@ export const TemplateRenderer: React.FC<Props> = ({ data, scale = 1 }) => {
         return <EuropassTemplate data={data} />;
       case "tunisian":
         return <TunisianTemplate data={data} />;
+      case "classic_raw":
+        return <ClassicRawTemplate data={data} />;
       
       // Modern & Creative Models
       case "modern_tech":

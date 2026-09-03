@@ -8,7 +8,8 @@ export type TemplateId =
   | "compact_metro"
   | "gradient_header"
   | "minimalist_clean"
-  | "nordic_light";
+  | "nordic_light"
+  | "classic_raw";
 
 export type LanguageLevel = 
   | "Langue maternelle"

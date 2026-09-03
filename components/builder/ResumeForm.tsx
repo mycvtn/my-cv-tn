@@ -1013,6 +1013,30 @@ export const ResumeForm: React.FC<Props> = ({ data, onChange, onOpenATS, onOpenC
                       </div>
                     </div>
                   </button>
+
+                  {/* 4. Classique Brut / Sans Design */}
+                  <button
+                    type="button"
+                    onClick={() => updateSettings("template", "classic_raw")}
+                    className={`p-3 rounded-2xl border text-left transition flex flex-col justify-between ${
+                      data.settings.template === "classic_raw"
+                        ? "border-slate-950 bg-slate-100 ring-2 ring-slate-950 shadow-sm"
+                        : "border-slate-200 bg-white hover:border-slate-300"
+                    }`}
+                  >
+                    <div>
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-base">📝</span>
+                        {data.settings.template === "classic_raw" && (
+                          <span className="text-[9px] bg-black text-white font-bold px-1.5 py-0.2 rounded-full">Actif</span>
+                        )}
+                      </div>
+                      <div className="text-xs font-bold text-slate-900">Classique Brut (Sans Design)</div>
+                      <div className="text-[10px] text-slate-500 mt-0.5 leading-snug">
+                        Format brut noir & blanc standard Harvard, sans boîtes ni fioritures
+                      </div>
+                    </div>
+                  </button>
                 </div>
               </div>
 
