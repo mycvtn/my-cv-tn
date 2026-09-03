@@ -5,7 +5,7 @@
     "email": "rrr@gmail.com",
     "password": "123456",
     "role": "user",
-    "credits": 5,
+    "credits": 255,
     "status": "active",
     "createdAt": "2026-09-03T13:28:08.332Z",
     "lastLoginAt": "2026-09-03T13:28:08.332Z"

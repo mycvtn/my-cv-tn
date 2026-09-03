@@ -9,9 +9,22 @@ const DEFAULT_SETTINGS = {
   d17PhoneNumber: "98 123 456",
   d17AccountHolder: "my-cv.tn Administration",
   d17Instructions: "Effectuez le transfert vers ce numéro D17 puis téléversez la capture d'écran du reçu.",
+  d17Enabled: true,
   flouciAccount: "flouci.me/mycv_tn / RIB: 08 000 000123456789 20",
   flouciAccountHolder: "MY-CV TUNISIE",
   flouciInstructions: "Envoyez le montant via l'application Flouci ou par virement bancaire puis attachez le justificatif.",
+  flouciEnabled: true,
+  customMethods: [
+    {
+      id: "meth-rib-01",
+      name: "Virement Bancaire (RIB)",
+      icon: "🏦",
+      accountNumber: "RIB: 08 014 000123456789 54 (Attijari Bank)",
+      accountHolder: "MY-CV TUNISIE SARL",
+      instructions: "Effectuez un virement bancaire vers notre RIB, puis téléversez l'avis d'opération ou le reçu.",
+      enabled: true,
+    }
+  ],
 };
 
 function readSettings() {
