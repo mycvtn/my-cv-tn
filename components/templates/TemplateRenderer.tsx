@@ -11,6 +11,7 @@ import { CreativeSidebarTemplate } from "./CreativeSidebarTemplate";
 import { CompactMetroTemplate } from "./CompactMetroTemplate";
 import { GradientHeaderTemplate } from "./GradientHeaderTemplate";
 import { MinimalistCleanTemplate } from "./MinimalistCleanTemplate";
+import { NordicLightTemplate } from "./NordicLightTemplate";
 import { FileText } from "lucide-react";
 
 interface Props {
@@ -44,6 +45,8 @@ export const TemplateRenderer: React.FC<Props> = ({ data, scale = 1 }) => {
         return <GradientHeaderTemplate data={data} />;
       case "minimalist_clean":
         return <MinimalistCleanTemplate data={data} />;
+      case "nordic_light":
+        return <NordicLightTemplate data={data} />;
       default:
         return <TunisianTemplate data={data} />;
     }

@@ -1173,6 +1173,30 @@ export const ResumeForm: React.FC<Props> = ({ data, onChange, onOpenATS, onOpenC
                       </div>
                     </div>
                   </button>
+
+                  {/* 10. Nordic Light (Design Clair) */}
+                  <button
+                    type="button"
+                    onClick={() => updateSettings("template", "nordic_light")}
+                    className={`p-3 rounded-2xl border text-left transition flex flex-col justify-between ${
+                      data.settings.template === "nordic_light"
+                        ? "border-blue-600 bg-blue-50/60 ring-2 ring-blue-500 shadow-sm"
+                        : "border-slate-200 bg-white hover:border-slate-300"
+                    }`}
+                  >
+                    <div>
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-base">❄️</span>
+                        {data.settings.template === "nordic_light" && (
+                          <span className="text-[9px] bg-blue-600 text-white font-bold px-1.5 py-0.2 rounded-full">Actif</span>
+                        )}
+                      </div>
+                      <div className="text-xs font-bold text-slate-900">Élégance Nordique (Clair)</div>
+                      <div className="text-[10px] text-slate-500 mt-0.5 leading-snug">
+                        Design clair lumineux, cartes pastel & capsules soignées
+                      </div>
+                    </div>
+                  </button>
                 </div>
               </div>
             </div>

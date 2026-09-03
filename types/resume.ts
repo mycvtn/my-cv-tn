@@ -7,7 +7,8 @@ export type TemplateId =
   | "creative_sidebar"
   | "compact_metro"
   | "gradient_header"
-  | "minimalist_clean";
+  | "minimalist_clean"
+  | "nordic_light";
 
 export type LanguageLevel = 
   | "Langue maternelle"

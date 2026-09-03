@@ -138,6 +138,7 @@ export const ResumeManagerModal: React.FC<Props> = ({
                       <option value="compact_metro">🏙️ Compact Metro (Swiss)</option>
                       <option value="gradient_header">🌅 Gradient Header (Horizon)</option>
                       <option value="minimalist_clean">📄 Minimaliste Clean (Monochrome)</option>
+                      <option value="nordic_light">❄️ Élégance Nordique (Pure Light)</option>
                     </optgroup>
                   </select>
                 </div>
