@@ -1,5 +1,16 @@
 [
   {
+    "id": "usr-1788442088332",
+    "name": "Rami Gouader",
+    "email": "rrr@gmail.com",
+    "password": "123456",
+    "role": "user",
+    "credits": 5,
+    "status": "active",
+    "createdAt": "2026-09-03T13:28:08.332Z",
+    "lastLoginAt": "2026-09-03T13:28:08.332Z"
+  },
+  {
     "id": "usr-1788294333340",
     "name": "asma sahraoui",
     "email": "asma1@gmail.com",

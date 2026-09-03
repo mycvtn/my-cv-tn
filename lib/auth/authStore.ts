@@ -1,4 +1,5 @@
 import { UserAccount, AuthState } from "@/types/auth";
+import { supabase } from "@/lib/supabase/client";
 
 const USERS_STORAGE_KEY = "my_cv_all_users_list";
 const ACTIVE_USER_STORAGE_KEY = "my_cv_current_active_user";
@@ -232,6 +233,9 @@ export function registerNewUser(name: string, email: string, password?: string):
 
 export function logoutUser(): void {
   setCurrentUser(null);
+  try {
+    supabase.auth.signOut().catch(() => {});
+  } catch (e) {}
 }
 
 // Admin Operations

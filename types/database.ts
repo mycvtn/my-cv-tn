@@ -1,4 +1,4 @@
-﻿export type Json =
+export type Json =
   | string
   | number
   | boolean
@@ -16,9 +16,9 @@ export interface Database {
           full_name: string | null;
           avatar_url: string | null;
           phone: string | null;
-          credits_balance: number;
-          subscription_tier: "free" | "pro" | "unlimited";
-          subscription_expires_at: string | null;
+          role: "user" | "admin";
+          status: "active" | "suspended";
+          credit_balance: number;
           created_at: string;
           updated_at: string;
         };
@@ -28,9 +28,9 @@ export interface Database {
           full_name?: string | null;
           avatar_url?: string | null;
           phone?: string | null;
-          credits_balance?: number;
-          subscription_tier?: "free" | "pro" | "unlimited";
-          subscription_expires_at?: string | null;
+          role?: "user" | "admin";
+          status?: "active" | "suspended";
+          credit_balance?: number;
           created_at?: string;
           updated_at?: string;
         };
@@ -40,9 +40,9 @@ export interface Database {
           full_name?: string | null;
           avatar_url?: string | null;
           phone?: string | null;
-          credits_balance?: number;
-          subscription_tier?: "free" | "pro" | "unlimited";
-          subscription_expires_at?: string | null;
+          role?: "user" | "admin";
+          status?: "active" | "suspended";
+          credit_balance?: number;
           created_at?: string;
           updated_at?: string;
         };
