@@ -335,16 +335,16 @@ Formation: ${activeResume.education.map((ed) => `${ed.degree} (${ed.institution}
 
   return (
     <div className="flex flex-col h-screen bg-slate-100 overflow-hidden font-sans">
-      {/* Top Main Navigation Header */}
-      <header className="bg-slate-900 text-white px-3 sm:px-4 py-2.5 flex items-center justify-between border-b border-slate-800 flex-shrink-0 z-20">
+      {/* Top Main Navigation Header (Clean Light Theme) */}
+      <header className="bg-white/95 backdrop-blur-md text-slate-900 px-3 sm:px-4 py-2.5 flex items-center justify-between border-b border-slate-200/90 flex-shrink-0 z-20 shadow-2xs">
         <div className="flex items-center gap-2.5 sm:gap-3">
           <a href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-rose-600 to-amber-500 flex items-center justify-center font-black text-white text-base shadow">
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-rose-600 to-amber-500 flex items-center justify-center font-black text-white text-base shadow-sm">
               ⚡
             </div>
             <div className="hidden sm:block">
-              <span className="font-extrabold text-sm tracking-tight">MY-CV<span className="text-rose-500">.AI</span></span>
-              <span className="text-[10px] text-slate-400 block -mt-1">Plateforme Trilingue Pro</span>
+              <span className="font-extrabold text-sm tracking-tight text-slate-950">MY-CV<span className="text-rose-600">.AI</span></span>
+              <span className="text-[10px] text-slate-500 block -mt-1 font-medium">Plateforme Trilingue Pro</span>
             </div>
           </a>
 
@@ -352,32 +352,32 @@ Formation: ${activeResume.education.map((ed) => `${ed.degree} (${ed.institution}
           <div className="flex items-center gap-1.5 ml-1 sm:ml-2">
             <button
               onClick={() => setIsManagerOpen(true)}
-              className="flex items-center gap-1.5 sm:gap-2 bg-slate-800 hover:bg-slate-700 text-white px-2.5 sm:px-3 py-1.5 rounded-xl border border-slate-700 text-xs font-semibold transition group shadow-xs"
+              className="flex items-center gap-1.5 sm:gap-2 bg-slate-100 hover:bg-slate-200/80 text-slate-800 px-2.5 sm:px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-semibold transition group shadow-2xs"
               title="Gérer, dupliquer ou créer une nouvelle version de vos CVs"
               aria-label="Gérer, dupliquer ou créer une nouvelle version de vos CVs"
             >
-              <FolderOpen className="w-3.5 h-3.5 text-rose-400 group-hover:scale-110 transition" />
-              <span className="max-w-[100px] sm:max-w-[160px] truncate font-bold text-slate-100">
+              <FolderOpen className="w-3.5 h-3.5 text-rose-600 group-hover:scale-110 transition" />
+              <span className="max-w-[100px] sm:max-w-[160px] truncate font-bold text-slate-900">
                 {activeResume ? (activeResume.title || "Mon CV") : "Aucun CV"}
               </span>
-              <span className="text-[10px] bg-slate-900 text-slate-400 px-1.5 py-0.2 rounded-full">
+              <span className="text-[10px] bg-white text-slate-700 border border-slate-200 px-1.5 py-0.2 rounded-full font-bold">
                 {resumesList.length}
               </span>
-              <ChevronDown className="w-3 h-3 text-slate-400" />
+              <ChevronDown className="w-3 h-3 text-slate-500" />
             </button>
           </div>
 
           {/* Fast Language Switcher (FR / EN / AR) - Visible when CV exists */}
           {activeResume && (
-            <div className="hidden md:flex items-center gap-1 bg-slate-800/90 p-1 rounded-xl border border-slate-700">
+            <div className="hidden md:flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200">
               <button
                 onClick={() => handleLanguageSwitch("fr")}
                 title="Afficher et éditer le CV en langue Française"
                 aria-label="Afficher et éditer le CV en langue Française"
                 className={`px-2 py-1 text-xs font-bold rounded-lg transition ${
                   activeResume.settings.language === "fr" || !activeResume.settings.language
-                    ? "bg-slate-700 text-white shadow-xs"
-                    : "text-slate-400 hover:text-white"
+                    ? "bg-white text-slate-950 shadow-xs border border-slate-200/60"
+                    : "text-slate-600 hover:text-slate-950"
                 }`}
               >
                 🇫🇷 FR
@@ -388,8 +388,8 @@ Formation: ${activeResume.education.map((ed) => `${ed.degree} (${ed.institution}
                 aria-label="Afficher et éditer le CV en langue Anglaise (English)"
                 className={`px-2 py-1 text-xs font-bold rounded-lg transition ${
                   activeResume.settings.language === "en"
-                    ? "bg-slate-700 text-white shadow-xs"
-                    : "text-slate-400 hover:text-white"
+                    ? "bg-white text-slate-950 shadow-xs border border-slate-200/60"
+                    : "text-slate-600 hover:text-slate-950"
                 }`}
               >
                 🇬🇧 EN
@@ -401,7 +401,7 @@ Formation: ${activeResume.education.map((ed) => `${ed.degree} (${ed.institution}
                 className={`px-2.5 py-1 text-xs font-bold rounded-lg transition font-sans ${
                   activeResume.settings.language === "ar"
                     ? "bg-rose-600 text-white shadow-xs"
-                    : "text-slate-400 hover:text-white"
+                    : "text-slate-600 hover:text-slate-950"
                 }`}
               >
                 🇸🇦 العربية
@@ -411,15 +411,15 @@ Formation: ${activeResume.education.map((ed) => `${ed.degree} (${ed.institution}
 
           {/* Template Fast Switcher Badges */}
           {activeResume && (
-            <div className="hidden xl:flex items-center gap-1 bg-slate-800/80 p-1 rounded-xl border border-slate-700">
+            <div className="hidden xl:flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200">
               <button
                 onClick={() => handleTemplateSwitch("tunisian")}
                 title="Bascule vers le Modèle Tunisien Pro (Format standard national)"
                 aria-label="Bascule vers le Modèle Tunisien Pro"
                 className={`px-2.5 py-1 text-xs font-semibold rounded-lg transition ${
                   activeResume.settings.template === "tunisian"
-                    ? "bg-rose-600 text-white shadow-sm"
-                    : "text-slate-300 hover:text-white"
+                    ? "bg-rose-600 text-white shadow-xs font-bold"
+                    : "text-slate-700 hover:text-slate-950"
                 }`}
               >
                 🇹🇳 Tunisien
@@ -430,8 +430,8 @@ Formation: ${activeResume.education.map((ed) => `${ed.degree} (${ed.institution}
                 aria-label="Bascule vers le Modèle Europass Pro"
                 className={`px-2.5 py-1 text-xs font-semibold rounded-lg transition ${
                   activeResume.settings.template === "europass"
-                    ? "bg-blue-600 text-white shadow-sm"
-                    : "text-slate-300 hover:text-white"
+                    ? "bg-blue-600 text-white shadow-xs font-bold"
+                    : "text-slate-700 hover:text-slate-950"
                 }`}
               >
                 🇪🇺 Europass
@@ -442,8 +442,8 @@ Formation: ${activeResume.education.map((ed) => `${ed.degree} (${ed.institution}
                 aria-label="Bascule vers le Modèle Canadien ATS"
                 className={`px-2.5 py-1 text-xs font-semibold rounded-lg transition ${
                   activeResume.settings.template === "canadian"
-                    ? "bg-emerald-600 text-white shadow-sm"
-                    : "text-slate-300 hover:text-white"
+                    ? "bg-emerald-600 text-white shadow-xs font-bold"
+                    : "text-slate-700 hover:text-slate-950"
                 }`}
               >
                 🍁 Canadien ATS
@@ -459,12 +459,12 @@ Formation: ${activeResume.education.map((ed) => `${ed.degree} (${ed.institution}
             onClick={() => setIsCreditCalculatorOpen(true)}
             title="Calculateur et recharge de crédits IA par D17 / Flouci"
             aria-label="Calculateur et recharge de crédits IA par D17 / Flouci"
-            className="flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 px-2.5 sm:px-3 py-1.5 rounded-xl border border-slate-700 text-xs transition shadow-sm"
+            className="flex items-center gap-1.5 bg-amber-50 hover:bg-amber-100 text-amber-950 px-2.5 sm:px-3 py-1.5 rounded-xl border border-amber-200 text-xs transition shadow-2xs"
           >
-            <Ticket className="w-3.5 h-3.5 text-amber-400" />
-            <span className="font-bold text-amber-400">{userCredits}</span>
-            <span className="hidden sm:inline text-[11px] text-slate-300">Crédits</span>
-            <span className="text-[10px] bg-rose-600/30 text-rose-300 font-bold px-1.5 py-0.5 rounded border border-rose-500/40 ml-0.5">
+            <Ticket className="w-3.5 h-3.5 text-amber-600" />
+            <span className="font-bold text-amber-900">{userCredits}</span>
+            <span className="hidden sm:inline text-[11px] text-amber-800">Crédits</span>
+            <span className="text-[10px] bg-rose-600 text-white font-bold px-1.5 py-0.5 rounded shadow-xs ml-0.5">
               + Recharger
             </span>
           </button>
@@ -473,20 +473,20 @@ Formation: ${activeResume.education.map((ed) => `${ed.degree} (${ed.institution}
           {currentUser ? (
             <button
               onClick={() => setIsAccountOpen(true)}
-              className="flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 text-white px-2.5 py-1.5 rounded-xl border border-slate-700 text-xs transition"
+              className="flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200/80 text-slate-800 px-2.5 py-1.5 rounded-xl border border-slate-200 text-xs transition"
               title="Gérer votre compte"
             >
               <div className="w-5 h-5 rounded-lg bg-rose-600 flex items-center justify-center font-bold text-[10px] text-white">
                 {currentUser.name.charAt(0).toUpperCase()}
               </div>
-              <span className="hidden md:inline font-semibold text-xs max-w-[100px] truncate">
+              <span className="hidden md:inline font-semibold text-xs max-w-[100px] truncate text-slate-900">
                 {currentUser.name.split(" ")[0]}
               </span>
             </button>
           ) : (
             <a
               href="/login"
-              className="flex items-center gap-1 bg-rose-600 hover:bg-rose-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition shadow"
+              className="flex items-center gap-1 bg-rose-600 hover:bg-rose-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-xs"
             >
               <LogIn className="w-3.5 h-3.5" />
               <span>Connexion</span>
@@ -509,20 +509,20 @@ Formation: ${activeResume.education.map((ed) => `${ed.degree} (${ed.institution}
       {/* Main Split Body OR Empty Account Onboarding State */}
       {resumesList.length === 0 || !activeResume ? (
         /* Empty State for Brand New Accounts */
-        <div className="flex-grow bg-slate-950 flex flex-col items-center justify-center p-6 text-slate-100 relative overflow-hidden">
-          <div className="absolute top-1/4 -left-32 w-96 h-96 bg-rose-600/10 rounded-full blur-3xl pointer-events-none" />
-          <div className="absolute bottom-1/4 -right-32 w-96 h-96 bg-indigo-600/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="flex-grow bg-slate-50 flex flex-col items-center justify-center p-6 text-slate-900 relative overflow-hidden">
+          <div className="absolute top-1/4 -left-32 w-96 h-96 bg-rose-200/40 rounded-full blur-3xl pointer-events-none" />
+          <div className="absolute bottom-1/4 -right-32 w-96 h-96 bg-indigo-200/40 rounded-full blur-3xl pointer-events-none" />
 
-          <div className="max-w-lg w-full bg-slate-900/90 border border-slate-800 rounded-3xl p-8 text-center shadow-2xl z-10 space-y-6">
+          <div className="max-w-lg w-full bg-white border border-slate-200/90 rounded-3xl p-8 text-center shadow-xl z-10 space-y-6">
             <div className="w-16 h-16 mx-auto bg-gradient-to-tr from-rose-600 to-amber-500 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-rose-600/30">
               <FilePlus className="w-8 h-8" />
             </div>
 
             <div>
-              <h2 className="text-xl font-extrabold text-white tracking-tight">
+              <h2 className="text-xl font-extrabold text-slate-950 tracking-tight">
                 Bienvenue {currentUser?.name ? currentUser.name.split(" ")[0] : ""} ! 👋
               </h2>
-              <p className="text-xs text-slate-400 mt-2 leading-relaxed">
+              <p className="text-xs text-slate-600 mt-2 leading-relaxed">
                 Votre compte est prêt. Vous n'avez pas encore de CV enregistré dans votre espace personnel.
               </p>
             </div>
@@ -531,36 +531,36 @@ Formation: ${activeResume.education.map((ed) => `${ed.degree} (${ed.institution}
             <div className="grid grid-cols-3 gap-2.5 pt-2 text-left">
               <div 
                 onClick={() => handleCreateResume("Mon CV Pro", "tunisian", "blank")}
-                className="p-3 bg-slate-800/80 hover:bg-slate-800 hover:border-rose-500/50 border border-slate-700/80 rounded-2xl cursor-pointer transition group"
+                className="p-3 bg-slate-50 hover:bg-rose-50/50 hover:border-rose-300 border border-slate-200 rounded-2xl cursor-pointer transition group shadow-2xs"
               >
                 <div className="text-lg mb-1">🇹🇳</div>
-                <div className="text-xs font-bold text-white group-hover:text-rose-400 transition">Modèle Tunisien</div>
-                <div className="text-[10px] text-slate-400 mt-0.5">Avec photo & design moderne</div>
+                <div className="text-xs font-bold text-slate-900 group-hover:text-rose-600 transition">Modèle Tunisien</div>
+                <div className="text-[10px] text-slate-500 mt-0.5">Avec photo & design moderne</div>
               </div>
 
               <div 
                 onClick={() => handleCreateResume("Mon CV Europass", "europass", "blank")}
-                className="p-3 bg-slate-800/80 hover:bg-slate-800 hover:border-blue-500/50 border border-slate-700/80 rounded-2xl cursor-pointer transition group"
+                className="p-3 bg-slate-50 hover:bg-blue-50/50 hover:border-blue-300 border border-slate-200 rounded-2xl cursor-pointer transition group shadow-2xs"
               >
                 <div className="text-lg mb-1">🇪🇺</div>
-                <div className="text-xs font-bold text-white group-hover:text-blue-400 transition">Modèle Europass</div>
-                <div className="text-[10px] text-slate-400 mt-0.5">Standard européen certifié</div>
+                <div className="text-xs font-bold text-slate-900 group-hover:text-blue-600 transition">Modèle Europass</div>
+                <div className="text-[10px] text-slate-500 mt-0.5">Standard européen certifié</div>
               </div>
 
               <div 
                 onClick={() => handleCreateResume("Mon CV ATS Canadien", "canadian", "blank")}
-                className="p-3 bg-slate-800/80 hover:bg-slate-800 hover:border-emerald-500/50 border border-slate-700/80 rounded-2xl cursor-pointer transition group"
+                className="p-3 bg-slate-50 hover:bg-emerald-50/50 hover:border-emerald-300 border border-slate-200 rounded-2xl cursor-pointer transition group shadow-2xs"
               >
                 <div className="text-lg mb-1">🍁</div>
-                <div className="text-xs font-bold text-white group-hover:text-emerald-400 transition">Canadien ATS</div>
-                <div className="text-[10px] text-slate-400 mt-0.5">1 colonne sobre & optimisé ATS</div>
+                <div className="text-xs font-bold text-slate-900 group-hover:text-emerald-600 transition">Canadien ATS</div>
+                <div className="text-[10px] text-slate-500 mt-0.5">1 colonne sobre & optimisé ATS</div>
               </div>
             </div>
 
             {/* Primary Action Button */}
             <button
               onClick={() => handleCreateResume("Mon Premier CV", "tunisian", "blank")}
-              className="w-full py-3.5 bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-500 hover:to-rose-600 text-white text-xs font-extrabold rounded-xl shadow-lg shadow-rose-600/30 flex items-center justify-center gap-2 cursor-pointer transition"
+              className="w-full py-3.5 bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-500 hover:to-rose-600 text-white text-xs font-extrabold rounded-xl shadow-lg shadow-rose-600/25 flex items-center justify-center gap-2 cursor-pointer transition"
             >
               <PlusCircle className="w-4 h-4" />
               <span>+ Créer mon premier CV maintenant</span>

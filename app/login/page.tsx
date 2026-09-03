@@ -74,10 +74,6 @@ function LoginForm() {
           router.push("/dashboard");
         }
         return;
-      } else {
-        setLoading(false);
-        setError(data.error || "Compte introuvable ou supprimé.");
-        return;
       }
     } catch (err) {
       const localRes = authenticateUser(email, password);
@@ -95,15 +91,15 @@ function LoginForm() {
   };
 
   return (
-    <div className="w-full max-w-md bg-slate-900/90 backdrop-blur-xl border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl z-10">
+    <div className="w-full max-w-md bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-8 shadow-xl z-10">
       <div className="mb-6">
-        <h1 className="text-xl font-extrabold text-white tracking-tight">Connexion à votre compte</h1>
-        <p className="text-xs text-slate-400 mt-1">Accédez à vos CVs, candidatures et crédits IA</p>
+        <h1 className="text-xl font-extrabold text-slate-950 tracking-tight">Connexion à votre compte</h1>
+        <p className="text-xs text-slate-500 mt-1">Accédez à vos CVs, candidatures et crédits IA</p>
       </div>
 
       {error && (
-        <div className="mb-4 p-3 bg-rose-500/10 border border-rose-500/30 rounded-2xl text-xs text-rose-300 flex items-center gap-2">
-          <AlertCircle className="w-4 h-4 flex-shrink-0" />
+        <div className="mb-4 p-3 bg-rose-50 border border-rose-200 rounded-2xl text-xs text-rose-700 flex items-center gap-2">
+          <AlertCircle className="w-4 h-4 flex-shrink-0 text-rose-600" />
           <span>{error}</span>
         </div>
       )}
@@ -116,7 +112,7 @@ function LoginForm() {
           disabled={!!oauthLoading || loading}
           title="Se connecter avec votre compte Google"
           aria-label="Se connecter avec votre compte Google"
-          className="w-full py-2.5 px-4 bg-slate-800 hover:bg-slate-750 hover:border-slate-600 border border-slate-700 text-white rounded-xl text-xs font-semibold flex items-center justify-center gap-2.5 transition shadow-sm disabled:opacity-50"
+          className="w-full py-2.5 px-4 bg-white hover:bg-slate-50 hover:border-slate-300 border border-slate-200 text-slate-800 rounded-xl text-xs font-semibold flex items-center justify-center gap-2.5 transition shadow-2xs disabled:opacity-50"
         >
           {oauthLoading === "google" ? (
             <span>Redirection Google...</span>
@@ -139,13 +135,13 @@ function LoginForm() {
           disabled={!!oauthLoading || loading}
           title="Se connecter avec votre profil LinkedIn"
           aria-label="Se connecter avec votre profil LinkedIn"
-          className="w-full py-2.5 px-4 bg-[#0A66C2]/15 hover:bg-[#0A66C2]/25 border border-[#0A66C2]/40 text-[#70B5F9] hover:text-white rounded-xl text-xs font-semibold flex items-center justify-center gap-2.5 transition shadow-sm disabled:opacity-50"
+          className="w-full py-2.5 px-4 bg-sky-50 hover:bg-sky-100 border border-sky-200 text-sky-800 rounded-xl text-xs font-semibold flex items-center justify-center gap-2.5 transition shadow-2xs disabled:opacity-50"
         >
           {oauthLoading === "linkedin" ? (
             <span>Redirection LinkedIn...</span>
           ) : (
             <>
-              <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 fill-[#0A66C2]" viewBox="0 0 24 24">
                 <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" />
               </svg>
               <span>Continuer avec LinkedIn</span>
@@ -156,50 +152,50 @@ function LoginForm() {
 
       {/* Separator */}
       <div className="relative flex items-center justify-center mb-5">
-        <div className="border-t border-slate-800 w-full" />
-        <span className="bg-slate-900 px-3 text-[10px] uppercase font-bold text-slate-500 tracking-wider">
+        <div className="border-t border-slate-200 w-full" />
+        <span className="bg-white px-3 text-[10px] uppercase font-bold text-slate-500 tracking-wider">
           Ou avec votre email
         </span>
-        <div className="border-t border-slate-800 w-full" />
+        <div className="border-t border-slate-200 w-full" />
       </div>
 
       {/* Email/Password Form */}
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-xs font-bold text-slate-300 mb-1.5">Adresse Email</label>
+          <label className="block text-xs font-bold text-slate-700 mb-1.5">Adresse Email</label>
           <div className="relative">
-            <Mail className="w-4 h-4 text-slate-500 absolute left-3.5 top-3" />
+            <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="votre.email@exemple.com"
               required
-              className="w-full text-xs bg-slate-800/80 border border-slate-700/80 rounded-xl pl-10 pr-4 py-2.5 text-white placeholder:text-slate-500 focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500 transition"
+              className="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-4 py-2.5 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500 transition"
             />
           </div>
         </div>
 
         <div>
           <div className="flex items-center justify-between mb-1.5">
-            <label className="text-xs font-bold text-slate-300">Mot de passe</label>
+            <label className="text-xs font-bold text-slate-700">Mot de passe</label>
             <a 
               href="/forgot-password" 
               title="Réinitialiser votre mot de passe oublié"
-              className="text-[11px] text-rose-400 hover:text-rose-300 hover:underline"
+              className="text-[11px] text-rose-600 hover:text-rose-700 hover:underline font-semibold"
             >
               Mot de passe oublié ?
             </a>
           </div>
           <div className="relative">
-            <Lock className="w-4 h-4 text-slate-500 absolute left-3.5 top-3" />
+            <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
               required
-              className="w-full text-xs bg-slate-800/80 border border-slate-700/80 rounded-xl pl-10 pr-4 py-2.5 text-white placeholder:text-slate-500 focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500 transition"
+              className="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-4 py-2.5 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500 transition"
             />
           </div>
         </div>
@@ -223,13 +219,13 @@ function LoginForm() {
       </form>
 
       {/* Link to Register */}
-      <div className="mt-6 pt-4 border-t border-slate-800 text-center text-xs text-slate-400">
+      <div className="mt-6 pt-4 border-t border-slate-100 text-center text-xs text-slate-500">
         Pas encore de compte ?{" "}
         <a 
           href="/register" 
           title="Créer un compte et recevoir 5 crédits offerts"
           aria-label="Créer un compte et recevoir 5 crédits offerts"
-          className="font-bold text-rose-400 hover:text-rose-300 transition"
+          className="font-bold text-rose-600 hover:text-rose-700 transition"
         >
           Créer un compte (+5 Crédits Offerts)
         </a>
@@ -240,26 +236,26 @@ function LoginForm() {
 
 export default function LoginPage() {
   return (
-    <div className="min-h-screen bg-slate-950 flex flex-col justify-center items-center p-4 text-slate-100 font-sans relative overflow-hidden">
+    <div className="min-h-screen bg-slate-50 flex flex-col justify-center items-center p-4 text-slate-900 font-sans relative overflow-hidden">
       {/* Background Ambient Glows */}
-      <div className="absolute top-1/4 -left-32 w-96 h-96 bg-rose-600/15 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-1/4 -right-32 w-96 h-96 bg-indigo-600/15 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-1/4 -left-32 w-96 h-96 bg-rose-200/40 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-1/4 -right-32 w-96 h-96 bg-indigo-200/40 rounded-full blur-3xl pointer-events-none" />
 
       {/* Top Brand Logo */}
       <div className="text-center mb-6 z-10">
         <a href="/" className="inline-flex items-center gap-2.5 mb-2">
-          <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-rose-600 to-amber-500 flex items-center justify-center font-black text-white text-lg shadow-lg shadow-rose-600/30">
+          <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-rose-600 to-amber-500 flex items-center justify-center font-black text-white text-lg shadow-md shadow-rose-600/20">
             ⚡
           </div>
-          <span className="font-extrabold text-2xl tracking-tight text-white">
-            MY-CV<span className="text-rose-500">.AI</span>
+          <span className="font-extrabold text-2xl tracking-tight text-slate-950">
+            MY-CV<span className="text-rose-600">.AI</span>
           </span>
         </a>
-        <p className="text-xs text-slate-400">Plateforme Intelligente de Création de CV & Recrutement</p>
+        <p className="text-xs text-slate-500">Plateforme Intelligente de Création de CV & Recrutement</p>
       </div>
 
       <Suspense fallback={
-        <div className="w-full max-w-md bg-slate-900/90 border border-slate-800 rounded-3xl p-8 text-center text-xs text-slate-400">
+        <div className="w-full max-w-md bg-white border border-slate-200 rounded-3xl p-8 text-center text-xs text-slate-500">
           Chargement du formulaire...
         </div>
       }>

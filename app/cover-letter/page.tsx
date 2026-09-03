@@ -96,28 +96,28 @@ ${data.candidateName}`;
 
   return (
     <AuthGuard>
-      <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
+      <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans">
       {/* Header */}
-      <header className="bg-slate-900 text-white px-6 py-3.5 flex items-center justify-between border-b border-slate-800">
+      <header className="bg-white/95 backdrop-blur-md text-slate-900 px-6 py-3.5 flex items-center justify-between border-b border-slate-200 shadow-2xs">
         <div className="flex items-center gap-3">
-          <Link href="/builder" className="text-slate-400 hover:text-white flex items-center gap-1.5 text-xs font-semibold">
+          <Link href="/builder" className="text-slate-600 hover:text-slate-950 flex items-center gap-1.5 text-xs font-semibold">
             <ArrowLeft className="w-4 h-4" /> Retour au CV
           </Link>
-          <span className="text-slate-600">|</span>
+          <span className="text-slate-300">|</span>
           <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-bold text-xs">
+            <div className="w-7 h-7 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-bold text-xs shadow-sm">
               LM
             </div>
-            <span className="font-bold text-sm">Générateur de Lettre de Motivation</span>
+            <span className="font-bold text-sm text-slate-950">Générateur de Lettre de Motivation</span>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
           <button
             onClick={handleCopy}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-lg border border-slate-700 transition"
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg border border-slate-200 transition shadow-2xs"
           >
-            {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+            {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5 text-slate-500" />}
             {copied ? "Copié !" : "Copier le texte"}
           </button>
           <button

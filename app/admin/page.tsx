@@ -202,7 +202,7 @@ export default function AdminDashboardPage() {
     .reduce((sum, p) => sum + p.amountTND, 0);
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
+    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans">
       {/* Toast Notification */}
       {toastMessage && (
         <div className="fixed top-5 right-5 z-50 bg-emerald-600 text-white px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-2 text-xs font-bold animate-in slide-in-from-top-2 duration-150">
@@ -212,26 +212,26 @@ export default function AdminDashboardPage() {
       )}
 
       {/* Top Admin Header */}
-      <header className="h-16 border-b border-slate-800 bg-slate-900/80 backdrop-blur-md px-6 flex items-center justify-between sticky top-0 z-30">
+      <header className="h-16 border-b border-slate-200 bg-white/90 backdrop-blur-md px-6 flex items-center justify-between sticky top-0 z-30 shadow-2xs">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-rose-600 to-amber-600 flex items-center justify-center text-white font-black text-sm shadow-md">
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-rose-600 to-amber-600 flex items-center justify-center text-white font-black text-sm shadow-sm">
             AD
           </div>
           <div>
-            <h1 className="text-sm font-black text-white flex items-center gap-1.5">
+            <h1 className="text-sm font-black text-slate-950 flex items-center gap-1.5">
               <span>Portail Administrateur</span>
-              <span className="text-[10px] bg-rose-600/30 text-rose-300 px-1.5 py-0.5 rounded border border-rose-500/30">
+              <span className="text-[10px] bg-rose-50 text-rose-700 px-1.5 py-0.5 rounded border border-rose-200 font-bold">
                 my-cv.tn
               </span>
             </h1>
-            <p className="text-[10px] text-slate-400">Gestion des utilisateurs & virements D17 / Flouci</p>
+            <p className="text-[10px] text-slate-500">Gestion des utilisateurs & virements D17 / Flouci</p>
           </div>
         </div>
 
         <div className="flex items-center gap-3">
           <button
             onClick={() => router.push("/builder")}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 rounded-xl border border-slate-700 transition"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-slate-700 hover:text-slate-950 bg-slate-100 hover:bg-slate-200 rounded-xl border border-slate-200 transition shadow-2xs"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             <span>Éditeur de CV</span>
@@ -239,7 +239,7 @@ export default function AdminDashboardPage() {
 
           <button
             onClick={handleLogout}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-rose-300 hover:text-white bg-rose-950/40 hover:bg-rose-900/60 rounded-xl border border-rose-800/40 transition"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-rose-700 hover:text-white bg-rose-50 hover:bg-rose-600 rounded-xl border border-rose-200 transition shadow-2xs"
           >
             <LogOut className="w-3.5 h-3.5" />
             <span>Déconnexion</span>
@@ -252,27 +252,27 @@ export default function AdminDashboardPage() {
         
         {/* KPI Stats Overview */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="p-4 bg-slate-900/90 border border-slate-800 rounded-2xl space-y-1 shadow-lg">
-            <div className="flex items-center justify-between text-slate-400 text-xs">
+          <div className="p-4 bg-white border border-slate-200/90 rounded-2xl space-y-1 shadow-2xs">
+            <div className="flex items-center justify-between text-slate-500 text-xs font-semibold">
               <span>Utilisateurs Inscrits</span>
-              <Users className="w-4 h-4 text-blue-400" />
+              <Users className="w-4 h-4 text-blue-600" />
             </div>
-            <div className="text-2xl font-black text-white">{users.length}</div>
+            <div className="text-2xl font-black text-slate-950">{users.length}</div>
             <div className="text-[10px] text-slate-500">Comptes actifs sur my-cv.tn</div>
           </div>
 
           <div 
             onClick={() => setActiveTab("payments")}
-            className="p-4 bg-slate-900/90 border border-slate-800 hover:border-amber-500/50 rounded-2xl space-y-1 shadow-lg cursor-pointer transition"
+            className="p-4 bg-white border border-slate-200/90 hover:border-amber-400 rounded-2xl space-y-1 shadow-2xs cursor-pointer transition"
           >
-            <div className="flex items-center justify-between text-slate-400 text-xs">
+            <div className="flex items-center justify-between text-slate-500 text-xs font-semibold">
               <span>Paiements en Attente</span>
-              <Clock className="w-4 h-4 text-amber-400" />
+              <Clock className="w-4 h-4 text-amber-600" />
             </div>
-            <div className="text-2xl font-black text-amber-400 flex items-center gap-2">
+            <div className="text-2xl font-black text-amber-600 flex items-center gap-2">
               <span>{pendingCount}</span>
               {pendingCount > 0 && (
-                <span className="text-[10px] bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-full font-bold animate-pulse">
+                <span className="text-[10px] bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full font-bold animate-pulse">
                   À vérifier
                 </span>
               )}
@@ -280,21 +280,21 @@ export default function AdminDashboardPage() {
             <div className="text-[10px] text-slate-500">Demandes D17 & Flouci</div>
           </div>
 
-          <div className="p-4 bg-slate-900/90 border border-slate-800 rounded-2xl space-y-1 shadow-lg">
-            <div className="flex items-center justify-between text-slate-400 text-xs">
+          <div className="p-4 bg-white border border-slate-200/90 rounded-2xl space-y-1 shadow-2xs">
+            <div className="flex items-center justify-between text-slate-500 text-xs font-semibold">
               <span>Volume Ventes Validées</span>
-              <DollarSign className="w-4 h-4 text-emerald-400" />
+              <DollarSign className="w-4 h-4 text-emerald-600" />
             </div>
-            <div className="text-2xl font-black text-emerald-400">{totalVolumeTND.toFixed(3)} <span className="text-sm font-bold">TND</span></div>
+            <div className="text-2xl font-black text-emerald-600">{totalVolumeTND.toFixed(3)} <span className="text-sm font-bold">TND</span></div>
             <div className="text-[10px] text-slate-500">Virements approuvés</div>
           </div>
 
-          <div className="p-4 bg-slate-900/90 border border-slate-800 rounded-2xl space-y-1 shadow-lg">
-            <div className="flex items-center justify-between text-slate-400 text-xs">
+          <div className="p-4 bg-white border border-slate-200/90 rounded-2xl space-y-1 shadow-2xs">
+            <div className="flex items-center justify-between text-slate-500 text-xs font-semibold">
               <span>Solde Global Crédits</span>
-              <Ticket className="w-4 h-4 text-rose-400" />
+              <Ticket className="w-4 h-4 text-rose-600" />
             </div>
-            <div className="text-2xl font-black text-rose-400">
+            <div className="text-2xl font-black text-rose-600">
               {users.reduce((sum, u) => sum + (u.credits || 0), 0)}
             </div>
             <div className="text-[10px] text-slate-500">Crédits en circulation</div>
@@ -302,16 +302,16 @@ export default function AdminDashboardPage() {
         </div>
 
         {/* Tab Switcher */}
-        <div className="flex items-center gap-2 bg-slate-900 p-1.5 rounded-2xl border border-slate-800 w-fit">
+        <div className="flex items-center gap-2 bg-slate-100 p-1.5 rounded-2xl border border-slate-200 w-fit">
           <button
             onClick={() => setActiveTab("users")}
             className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition ${
               activeTab === "users"
-                ? "bg-slate-800 text-white shadow-sm"
-                : "text-slate-400 hover:text-slate-200"
+                ? "bg-white text-slate-950 shadow-xs border border-slate-200/60"
+                : "text-slate-600 hover:text-slate-950"
             }`}
           >
-            <Users className="w-3.5 h-3.5 text-blue-400" />
+            <Users className="w-3.5 h-3.5 text-blue-600" />
             <span>Gestion Utilisateurs ({users.length})</span>
           </button>
 
@@ -319,11 +319,11 @@ export default function AdminDashboardPage() {
             onClick={() => setActiveTab("payments")}
             className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition ${
               activeTab === "payments"
-                ? "bg-slate-800 text-white shadow-sm"
-                : "text-slate-400 hover:text-slate-200"
+                ? "bg-white text-slate-950 shadow-xs border border-slate-200/60"
+                : "text-slate-600 hover:text-slate-950"
             }`}
           >
-            <CreditCard className="w-3.5 h-3.5 text-amber-400" />
+            <CreditCard className="w-3.5 h-3.5 text-amber-600" />
             <span>Vérification Paiements D17 / Flouci</span>
             {pendingCount > 0 && (
               <span className="bg-amber-500 text-slate-950 text-[10px] font-black px-1.5 py-0.2 rounded-full">

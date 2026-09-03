@@ -66,7 +66,6 @@ export default function RegisterPage() {
     setError("");
 
     try {
-      // 1. If Supabase configured, attempt Supabase signup with email confirmation redirect
       const redirectUrl = `${window.location.origin}/auth/callback`;
       const { data: supaData, error: supaErr } = await supabase.auth.signUp({
         email: email.trim(),
@@ -86,13 +85,11 @@ export default function RegisterPage() {
       }
 
       if (supaData?.user && !supaData.session) {
-        // Email confirmation is required by Supabase Auth settings
         setEmailConfirmationRequired(true);
         setLoading(false);
         return;
       }
 
-      // 2. Register in local/server store and navigate to dashboard
       const res = registerNewUser(name, email, password);
       setLoading(false);
       if (res.success) {
@@ -112,64 +109,64 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 flex flex-col justify-center items-center p-4 text-slate-100 font-sans relative overflow-hidden">
+    <div className="min-h-screen bg-slate-50 flex flex-col justify-center items-center p-4 text-slate-900 font-sans relative overflow-hidden">
       {/* Background Ambient Glows */}
-      <div className="absolute top-1/4 -left-32 w-96 h-96 bg-rose-600/15 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-1/4 -right-32 w-96 h-96 bg-indigo-600/15 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-1/4 -left-32 w-96 h-96 bg-rose-200/40 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-1/4 -right-32 w-96 h-96 bg-indigo-200/40 rounded-full blur-3xl pointer-events-none" />
 
       {/* Top Brand Logo */}
       <div className="text-center mb-6 z-10">
         <a href="/" className="inline-flex items-center gap-2.5 mb-2">
-          <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-rose-600 to-amber-500 flex items-center justify-center font-black text-white text-lg shadow-lg shadow-rose-600/30">
+          <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-rose-600 to-amber-500 flex items-center justify-center font-black text-white text-lg shadow-md shadow-rose-600/20">
             ⚡
           </div>
-          <span className="font-extrabold text-2xl tracking-tight text-white">
-            MY-CV<span className="text-rose-500">.AI</span>
+          <span className="font-extrabold text-2xl tracking-tight text-slate-950">
+            MY-CV<span className="text-rose-600">.AI</span>
           </span>
         </a>
-        <p className="text-xs text-slate-400">Plateforme Intelligente de Création de CV & Recrutement</p>
+        <p className="text-xs text-slate-500">Plateforme Intelligente de Création de CV & Recrutement</p>
       </div>
 
       {/* Registration Card */}
-      <div className="w-full max-w-md bg-slate-900/90 backdrop-blur-xl border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl z-10">
+      <div className="w-full max-w-md bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-8 shadow-xl z-10">
         {/* Welcome Bonus Header Banner */}
-        <div className="mb-5 p-3 bg-gradient-to-r from-rose-600/20 to-amber-500/20 border border-rose-500/30 rounded-2xl flex items-center gap-3 text-rose-300">
-          <div className="p-2 bg-rose-600/30 rounded-xl">
-            <Gift className="w-5 h-5 text-rose-400" />
+        <div className="mb-5 p-3 bg-gradient-to-r from-rose-50 to-amber-50 border border-rose-200 rounded-2xl flex items-center gap-3 text-rose-800">
+          <div className="p-2 bg-rose-100 rounded-xl">
+            <Gift className="w-5 h-5 text-rose-600" />
           </div>
           <div>
-            <div className="text-xs font-bold text-white">Offre de Bienvenue :</div>
-            <div className="text-[11px] text-rose-200">5 Crédits IA offerts pour créer, scanner et exporter vos CVs !</div>
+            <div className="text-xs font-bold text-slate-900">Offre de Bienvenue :</div>
+            <div className="text-[11px] text-rose-700">5 Crédits IA offerts pour créer, scanner et exporter vos CVs !</div>
           </div>
         </div>
 
         <div className="mb-6">
-          <h1 className="text-xl font-extrabold text-white tracking-tight">Créer un nouveau compte</h1>
-          <p className="text-xs text-slate-400 mt-1">Créez et sauvegardez vos différents CVs en ligne</p>
+          <h1 className="text-xl font-extrabold text-slate-950 tracking-tight">Créer un nouveau compte</h1>
+          <p className="text-xs text-slate-500 mt-1">Créez et sauvegardez vos différents CVs en ligne</p>
         </div>
 
         {error && (
-          <div className="mb-4 p-3 bg-rose-500/10 border border-rose-500/30 rounded-2xl text-xs text-rose-300 flex items-center gap-2">
-            <AlertCircle className="w-4 h-4 flex-shrink-0" />
+          <div className="mb-4 p-3 bg-rose-50 border border-rose-200 rounded-2xl text-xs text-rose-700 flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 flex-shrink-0 text-rose-600" />
             <span>{error}</span>
           </div>
         )}
 
         {emailConfirmationRequired ? (
           <div className="space-y-4 animate-in fade-in duration-200">
-            <div className="p-4 bg-emerald-500/10 border border-emerald-500/30 rounded-2xl text-xs text-emerald-300 space-y-2">
-              <div className="flex items-center gap-2 font-bold text-white">
-                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+            <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-2xl text-xs text-emerald-800 space-y-2">
+              <div className="flex items-center gap-2 font-bold text-emerald-950">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
                 <span>Vérifiez votre boîte de réception !</span>
               </div>
-              <p className="text-[11px] text-slate-300 leading-relaxed">
-                Un lien de confirmation a été envoyé à l'adresse <strong className="text-white">{email}</strong>. Cliquez sur ce lien pour activer votre compte et débloquer vos 5 crédits de bienvenue.
+              <p className="text-[11px] text-slate-600 leading-relaxed">
+                Un lien de confirmation a été envoyé à l'adresse <strong className="text-slate-900">{email}</strong>. Cliquez sur ce lien pour activer votre compte et débloquer vos 5 crédits de bienvenue.
               </p>
             </div>
 
             <a
               href="/login"
-              className="w-full py-3 bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold rounded-xl transition flex items-center justify-center gap-2"
+              className="w-full py-3 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl transition flex items-center justify-center gap-2 shadow-sm"
             >
               <span>Aller à la page de connexion</span>
               <ArrowRight className="w-3.5 h-3.5" />
@@ -185,7 +182,7 @@ export default function RegisterPage() {
                 disabled={!!oauthLoading || loading}
                 title="S'inscrire avec votre compte Google"
                 aria-label="S'inscrire avec votre compte Google"
-                className="w-full py-2.5 px-4 bg-slate-800 hover:bg-slate-750 hover:border-slate-600 border border-slate-700 text-white rounded-xl text-xs font-semibold flex items-center justify-center gap-2.5 transition shadow-sm disabled:opacity-50"
+                className="w-full py-2.5 px-4 bg-white hover:bg-slate-50 hover:border-slate-300 border border-slate-200 text-slate-800 rounded-xl text-xs font-semibold flex items-center justify-center gap-2.5 transition shadow-2xs disabled:opacity-50"
               >
                 {oauthLoading === "google" ? (
                   <span>Redirection Google...</span>
@@ -208,13 +205,13 @@ export default function RegisterPage() {
                 disabled={!!oauthLoading || loading}
                 title="S'inscrire avec votre profil LinkedIn"
                 aria-label="S'inscrire avec votre profil LinkedIn"
-                className="w-full py-2.5 px-4 bg-[#0A66C2]/15 hover:bg-[#0A66C2]/25 border border-[#0A66C2]/40 text-[#70B5F9] hover:text-white rounded-xl text-xs font-semibold flex items-center justify-center gap-2.5 transition shadow-sm disabled:opacity-50"
+                className="w-full py-2.5 px-4 bg-sky-50 hover:bg-sky-100 border border-sky-200 text-sky-800 rounded-xl text-xs font-semibold flex items-center justify-center gap-2.5 transition shadow-2xs disabled:opacity-50"
               >
                 {oauthLoading === "linkedin" ? (
                   <span>Redirection LinkedIn...</span>
                 ) : (
                   <>
-                    <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4 fill-[#0A66C2]" viewBox="0 0 24 24">
                       <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" />
                     </svg>
                     <span>Continuer avec LinkedIn</span>
@@ -225,70 +222,72 @@ export default function RegisterPage() {
 
             {/* Separator */}
             <div className="relative flex items-center justify-center mb-5">
-              <div className="border-t border-slate-800 w-full" />
-              <span className="bg-slate-900 px-3 text-[10px] uppercase font-bold text-slate-500 tracking-wider">
+              <div className="border-t border-slate-200 w-full" />
+              <span className="bg-white px-3 text-[10px] uppercase font-bold text-slate-500 tracking-wider">
                 Ou avec votre email
               </span>
-              <div className="border-t border-slate-800 w-full" />
+              <div className="border-t border-slate-200 w-full" />
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-3.5">
               <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1.5">Nom et Prénom</label>
+                <label className="block text-xs font-bold text-slate-700 mb-1.5">Nom et Prénom</label>
                 <div className="relative">
-                  <User className="w-4 h-4 text-slate-500 absolute left-3.5 top-3" />
+                  <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
                   <input
                     type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="Ex: Yassine Ben Salem"
                     required
-                    className="w-full text-xs bg-slate-800/80 border border-slate-700/80 rounded-xl pl-10 pr-4 py-2.5 text-white placeholder:text-slate-500 focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500 transition"
+                    className="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-4 py-2.5 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500 transition"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1.5">Adresse Email</label>
+                <label className="block text-xs font-bold text-slate-700 mb-1.5">Adresse Email</label>
                 <div className="relative">
-                  <Mail className="w-4 h-4 text-slate-500 absolute left-3.5 top-3" />
+                  <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
                   <input
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="yassine@example.com"
                     required
-                    className="w-full text-xs bg-slate-800/80 border border-slate-700/80 rounded-xl pl-10 pr-4 py-2.5 text-white placeholder:text-slate-500 focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500 transition"
+                    className="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-4 py-2.5 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500 transition"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1.5">Mot de passe</label>
+                <label className="block text-xs font-bold text-slate-700 mb-1.5">Mot de passe</label>
                 <div className="relative">
-                  <Lock className="w-4 h-4 text-slate-500 absolute left-3.5 top-3" />
+                  <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
                   <input
                     type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Minimum 6 caractères"
+                    placeholder="Au moins 6 caractères"
                     required
-                    className="w-full text-xs bg-slate-800/80 border border-slate-700/80 rounded-xl pl-10 pr-4 py-2.5 text-white placeholder:text-slate-500 focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500 transition"
+                    minLength={6}
+                    className="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-4 py-2.5 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500 transition"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1.5">Confirmer le mot de passe</label>
+                <label className="block text-xs font-bold text-slate-700 mb-1.5">Confirmer le mot de passe</label>
                 <div className="relative">
-                  <Lock className="w-4 h-4 text-slate-500 absolute left-3.5 top-3" />
+                  <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
                   <input
                     type="password"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    placeholder="Répétez votre mot de passe"
+                    placeholder="Retapez votre mot de passe"
                     required
-                    className="w-full text-xs bg-slate-800/80 border border-slate-700/80 rounded-xl pl-10 pr-4 py-2.5 text-white placeholder:text-slate-500 focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500 transition"
+                    minLength={6}
+                    className="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-4 py-2.5 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500 transition"
                   />
                 </div>
               </div>
@@ -296,15 +295,15 @@ export default function RegisterPage() {
               <button
                 type="submit"
                 disabled={loading || !!oauthLoading}
-                title="Créer votre compte My-CV.AI et recevoir 5 crédits offerts"
-                aria-label="Créer votre compte My-CV.AI et recevoir 5 crédits offerts"
+                title="Créer votre compte My-CV.AI"
+                aria-label="Créer votre compte My-CV.AI"
                 className="w-full mt-2 py-3 bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-500 hover:to-rose-600 text-white text-xs font-bold rounded-xl transition shadow-lg shadow-rose-600/25 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
               >
                 {loading ? (
                   <span>Création du compte...</span>
                 ) : (
                   <>
-                    <span>Créer mon compte (+5 Crédits Offerts)</span>
+                    <span>S'inscrire & Récupérer 5 Crédits</span>
                     <ArrowRight className="w-3.5 h-3.5" />
                   </>
                 )}
@@ -314,13 +313,13 @@ export default function RegisterPage() {
         )}
 
         {/* Link to Login */}
-        <div className="mt-6 text-center text-xs text-slate-400">
-          Vous possédez déjà un compte ?{" "}
+        <div className="mt-6 pt-4 border-t border-slate-100 text-center text-xs text-slate-500">
+          Vous avez déjà un compte ?{" "}
           <a 
             href="/login" 
-            title="Se connecter à votre compte existant"
-            aria-label="Se connecter à votre compte existant"
-            className="font-bold text-rose-400 hover:text-rose-300 transition"
+            title="Se connecter à un compte existant"
+            aria-label="Se connecter à un compte existant"
+            className="font-bold text-rose-600 hover:text-rose-700 transition"
           >
             Se connecter
           </a>

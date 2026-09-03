@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
@@ -6,7 +6,7 @@ import { getCurrentUser } from "@/lib/auth/authStore";
 import { UserAccount } from "@/types/auth";
 import { 
   Sparkles, FileText, CheckCircle2, ArrowRight, 
-  Globe, Target, Zap, ChevronRight, User, LogIn, LayoutDashboard
+  Globe, Target, Zap, ChevronRight, User, LogIn, LayoutDashboard, ShieldCheck, Download
 } from "lucide-react";
 
 export default function LandingPage() {
@@ -17,51 +17,51 @@ export default function LandingPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col selection:bg-rose-600 selection:text-white">
+    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col selection:bg-rose-600 selection:text-white font-sans">
       {/* Top Banner */}
-      <div className="bg-gradient-to-r from-rose-600 to-amber-600 py-1.5 px-4 text-center text-xs font-semibold text-white">
-        🚀 Conçu pour la Tunisie & l'International — Formats Tunisien, Europass & Canadien ATS disponibles !
+      <div className="bg-gradient-to-r from-rose-600 via-rose-500 to-amber-500 py-2 px-4 text-center text-xs font-bold text-white shadow-xs">
+        🚀 Conçu pour la Tunisie & l'International — Formats Tunisien Pro, Europass, Canadien ATS & 10 Modèles Inclus !
       </div>
 
       {/* Navigation */}
-      <nav className="max-w-7xl w-full mx-auto px-6 py-5 flex items-center justify-between">
+      <nav className="max-w-7xl w-full mx-auto px-6 py-4 flex items-center justify-between border-b border-slate-200/80 bg-white/80 backdrop-blur-md sticky top-0 z-30">
         <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-rose-600 to-amber-500 flex items-center justify-center font-black text-white text-lg shadow-lg">
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-rose-600 to-amber-500 flex items-center justify-center font-black text-white text-lg shadow-md shadow-rose-500/20">
             ⚡
           </div>
-          <span className="font-extrabold text-xl tracking-tight text-white">
-            MY-CV<span className="text-rose-500">.AI</span>
+          <span className="font-extrabold text-xl tracking-tight text-slate-950">
+            MY-CV<span className="text-rose-600">.AI</span>
           </span>
         </div>
 
-        <div className="hidden md:flex items-center gap-8 text-sm font-medium text-slate-300">
-          <a href="#templates" className="hover:text-white transition">Modèles</a>
-          <a href="#features" className="hover:text-white transition">Outils IA</a>
-          <a href="#payments" className="hover:text-white transition">Paiement Local</a>
+        <div className="hidden md:flex items-center gap-8 text-xs font-bold text-slate-600">
+          <a href="#templates" className="hover:text-rose-600 transition">Modèles de CV</a>
+          <a href="#features" className="hover:text-rose-600 transition">Outils & Scanner ATS</a>
+          <a href="#payments" className="hover:text-rose-600 transition">Recharge D17 / Flouci</a>
         </div>
 
         <div className="flex items-center gap-3">
           {currentUser ? (
             <Link
               href="/dashboard"
-              className="px-4 py-2 bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-500 hover:to-rose-600 text-white font-bold text-xs rounded-xl shadow-lg transition transform hover:-translate-y-0.5 flex items-center gap-2"
+              className="px-4 py-2 bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-500 hover:to-rose-600 text-white font-bold text-xs rounded-xl shadow-md shadow-rose-600/20 transition transform hover:-translate-y-0.5 flex items-center gap-2"
             >
               <LayoutDashboard className="w-4 h-4" />
-              <span>Mon Tableau de Bord</span>
+              <span>Mon Espace Candidat</span>
             </Link>
           ) : (
             <div className="flex items-center gap-2">
               <Link
                 href="/login"
-                className="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs rounded-xl border border-slate-700 transition"
+                className="px-3.5 py-2 bg-white hover:bg-slate-100 text-slate-700 font-bold text-xs rounded-xl border border-slate-200 shadow-2xs transition"
               >
                 Connexion
               </Link>
               <Link
                 href="/register"
-                className="px-4 py-2 bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-500 hover:to-rose-600 text-white font-bold text-xs rounded-xl shadow-lg transition"
+                className="px-4 py-2 bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-500 hover:to-rose-600 text-white font-bold text-xs rounded-xl shadow-md shadow-rose-600/20 transition"
               >
-                S'inscrire (+10 Crédits)
+                Créer un compte (+5 Crédits)
               </Link>
             </div>
           )}
@@ -69,204 +69,179 @@ export default function LandingPage() {
       </nav>
 
       {/* Hero Section */}
-      <section className="max-w-6xl w-full mx-auto px-6 pt-16 pb-20 text-center flex flex-col items-center">
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-900 border border-slate-800 text-xs font-medium text-rose-400 mb-6 shadow-inner">
-          <Sparkles className="w-3.5 h-3.5 text-rose-400" />
-          <span>Propulsé par Google Gemini & Optimisation ATS</span>
+      <section className="max-w-6xl w-full mx-auto px-6 pt-16 pb-20 text-center flex flex-col items-center relative overflow-hidden">
+        {/* Soft Ambient Light Glows */}
+        <div className="absolute top-10 left-1/4 w-96 h-96 bg-rose-200/40 rounded-full blur-3xl pointer-events-none -z-10" />
+        <div className="absolute top-20 right-1/4 w-96 h-96 bg-indigo-200/40 rounded-full blur-3xl pointer-events-none -z-10" />
+
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-rose-200 text-xs font-bold text-rose-700 mb-6 shadow-xs">
+          <Sparkles className="w-3.5 h-3.5 text-rose-500" />
+          <span>Créateur de CV Intelligent & Optimisation ATS en Tunisie</span>
         </div>
 
-        <h1 className="text-4xl sm:text-6xl font-black tracking-tight text-white max-w-4xl leading-tight">
-          Votre CV d'Excellence pour la <span className="bg-gradient-to-r from-rose-500 via-amber-400 to-rose-500 bg-clip-text text-transparent">Tunisie, l'Europe & le Canada</span>
+        <h1 className="text-4xl sm:text-6xl font-black tracking-tight text-slate-950 max-w-4xl leading-tight">
+          Votre CV d'Excellence pour la <span className="bg-gradient-to-r from-rose-600 via-amber-500 to-rose-600 bg-clip-text text-transparent">Tunisie, l'Europe & le Canada</span>
         </h1>
 
-        <p className="text-base sm:text-lg text-slate-400 max-w-2xl mt-5 font-normal leading-relaxed">
-          Générez un CV percutant avec 3 moteurs de modèles spécialisés, optimisez vos puces de réalisations avec l'IA et débloquez plus d'entretiens.
+        <p className="text-base sm:text-lg text-slate-600 max-w-2xl mt-5 font-normal leading-relaxed">
+          Générez un CV professionnel avec 11 modèles spécialisés, optimisez vos réalisations avec l'IA et maximisez vos chances d'obtenir des entretiens.
         </p>
 
         <div className="flex flex-wrap items-center justify-center gap-4 mt-8">
           <Link
             href={currentUser ? "/dashboard" : "/register"}
-            className="px-6 py-3.5 bg-rose-600 hover:bg-rose-500 text-white font-bold text-sm rounded-xl shadow-xl shadow-rose-600/30 transition transform hover:scale-105 flex items-center gap-2"
+            className="px-6 py-3.5 bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-500 hover:to-rose-600 text-white font-bold text-sm rounded-xl shadow-xl shadow-rose-600/25 transition transform hover:scale-105 flex items-center gap-2"
           >
             <Zap className="w-4 h-4" />
-            <span>{currentUser ? "Accéder à mon Tableau de Bord" : "Commencer Gratuitement (+10 Crédits)"}</span>
+            <span>{currentUser ? "Accéder à mon Tableau de Bord" : "Commencer Gratuitement (+5 Crédits Offerts)"}</span>
+          </Link>
+          <Link
+            href="/builder"
+            className="px-6 py-3.5 bg-white hover:bg-slate-100 border border-slate-300 text-slate-800 font-bold text-sm rounded-xl shadow-xs transition flex items-center gap-2"
+          >
+            <FileText className="w-4 h-4 text-slate-600" />
+            <span>Ouvrir l'Éditeur Direct</span>
           </Link>
         </div>
 
         {/* Feature Pills */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-14 max-w-3xl w-full text-xs text-slate-300">
-          <div className="p-3 bg-slate-900/60 rounded-xl border border-slate-800 flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-            <span>Format Tunisien Complet</span>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-14 max-w-3xl w-full text-xs font-semibold text-slate-700">
+          <div className="p-3 bg-white rounded-2xl border border-slate-200/80 shadow-2xs flex items-center gap-2">
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+            <span>Format Tunisien National</span>
           </div>
-          <div className="p-3 bg-slate-900/60 rounded-xl border border-slate-800 flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-            <span>Format Canadien Anti-Biais</span>
+          <div className="p-3 bg-white rounded-2xl border border-slate-200/80 shadow-2xs flex items-center gap-2">
+            <CheckCircle2 className="w-4 h-4 text-blue-600 flex-shrink-0" />
+            <span>Europass & Canadien ATS</span>
           </div>
-          <div className="p-3 bg-slate-900/60 rounded-xl border border-slate-800 flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-            <span>Europass 100% Conforme</span>
+          <div className="p-3 bg-white rounded-2xl border border-slate-200/80 shadow-2xs flex items-center gap-2">
+            <CheckCircle2 className="w-4 h-4 text-rose-600 flex-shrink-0" />
+            <span>Support Arabe (RTL)</span>
           </div>
-          <div className="p-3 bg-slate-900/60 rounded-xl border border-slate-800 flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-            <span>Paiement Flouci & D17</span>
-          </div>
-        </div>
-      </section>
-
-      {/* 3 Template Modes Section */}
-      <section id="templates" className="bg-slate-900 py-20 border-y border-slate-800">
-        <div className="max-w-6xl w-full mx-auto px-6">
-          <div className="text-center max-w-2xl mx-auto mb-14">
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-white">
-              3 Moteurs de Modèles Dédiés à Chaque Marché
-            </h2>
-            <p className="text-sm text-slate-400 mt-2">
-              Un recruteur tunisien, français ou canadien n'a pas les mêmes critères. My-CV AI adapte automatiquement la structure.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* 1. Format Tunisien */}
-            <div className="bg-slate-950 p-6 rounded-2xl border border-slate-800 hover:border-rose-500/50 transition flex flex-col justify-between">
-              <div>
-                <div className="text-2xl mb-3">🇹🇳</div>
-                <h3 className="text-lg font-bold text-white mb-2">Format Tunisien & Maghreb</h3>
-                <p className="text-xs text-slate-400 leading-relaxed mb-4">
-                  Idéal pour postuler dans les entreprises locales, banques et ministères. Intègre la photo, la situation matrimoniale, le permis B, et le détail académique (Bac, Licence, Diplôme National d'Ingénieur).
-                </p>
-                <ul className="text-xs text-slate-300 space-y-1.5 mb-6">
-                  <li className="flex items-center gap-2">✓ Photo & Permis de conduire</li>
-                  <li className="flex items-center gap-2">✓ Établissements (INSAT, ESPRIT, ENIT...)</li>
-                  <li className="flex items-center gap-2">✓ Cursus bilingue Français / Arabe</li>
-                </ul>
-              </div>
-              <Link href={currentUser ? "/dashboard" : "/login"} className="text-xs font-bold text-rose-400 hover:text-rose-300 flex items-center gap-1">
-                Utiliser ce modèle <ChevronRight className="w-3.5 h-3.5" />
-              </Link>
-            </div>
-
-            {/* 2. Format Europass */}
-            <div className="bg-slate-950 p-6 rounded-2xl border border-slate-800 hover:border-blue-500/50 transition flex flex-col justify-between">
-              <div>
-                <div className="text-2xl mb-3">🇪🇺</div>
-                <h3 className="text-lg font-bold text-white mb-2">Format Europass (Union Européenne)</h3>
-                <p className="text-xs text-slate-400 leading-relaxed mb-4">
-                  Structure européenne normalisée pour postuler en France, Allemagne ou Belgique. Agencement deux colonnes avec grille des langues standard CECRL (A1 à C2).
-                </p>
-                <ul className="text-xs text-slate-300 space-y-1.5 mb-6">
-                  <li className="flex items-center gap-2">✓ Grille CECRL pour les langues</li>
-                  <li className="flex items-center gap-2">✓ Taxonomie des compétences numériques</li>
-                  <li className="flex items-center gap-2">✓ 100% conforme aux recruteurs de l'UE</li>
-                </ul>
-              </div>
-              <Link href={currentUser ? "/dashboard" : "/login"} className="text-xs font-bold text-blue-400 hover:text-blue-300 flex items-center gap-1">
-                Utiliser ce modèle <ChevronRight className="w-3.5 h-3.5" />
-              </Link>
-            </div>
-
-            {/* 3. Format Canadien */}
-            <div className="bg-slate-950 p-6 rounded-2xl border border-slate-800 hover:border-emerald-500/50 transition flex flex-col justify-between">
-              <div>
-                <div className="text-2xl mb-3">🇨🇦</div>
-                <h3 className="text-lg font-bold text-white mb-2">Format Canadien Anti-Biais (ATS)</h3>
-                <p className="text-xs text-slate-400 leading-relaxed mb-4">
-                  Conçu selon les normes strictes de la charte des droits et libertés au Canada (sans photo, sans âge, sans état civil) avec des puces axées sur les résultats chiffrés.
-                </p>
-                <ul className="text-xs text-slate-300 space-y-1.5 mb-6">
-                  <li className="flex items-center gap-2">✓ Zéro photo ni données discriminatoires</li>
-                  <li className="flex items-center gap-2">✓ Méthode CAR (Challenge Action Result)</li>
-                  <li className="flex items-center gap-2">✓ Optimisé pour Job Bank et Indeed Canada</li>
-                </ul>
-              </div>
-              <Link href={currentUser ? "/dashboard" : "/login"} className="text-xs font-bold text-emerald-400 hover:text-emerald-300 flex items-center gap-1">
-                Utiliser ce modèle <ChevronRight className="w-3.5 h-3.5" />
-              </Link>
-            </div>
+          <div className="p-3 bg-white rounded-2xl border border-slate-200/80 shadow-2xs flex items-center gap-2">
+            <CheckCircle2 className="w-4 h-4 text-amber-600 flex-shrink-0" />
+            <span>Recharge D17 & Flouci</span>
           </div>
         </div>
       </section>
 
-      {/* AI Features Section */}
-      <section id="features" className="py-20 max-w-6xl w-full mx-auto px-6">
-        <div className="text-center max-w-2xl mx-auto mb-14">
-          <span className="text-xs uppercase font-bold text-rose-500 tracking-wider">Intelligence Artificielle</span>
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-white mt-1">
-            Propulsé par Google Gemini 2.5
-          </h2>
+      {/* Three Primary Standards Section */}
+      <section id="templates" className="max-w-6xl w-full mx-auto px-6 py-16">
+        <div className="text-center max-w-2xl mx-auto mb-12">
+          <span className="text-xs font-bold uppercase tracking-widest text-rose-600 bg-rose-50 px-3 py-1 rounded-full border border-rose-200">
+            Standards Internationaux
+          </span>
+          <h2 className="text-3xl font-extrabold text-slate-950 mt-3">3 Formats Spécialisés pour Vos Candidatures</h2>
+          <p className="text-xs text-slate-600 mt-2">Chaque marché possède ses propres exigences de recrutement.</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-slate-900/50 p-6 rounded-2xl border border-slate-800">
-            <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center mb-4">
-              <Sparkles className="w-5 h-5" />
+          {/* Card 1: Tunisien */}
+          <div className="bg-white border border-slate-200/90 rounded-3xl p-6 shadow-sm hover:shadow-md hover:border-rose-300 transition space-y-4">
+            <div className="w-12 h-12 rounded-2xl bg-rose-50 border border-rose-200 flex items-center justify-center text-2xl">
+              🇹🇳
             </div>
-            <h3 className="text-base font-bold text-white mb-2">Magic Polish de Puces</h3>
-            <p className="text-xs text-slate-400 leading-relaxed">
-              Transforme vos phrases simples en déclarations d'impact avec verbes d'action et métriques quantifiées.
-            </p>
+            <div>
+              <h3 className="text-base font-bold text-slate-950">Modèle Tunisien Pro</h3>
+              <p className="text-xs text-slate-600 mt-1 leading-relaxed">
+                Idéal pour les entreprises locales, les ministères et les concours en Tunisie. Intègre la photo, le statut civil et le permis de conduire.
+              </p>
+            </div>
+            <ul className="text-xs text-slate-600 space-y-1.5 pt-2 border-t border-slate-100 font-medium">
+              <li className="flex items-center gap-2">
+                <span className="text-rose-600 font-bold">✓</span> Photo de profil professionnelle
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="text-rose-600 font-bold">✓</span> Mention des diplômes d'État (INSAT, ESPRIT...)
+              </li>
+            </ul>
           </div>
 
-          <div className="bg-slate-900/50 p-6 rounded-2xl border border-slate-800">
-            <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center mb-4">
-              <Target className="w-5 h-5" />
+          {/* Card 2: Europass */}
+          <div className="bg-white border border-slate-200/90 rounded-3xl p-6 shadow-sm hover:shadow-md hover:border-blue-300 transition space-y-4">
+            <div className="w-12 h-12 rounded-2xl bg-blue-50 border border-blue-200 flex items-center justify-center text-2xl">
+              🇪🇺
             </div>
-            <h3 className="text-base font-bold text-white mb-2">Scanner ATS d'Offre d'Emploi</h3>
-            <p className="text-xs text-slate-400 leading-relaxed">
-              Collez n'importe quelle annonce de recrutement pour calculer votre score de compatibilité et découvrir les mots-clés manquants.
-            </p>
+            <div>
+              <h3 className="text-base font-bold text-slate-950">Europass Pro Europe</h3>
+              <p className="text-xs text-slate-600 mt-1 leading-relaxed">
+                Conforme aux standards de l'Union Européenne (France, Allemagne, Belgique). Grille de langues CECRL et mise en page structurée.
+              </p>
+            </div>
+            <ul className="text-xs text-slate-600 space-y-1.5 pt-2 border-t border-slate-100 font-medium">
+              <li className="flex items-center gap-2">
+                <span className="text-blue-600 font-bold">✓</span> Niveaux de langue CECRL (A1 à C2)
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="text-blue-600 font-bold">✓</span> Reconnaissance universelle en UE
+              </li>
+            </ul>
           </div>
 
-          <div className="bg-slate-900/50 p-6 rounded-2xl border border-slate-800">
-            <div className="w-10 h-10 rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center mb-4">
-              <FileText className="w-5 h-5" />
+          {/* Card 3: Canadien ATS */}
+          <div className="bg-white border border-slate-200/90 rounded-3xl p-6 shadow-sm hover:shadow-md hover:border-emerald-300 transition space-y-4">
+            <div className="w-12 h-12 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center justify-center text-2xl">
+              🍁
             </div>
-            <h3 className="text-base font-bold text-white mb-2">Lettre de Motivation Ciblée</h3>
-            <p className="text-xs text-slate-400 leading-relaxed">
-              Rédige une lettre de motivation sur mesure en français, anglais ou arabe synchronisée avec votre profil et le poste ciblé.
-            </p>
+            <div>
+              <h3 className="text-base font-bold text-slate-950">Modèle Canadien ATS</h3>
+              <p className="text-xs text-slate-600 mt-1 leading-relaxed">
+                Optimisé pour le marché canadien et nord-américain. Format 100% textuel sans photo anti-discrimination, prêt pour les filtres ATS.
+              </p>
+            </div>
+            <ul className="text-xs text-slate-600 space-y-1.5 pt-2 border-t border-slate-100 font-medium">
+              <li className="flex items-center gap-2">
+                <span className="text-emerald-600 font-bold">✓</span> Score de compatibilité ATS maximal
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="text-emerald-600 font-bold">✓</span> Respect des normes canadiennes
+              </li>
+            </ul>
           </div>
         </div>
       </section>
 
       {/* Local Payment Section */}
-      <section id="payments" className="bg-slate-900 py-16 border-t border-slate-800">
-        <div className="max-w-4xl w-full mx-auto px-6 text-center">
-          <h2 className="text-2xl font-extrabold text-white">
-            Monétisation & Moyens de Paiement 100% Tunisiens
-          </h2>
-          <p className="text-xs text-slate-400 mt-2 max-w-xl mx-auto">
-            Pas besoin de carte internationale. Payez en dinars tunisiens (TND) avec vos solutions habituelles.
-          </p>
+      <section id="payments" className="max-w-6xl w-full mx-auto px-6 py-12">
+        <div className="bg-gradient-to-r from-rose-50 via-white to-amber-50 border border-rose-200/80 rounded-3xl p-8 sm:p-12 shadow-sm flex flex-col md:flex-row items-center justify-between gap-8">
+          <div className="space-y-3 max-w-xl">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rose-100 text-rose-700 text-xs font-bold">
+              <span>💳 Paiement 100% Local</span>
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-black text-slate-950">
+              Rechargez vos crédits en Dinars Tunisiens par <span className="text-rose-600">D17</span> & <span className="text-indigo-600">Flouci</span>
+            </h2>
+            <p className="text-xs text-slate-600 leading-relaxed">
+              Pas besoin de carte bancaire internationale. Rechargez instantanément vos crédits IA via la Poste Tunisienne (D17) ou l'application Flouci.
+            </p>
+          </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-8">
-            <div className="p-4 bg-slate-950 rounded-xl border border-slate-800">
-              <div className="font-bold text-sm text-white">Flouci</div>
-              <div className="text-[11px] text-slate-400 mt-1">Paiement instantané par wallet ou carte bancaire</div>
-            </div>
-            <div className="p-4 bg-slate-950 rounded-xl border border-slate-800">
-              <div className="font-bold text-sm text-white">Konnect</div>
-              <div className="text-[11px] text-slate-400 mt-1">Cartes nationales, e-DINAR de la Poste Tunisienne</div>
-            </div>
-            <div className="p-4 bg-slate-950 rounded-xl border border-slate-800">
-              <div className="font-bold text-sm text-white">Codes Recharge D17</div>
-              <div className="text-[11px] text-slate-400 mt-1">Recharge par ticket ou code promo pour étudiants</div>
-            </div>
+          <div className="flex flex-col sm:flex-row gap-3">
+            <Link
+              href="/builder"
+              className="px-6 py-3.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl shadow-md transition text-center"
+            >
+              Accéder à l'Éditeur
+            </Link>
+            <Link
+              href="/register"
+              className="px-6 py-3.5 bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs rounded-xl shadow-md shadow-rose-600/20 transition text-center"
+            >
+              Créer mon compte (+5 Crédits)
+            </Link>
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="mt-auto py-8 text-center text-xs text-slate-500 border-t border-slate-900">
-        <div className="max-w-7xl mx-auto px-6 flex flex-col sm:flex-row justify-between items-center gap-4">
-          <div>
-            © {new Date().getFullYear()} My-CV AI (سيرتي). Tous droits réservés.
+      <footer className="border-t border-slate-200/80 bg-white py-8 mt-auto">
+        <div className="max-w-6xl w-full mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+          <div className="flex items-center gap-2 font-bold text-slate-800">
+            <span>⚡ MY-CV.AI</span>
+            <span>—</span>
+            <span className="font-normal text-slate-500">Plateforme de CV & Recrutement IA</span>
           </div>
-          <div className="flex gap-4">
-            <Link href={currentUser ? "/dashboard" : "/login"} className="hover:text-slate-300">Tableau de bord</Link>
-            <Link href={currentUser ? "/builder" : "/login"} className="hover:text-slate-300">Éditeur de CV</Link>
-            <Link href={currentUser ? "/cover-letter" : "/login"} className="hover:text-slate-300">Lettre de Motivation</Link>
-          </div>
+          <div>© {new Date().getFullYear()} MY-CV.AI. Tous droits réservés.</div>
         </div>
       </footer>
     </div>

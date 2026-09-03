@@ -219,28 +219,28 @@ export default function DashboardPage() {
 
   return (
     <AuthGuard>
-      <div className="min-h-screen bg-slate-950 text-slate-100 font-sans flex flex-col">
+      <div className="min-h-screen bg-slate-50 text-slate-900 font-sans flex flex-col">
         {/* Top Header Navigation */}
-        <header className="bg-slate-900/90 backdrop-blur-md border-b border-slate-800 px-4 sm:px-8 py-3 flex items-center justify-between sticky top-0 z-30">
+        <header className="bg-white/90 backdrop-blur-md border-b border-slate-200 px-4 sm:px-8 py-3 flex items-center justify-between sticky top-0 z-30 shadow-2xs">
           <div className="flex items-center gap-3">
             <a href="/dashboard" className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-rose-600 to-amber-500 flex items-center justify-center font-black text-white text-base shadow">
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-rose-600 to-amber-500 flex items-center justify-center font-black text-white text-base shadow-sm">
                 ⚡
               </div>
-              <span className="font-black text-base tracking-tight text-white hidden sm:inline">
-                MY-CV<span className="text-rose-500">.AI</span>
+              <span className="font-black text-base tracking-tight text-slate-950 hidden sm:inline">
+                MY-CV<span className="text-rose-600">.AI</span>
               </span>
             </a>
 
             {/* Navigation Tabs */}
-            <nav className="hidden md:flex items-center gap-1 ml-4 pl-4 border-l border-slate-800 text-xs font-semibold">
-              <a href="/dashboard" className="px-3 py-1.5 bg-slate-800 text-white rounded-xl font-bold shadow-xs">
+            <nav className="hidden md:flex items-center gap-1 ml-4 pl-4 border-l border-slate-200 text-xs font-semibold">
+              <a href="/dashboard" className="px-3 py-1.5 bg-slate-100 text-slate-950 border border-slate-200 rounded-xl font-bold shadow-2xs">
                 Tableau de bord
               </a>
-              <a href="/builder" className="px-3 py-1.5 text-slate-400 hover:text-white hover:bg-slate-800/60 rounded-xl transition">
+              <a href="/builder" className="px-3 py-1.5 text-slate-600 hover:text-slate-950 hover:bg-slate-100 rounded-xl transition">
                 Éditeur de CV
               </a>
-              <a href="/cover-letter" className="px-3 py-1.5 text-slate-400 hover:text-white hover:bg-slate-800/60 rounded-xl transition">
+              <a href="/cover-letter" className="px-3 py-1.5 text-slate-600 hover:text-slate-950 hover:bg-slate-100 rounded-xl transition">
                 Lettre de motivation IA
               </a>
             </nav>
@@ -251,12 +251,12 @@ export default function DashboardPage() {
             {/* Credits Wallet */}
             <button
               onClick={() => setIsPricingOpen(true)}
-              className="flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-xl border border-slate-700 text-xs transition"
+              className="flex items-center gap-1.5 bg-amber-50 hover:bg-amber-100 text-amber-950 px-3 py-1.5 rounded-xl border border-amber-200 text-xs transition shadow-2xs"
             >
-              <Ticket className="w-3.5 h-3.5 text-amber-400" />
-              <span className="font-extrabold text-amber-400">{currentUser?.credits ?? 0}</span>
-              <span className="text-[11px] text-slate-400">Crédits</span>
-              <span className="text-[10px] bg-rose-600/30 text-rose-300 font-bold px-1.5 py-0.2 rounded border border-rose-500/40 ml-0.5">
+              <Ticket className="w-3.5 h-3.5 text-amber-600" />
+              <span className="font-extrabold text-amber-900">{currentUser?.credits ?? 0}</span>
+              <span className="text-[11px] text-amber-800">Crédits</span>
+              <span className="text-[10px] bg-rose-600 text-white font-bold px-1.5 py-0.2 rounded shadow-xs ml-0.5">
                 + Recharger
               </span>
             </button>
@@ -264,12 +264,12 @@ export default function DashboardPage() {
             {/* Profile Avatar Trigger */}
             <button
               onClick={() => setIsAccountOpen(true)}
-              className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-white px-2.5 py-1.5 rounded-xl border border-slate-700 text-xs transition"
+              className="flex items-center gap-2 bg-slate-100 hover:bg-slate-200/80 text-slate-800 px-2.5 py-1.5 rounded-xl border border-slate-200 text-xs transition"
             >
               <div className="w-6 h-6 rounded-lg bg-gradient-to-tr from-rose-600 to-rose-700 flex items-center justify-center font-bold text-xs text-white shadow-xs">
                 {currentUser?.name ? currentUser.name.charAt(0).toUpperCase() : "U"}
               </div>
-              <span className="hidden sm:inline font-bold text-xs max-w-[120px] truncate">
+              <span className="hidden sm:inline font-bold text-xs max-w-[120px] truncate text-slate-900">
                 {currentUser?.name?.split(" ")[0]}
               </span>
             </button>
@@ -277,7 +277,7 @@ export default function DashboardPage() {
             {/* Logout Button */}
             <button
               onClick={handleLogout}
-              className="p-1.5 text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 rounded-xl transition"
+              className="p-1.5 text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition"
               title="Déconnexion"
             >
               <LogOut className="w-4 h-4" />
@@ -288,16 +288,16 @@ export default function DashboardPage() {
         {/* Main Dashboard Body */}
         <main className="flex-grow p-4 sm:p-8 max-w-7xl w-full mx-auto space-y-8">
           {/* Welcome Banner Hero */}
-          <div className="relative overflow-hidden bg-gradient-to-r from-slate-900 via-indigo-950/40 to-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl">
-            <div className="absolute -right-16 -top-16 w-64 h-64 bg-rose-600/15 rounded-full blur-3xl pointer-events-none" />
+          <div className="relative overflow-hidden bg-gradient-to-r from-rose-50 via-white to-indigo-50 border border-rose-200/80 rounded-3xl p-6 sm:p-8 shadow-sm">
+            <div className="absolute -right-16 -top-16 w-64 h-64 bg-rose-200/40 rounded-full blur-3xl pointer-events-none" />
             
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 relative z-10">
               <div className="space-y-2">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs font-bold">
-                  <Sparkles className="w-3.5 h-3.5 text-rose-400" />
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rose-100 border border-rose-200 text-rose-700 text-xs font-bold">
+                  <Sparkles className="w-3.5 h-3.5 text-rose-600" />
                   <span>Espace Candidat Intelligent</span>
                 </div>
-                <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+                <h1 className="text-2xl sm:text-3xl font-black text-slate-950 tracking-tight">
                   Bonjour, {currentUser?.name} ! 👋
                 </h1>
                 <p className="text-xs sm:text-sm text-slate-400 max-w-xl">
@@ -319,72 +319,72 @@ export default function DashboardPage() {
 
           {/* Quick Metrics Bar */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="bg-slate-900/80 border border-slate-800 rounded-3xl p-5 shadow-sm flex items-center gap-4">
-              <div className="p-3 bg-rose-500/10 border border-rose-500/20 rounded-2xl">
-                <FileText className="w-6 h-6 text-rose-400" />
+            <div className="bg-white border border-slate-200/90 rounded-3xl p-5 shadow-2xs flex items-center gap-4">
+              <div className="p-3 bg-rose-50 border border-rose-200 rounded-2xl">
+                <FileText className="w-6 h-6 text-rose-600" />
               </div>
               <div>
-                <div className="text-xs text-slate-400 font-medium">CVs Enregistrés</div>
-                <div className="text-2xl font-black text-white">{resumesList.length}</div>
+                <div className="text-xs text-slate-500 font-medium">CVs Enregistrés</div>
+                <div className="text-2xl font-black text-slate-950">{resumesList.length}</div>
               </div>
             </div>
 
-            <div className="bg-slate-900/80 border border-slate-800 rounded-3xl p-5 shadow-sm flex items-center gap-4">
-              <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-2xl">
-                <Ticket className="w-6 h-6 text-amber-400" />
+            <div className="bg-white border border-slate-200/90 rounded-3xl p-5 shadow-2xs flex items-center gap-4">
+              <div className="p-3 bg-amber-50 border border-amber-200 rounded-2xl">
+                <Ticket className="w-6 h-6 text-amber-600" />
               </div>
               <div>
-                <div className="text-xs text-slate-400 font-medium">Crédits IA Restants</div>
-                <div className="text-2xl font-black text-amber-400">{currentUser?.credits ?? 0}</div>
+                <div className="text-xs text-slate-500 font-medium">Crédits IA Restants</div>
+                <div className="text-2xl font-black text-amber-600">{currentUser?.credits ?? 0}</div>
               </div>
             </div>
 
-            <div className="bg-slate-900/80 border border-slate-800 rounded-3xl p-5 shadow-sm flex items-center gap-4">
-              <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl">
-                <Layers className="w-6 h-6 text-emerald-400" />
+            <div className="bg-white border border-slate-200/90 rounded-3xl p-5 shadow-2xs flex items-center gap-4">
+              <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-2xl">
+                <Layers className="w-6 h-6 text-emerald-600" />
               </div>
               <div>
-                <div className="text-xs text-slate-400 font-medium">Modèles Disponibles</div>
-                <div className="text-2xl font-black text-white">3 <span className="text-xs font-normal text-slate-400">(Trilingue)</span></div>
+                <div className="text-xs text-slate-500 font-medium">Modèles Disponibles</div>
+                <div className="text-2xl font-black text-slate-950">11 <span className="text-xs font-normal text-slate-500">(Trilingue)</span></div>
               </div>
             </div>
 
-            <div className="bg-slate-900/80 border border-slate-800 rounded-3xl p-5 shadow-sm flex items-center gap-4">
-              <div className="p-3 bg-blue-500/10 border border-blue-500/20 rounded-2xl">
-                <Zap className="w-6 h-6 text-blue-400" />
+            <div className="bg-white border border-slate-200/90 rounded-3xl p-5 shadow-2xs flex items-center gap-4">
+              <div className="p-3 bg-blue-50 border border-blue-200 rounded-2xl">
+                <Zap className="w-6 h-6 text-blue-600" />
               </div>
               <div>
-                <div className="text-xs text-slate-400 font-medium">IA Mode Pro</div>
-                <div className="text-xl font-black text-white">Activé</div>
+                <div className="text-xs text-slate-500 font-medium">IA Mode Pro</div>
+                <div className="text-xl font-black text-slate-950">Activé</div>
               </div>
             </div>
           </div>
 
           {/* Section: Mes Recharges & Paiements D17 / Flouci */}
           {userPayments.length > 0 && (
-            <div className="bg-slate-900/80 border border-slate-800 rounded-3xl p-5 space-y-3">
+            <div className="bg-white border border-slate-200/90 rounded-3xl p-5 space-y-3 shadow-2xs">
               <div className="flex items-center justify-between">
-                <h3 className="text-sm font-black text-white flex items-center gap-2">
-                  <CreditCard className="w-4 h-4 text-amber-400" />
+                <h3 className="text-sm font-black text-slate-950 flex items-center gap-2">
+                  <CreditCard className="w-4 h-4 text-amber-600" />
                   <span>Mes Demandes de Recharge D17 & Flouci</span>
                 </h3>
-                <span className="text-xs text-slate-400">{userPayments.length} demande(s)</span>
+                <span className="text-xs text-slate-500">{userPayments.length} demande(s)</span>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {userPayments.map((p) => (
-                  <div key={p.id} className="p-3.5 bg-slate-950/70 border border-slate-800 rounded-2xl flex items-center justify-between">
+                  <div key={p.id} className="p-3.5 bg-slate-50 border border-slate-200 rounded-2xl flex items-center justify-between">
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="text-xs font-bold text-white uppercase">{p.method}</span>
-                        <span className="text-xs font-black text-amber-400">+{p.credits} Crédits</span>
-                        <span className="text-xs text-slate-400">({p.amountTND.toFixed(3)} DT)</span>
+                        <span className="text-xs font-bold text-slate-900 uppercase">{p.method}</span>
+                        <span className="text-xs font-black text-amber-600">+{p.credits} Crédits</span>
+                        <span className="text-xs text-slate-500">({p.amountTND.toFixed(3)} DT)</span>
                       </div>
                       <div className="text-[10px] text-slate-500 mt-0.5">
                         Demandé le {new Date(p.createdAt).toLocaleDateString("fr-FR")}
                       </div>
                       {p.rejectionReason && (
-                        <div className="text-[11px] text-rose-400 mt-1 font-semibold">
+                        <div className="text-[11px] text-rose-600 mt-1 font-semibold">
                           Motif : {p.rejectionReason}
                         </div>
                       )}
@@ -393,10 +393,10 @@ export default function DashboardPage() {
                     <div>
                       <span className={`px-2.5 py-1 rounded-full text-[10px] font-extrabold ${
                         p.status === "approved"
-                          ? "bg-emerald-950 text-emerald-400 border border-emerald-800/40"
+                          ? "bg-emerald-100 text-emerald-800 border border-emerald-300"
                           : p.status === "rejected"
-                          ? "bg-rose-950 text-rose-400 border border-rose-800/40"
-                          : "bg-amber-950 text-amber-400 border border-amber-800/40 animate-pulse"
+                          ? "bg-rose-100 text-rose-800 border border-rose-300"
+                          : "bg-amber-100 text-amber-800 border border-amber-300 animate-pulse"
                       }`}>
                         {p.status === "approved" ? "Validé" : p.status === "rejected" ? "Refusé" : "En attente"}
                       </span>
@@ -411,18 +411,18 @@ export default function DashboardPage() {
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-lg font-black text-white tracking-tight flex items-center gap-2">
+                <h2 className="text-lg font-black text-slate-950 tracking-tight flex items-center gap-2">
                   <span>Mes CVs Enregistrés</span>
-                  <span className="text-xs bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full font-bold">
+                  <span className="text-xs bg-slate-100 text-slate-700 border border-slate-200 px-2 py-0.5 rounded-full font-bold">
                     {resumesList.length}
                   </span>
                 </h2>
-                <p className="text-xs text-slate-400">Cliquez sur un CV pour l'ouvrir dans l'éditeur intelligent</p>
+                <p className="text-xs text-slate-500">Cliquez sur un CV pour l'ouvrir dans l'éditeur intelligent</p>
               </div>
 
               <button
                 onClick={() => setIsCreateModalOpen(true)}
-                className="text-xs text-rose-400 hover:text-rose-300 font-bold flex items-center gap-1 transition"
+                className="text-xs text-rose-600 hover:text-rose-700 font-bold flex items-center gap-1 transition"
               >
                 <span>+ Nouveau CV</span>
                 <ChevronRight className="w-3.5 h-3.5" />
@@ -431,13 +431,13 @@ export default function DashboardPage() {
 
             {/* Grid of Resumes */}
             {resumesList.length === 0 ? (
-              <div className="bg-slate-900/60 border border-slate-800 border-dashed rounded-3xl p-8 text-center space-y-4">
-                <div className="w-12 h-12 rounded-2xl bg-slate-800 mx-auto flex items-center justify-center text-slate-400">
+              <div className="bg-white border border-slate-200 border-dashed rounded-3xl p-8 text-center space-y-4 shadow-2xs">
+                <div className="w-12 h-12 rounded-2xl bg-slate-100 mx-auto flex items-center justify-center text-slate-500">
                   <FileText className="w-6 h-6" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold text-white">Aucun CV créé pour l'instant</h3>
-                  <p className="text-xs text-slate-400 mt-1 max-w-sm mx-auto">
+                  <h3 className="text-sm font-bold text-slate-900">Aucun CV créé pour l'instant</h3>
+                  <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
                     Démarrez avec notre éditeur moderne et créez votre premier CV optimisé pour décrocher des entretiens.
                   </p>
                 </div>
@@ -453,7 +453,7 @@ export default function DashboardPage() {
                 {resumesList.map((resume) => (
                   <div
                     key={resume.id}
-                    className="bg-slate-900/90 border border-slate-800 hover:border-slate-700 rounded-3xl p-5 shadow-xl transition flex flex-col justify-between group hover:shadow-2xl hover:shadow-rose-950/20"
+                    className="bg-white border border-slate-200/90 hover:border-rose-300 rounded-3xl p-5 shadow-2xs transition flex flex-col justify-between group hover:shadow-md"
                   >
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
@@ -465,33 +465,33 @@ export default function DashboardPage() {
                       </div>
 
                       <div>
-                        <h3 className="text-base font-extrabold text-white tracking-tight group-hover:text-rose-400 transition">
+                        <h3 className="text-base font-extrabold text-slate-950 tracking-tight group-hover:text-rose-600 transition">
                           {resume.title || "Mon CV"}
                         </h3>
-                        <p className="text-xs text-slate-400 mt-0.5 line-clamp-1">
+                        <p className="text-xs text-slate-500 mt-0.5 line-clamp-1">
                           {resume.personalInfo.jobTitle || "Titre du poste non renseigné"}
                         </p>
                       </div>
 
                       {/* Brief overview badges */}
                       <div className="flex flex-wrap gap-1.5 pt-1">
-                        <span className="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded-md font-medium">
+                        <span className="text-[10px] bg-slate-100 text-slate-700 px-2 py-0.5 rounded-md font-medium">
                           {resume.experiences.length} exp.
                         </span>
-                        <span className="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded-md font-medium">
+                        <span className="text-[10px] bg-slate-100 text-slate-700 px-2 py-0.5 rounded-md font-medium">
                           {resume.education.length} formations
                         </span>
-                        <span className="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded-md font-medium">
+                        <span className="text-[10px] bg-slate-100 text-slate-700 px-2 py-0.5 rounded-md font-medium">
                           {resume.skills.length} compétences
                         </span>
                       </div>
                     </div>
 
                     {/* Action Buttons */}
-                    <div className="mt-5 pt-4 border-t border-slate-800/80 flex items-center justify-between gap-2">
+                    <div className="mt-5 pt-4 border-t border-slate-100 flex items-center justify-between gap-2">
                       <button
                         onClick={() => handleOpenBuilder(resume.id)}
-                        className="flex-1 py-2 bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-500 hover:to-rose-600 text-white text-xs font-bold rounded-xl transition shadow flex items-center justify-center gap-1.5"
+                        className="flex-1 py-2 bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-500 hover:to-rose-600 text-white text-xs font-bold rounded-xl transition shadow-xs flex items-center justify-center gap-1.5"
                       >
                         <Edit3 className="w-3.5 h-3.5" />
                         <span>Modifier</span>
@@ -499,7 +499,7 @@ export default function DashboardPage() {
 
                       <button
                         onClick={() => handleDuplicate(resume)}
-                        className="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl border border-slate-700 transition"
+                        className="p-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl border border-slate-200 transition"
                         title="Dupliquer ce CV"
                       >
                         <Copy className="w-3.5 h-3.5" />
@@ -507,7 +507,7 @@ export default function DashboardPage() {
 
                       <button
                         onClick={() => handleDelete(resume.id || "", resume.title || "ce CV")}
-                        className="p-2 bg-slate-800 hover:bg-rose-500/20 text-slate-400 hover:text-rose-400 rounded-xl border border-slate-700 hover:border-rose-500/30 transition"
+                        className="p-2 bg-slate-100 hover:bg-rose-100 text-slate-500 hover:text-rose-700 rounded-xl border border-slate-200 hover:border-rose-300 transition"
                         title="Supprimer ce CV"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -519,16 +519,16 @@ export default function DashboardPage() {
                 {/* + New Card */}
                 <div
                   onClick={() => setIsCreateModalOpen(true)}
-                  className="bg-slate-900/40 border-2 border-dashed border-slate-800 hover:border-rose-500/50 rounded-3xl p-6 flex flex-col items-center justify-center text-center cursor-pointer transition group min-h-[190px]"
+                  className="bg-white border-2 border-dashed border-slate-300 hover:border-rose-400 rounded-3xl p-6 flex flex-col items-center justify-center text-center cursor-pointer transition group min-h-[190px] shadow-2xs"
                 >
-                  <div className="w-10 h-10 rounded-2xl bg-slate-800 group-hover:bg-rose-600/20 text-slate-400 group-hover:text-rose-400 flex items-center justify-center transition mb-2">
+                  <div className="w-10 h-10 rounded-2xl bg-slate-100 group-hover:bg-rose-100 text-slate-600 group-hover:text-rose-600 flex items-center justify-center transition mb-2">
                     <Plus className="w-5 h-5" />
                   </div>
-                  <span className="text-xs font-bold text-slate-300 group-hover:text-white transition">
+                  <span className="text-xs font-bold text-slate-800 group-hover:text-rose-600 transition">
                     Créer un nouveau CV
                   </span>
                   <span className="text-[10px] text-slate-500 mt-0.5">
-                    Modèle Tunisien, Europass ou Canadien
+                    11 modèles disponibles (Tunisien, Europass, Canadien...)
                   </span>
                 </div>
               </div>
@@ -537,20 +537,20 @@ export default function DashboardPage() {
 
           {/* Section: Boîte à Outils & Recrutement IA */}
           <div className="space-y-4">
-            <h2 className="text-lg font-black text-white tracking-tight">Outils d'Impact & Recrutement</h2>
+            <h2 className="text-lg font-black text-slate-950 tracking-tight">Outils d'Impact & Recrutement</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div 
                 onClick={() => router.push("/builder")}
-                className="p-5 bg-gradient-to-r from-slate-900 to-indigo-950/30 border border-slate-800 hover:border-indigo-500/40 rounded-3xl cursor-pointer transition group flex items-start gap-4"
+                className="p-5 bg-white border border-slate-200/90 hover:border-indigo-300 rounded-3xl cursor-pointer transition group flex items-start gap-4 shadow-2xs hover:shadow-xs"
               >
-                <div className="p-3 bg-indigo-500/10 border border-indigo-500/20 rounded-2xl group-hover:scale-105 transition">
-                  <Sparkles className="w-6 h-6 text-indigo-400" />
+                <div className="p-3 bg-indigo-50 border border-indigo-200 rounded-2xl group-hover:scale-105 transition">
+                  <Sparkles className="w-6 h-6 text-indigo-600" />
                 </div>
                 <div className="space-y-1">
-                  <h3 className="text-sm font-bold text-white group-hover:text-indigo-300 transition">
+                  <h3 className="text-sm font-bold text-slate-950 group-hover:text-indigo-600 transition">
                     Optimiseur de CV & Scanner ATS
                   </h3>
-                  <p className="text-xs text-slate-400 leading-relaxed">
+                  <p className="text-xs text-slate-500 leading-relaxed">
                     Comparez votre CV à une offre d'emploi, détectez les mots-clés manquants et optimisez vos puces d'expérience en Mode Pro.
                   </p>
                 </div>
@@ -558,16 +558,16 @@ export default function DashboardPage() {
 
               <div 
                 onClick={() => router.push("/cover-letter")}
-                className="p-5 bg-gradient-to-r from-slate-900 to-rose-950/30 border border-slate-800 hover:border-rose-500/40 rounded-3xl cursor-pointer transition group flex items-start gap-4"
+                className="p-5 bg-white border border-slate-200/90 hover:border-rose-300 rounded-3xl cursor-pointer transition group flex items-start gap-4 shadow-2xs hover:shadow-xs"
               >
-                <div className="p-3 bg-rose-500/10 border border-rose-500/20 rounded-2xl group-hover:scale-105 transition">
-                  <Mail className="w-6 h-6 text-rose-400" />
+                <div className="p-3 bg-rose-50 border border-rose-200 rounded-2xl group-hover:scale-105 transition">
+                  <Mail className="w-6 h-6 text-rose-600" />
                 </div>
                 <div className="space-y-1">
-                  <h3 className="text-sm font-bold text-white group-hover:text-rose-300 transition">
+                  <h3 className="text-sm font-bold text-slate-950 group-hover:text-rose-600 transition">
                     Générateur de Lettre de Motivation IA
                   </h3>
-                  <p className="text-xs text-slate-400 leading-relaxed">
+                  <p className="text-xs text-slate-500 leading-relaxed">
                     Rédigez une lettre de motivation ultra-personnalisée, alignée avec votre profil et l'entreprise ciblée en quelques secondes.
                   </p>
                 </div>
@@ -578,34 +578,34 @@ export default function DashboardPage() {
 
         {/* Modal: Create New Resume */}
         {isCreateModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm animate-in fade-in">
-            <div className="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-md p-6 text-slate-100 shadow-2xl space-y-4">
-              <div className="flex items-center justify-between pb-3 border-b border-slate-800">
-                <h3 className="text-sm font-extrabold text-white flex items-center gap-2">
-                  <Plus className="w-4 h-4 text-rose-500" />
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm animate-in fade-in">
+            <div className="bg-white border border-slate-200 rounded-3xl w-full max-w-md p-6 text-slate-900 shadow-2xl space-y-4">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                <h3 className="text-sm font-extrabold text-slate-950 flex items-center gap-2">
+                  <Plus className="w-4 h-4 text-rose-600" />
                   <span>Nouveau CV</span>
                 </h3>
-                <button onClick={() => setIsCreateModalOpen(false)} className="text-slate-400 hover:text-white">✕</button>
+                <button onClick={() => setIsCreateModalOpen(false)} className="text-slate-400 hover:text-slate-700">✕</button>
               </div>
 
               <form onSubmit={handleCreateResume} className="space-y-4">
                 <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1.5">Titre du CV</label>
+                  <label className="block text-xs font-bold text-slate-700 mb-1.5">Titre du CV</label>
                   <input
                     type="text"
                     value={newTitle}
                     onChange={(e) => setNewTitle(e.target.value)}
                     placeholder="Ex: CV Développeur Web Fullstack"
                     required
-                    className="w-full text-xs bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 text-white focus:outline-none focus:border-rose-500"
+                    className="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-slate-900 focus:outline-none focus:border-rose-500"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1.5">Modèle de départ</label>
+                  <label className="block text-xs font-bold text-slate-700 mb-1.5">Modèle de départ</label>
                   
                   {/* Group 1: Pro ATS */}
-                  <div className="text-[10px] font-bold text-amber-400 uppercase tracking-wider mb-1">
+                  <div className="text-[10px] font-bold text-amber-700 uppercase tracking-wider mb-1">
                     ⭐ Modèles Pro ATS (Recommandé) :
                   </div>
                   <div className="grid grid-cols-3 gap-2 mb-3">
@@ -614,8 +614,8 @@ export default function DashboardPage() {
                       onClick={() => setNewTemplate("canadian")}
                       className={`p-2 rounded-xl border text-center transition ${
                         newTemplate === "canadian"
-                          ? "bg-emerald-500/20 border-emerald-500 text-emerald-300 font-bold"
-                          : "bg-slate-800 border-slate-700 text-slate-400 hover:text-white"
+                          ? "bg-emerald-50 border-emerald-500 text-emerald-800 font-bold shadow-2xs"
+                          : "bg-slate-50 border-slate-200 text-slate-700 hover:border-slate-300"
                       }`}
                     >
                       <div className="text-sm">🍁</div>
@@ -627,8 +627,8 @@ export default function DashboardPage() {
                       onClick={() => setNewTemplate("europass")}
                       className={`p-2 rounded-xl border text-center transition ${
                         newTemplate === "europass"
-                          ? "bg-blue-500/20 border-blue-500 text-blue-300 font-bold"
-                          : "bg-slate-800 border-slate-700 text-slate-400 hover:text-white"
+                          ? "bg-blue-50 border-blue-500 text-blue-800 font-bold shadow-2xs"
+                          : "bg-slate-50 border-slate-200 text-slate-700 hover:border-slate-300"
                       }`}
                     >
                       <div className="text-sm">🇪🇺</div>
@@ -640,8 +640,8 @@ export default function DashboardPage() {
                       onClick={() => setNewTemplate("tunisian")}
                       className={`p-2 rounded-xl border text-center transition ${
                         newTemplate === "tunisian"
-                          ? "bg-rose-500/20 border-rose-500 text-rose-300 font-bold"
-                          : "bg-slate-800 border-slate-700 text-slate-400 hover:text-white"
+                          ? "bg-rose-50 border-rose-500 text-rose-800 font-bold shadow-2xs"
+                          : "bg-slate-50 border-slate-200 text-slate-700 hover:border-slate-300"
                       }`}
                     >
                       <div className="text-sm">🇹🇳</div>
@@ -650,7 +650,7 @@ export default function DashboardPage() {
                   </div>
 
                   {/* Group 2: Autres Modèles */}
-                  <div className="text-[10px] font-bold text-indigo-400 uppercase tracking-wider mb-1">
+                  <div className="text-[10px] font-bold text-indigo-700 uppercase tracking-wider mb-1">
                     ✨ Autres Modèles :
                   </div>
                   <div className="grid grid-cols-3 gap-2">
@@ -659,8 +659,8 @@ export default function DashboardPage() {
                       onClick={() => setNewTemplate("modern_tech")}
                       className={`p-2 rounded-xl border text-center transition ${
                         newTemplate === "modern_tech"
-                          ? "bg-sky-500/20 border-sky-500 text-sky-300 font-bold"
-                          : "bg-slate-800 border-slate-700 text-slate-400 hover:text-white"
+                          ? "bg-sky-50 border-sky-500 text-sky-800 font-bold shadow-2xs"
+                          : "bg-slate-50 border-slate-200 text-slate-700 hover:border-slate-300"
                       }`}
                     >
                       <div className="text-sm">🚀</div>
@@ -669,11 +669,37 @@ export default function DashboardPage() {
 
                     <button
                       type="button"
+                      onClick={() => setNewTemplate("nordic_light")}
+                      className={`p-2 rounded-xl border text-center transition ${
+                        newTemplate === "nordic_light"
+                          ? "bg-blue-50 border-blue-500 text-blue-800 font-bold shadow-2xs"
+                          : "bg-slate-50 border-slate-200 text-slate-700 hover:border-slate-300"
+                      }`}
+                    >
+                      <div className="text-sm">❄️</div>
+                      <div className="text-[10px] mt-0.5">Nordique Clair</div>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setNewTemplate("classic_raw")}
+                      className={`p-2 rounded-xl border text-center transition ${
+                        newTemplate === "classic_raw"
+                          ? "bg-slate-100 border-slate-900 text-slate-950 font-bold shadow-2xs"
+                          : "bg-slate-50 border-slate-200 text-slate-700 hover:border-slate-300"
+                      }`}
+                    >
+                      <div className="text-sm">📝</div>
+                      <div className="text-[10px] mt-0.5">Sans Design</div>
+                    </button>
+
+                    <button
+                      type="button"
                       onClick={() => setNewTemplate("executive_luxe")}
                       className={`p-2 rounded-xl border text-center transition ${
                         newTemplate === "executive_luxe"
-                          ? "bg-slate-700 border-slate-500 text-white font-bold"
-                          : "bg-slate-800 border-slate-700 text-slate-400 hover:text-white"
+                          ? "bg-slate-100 border-slate-700 text-slate-900 font-bold shadow-2xs"
+                          : "bg-slate-50 border-slate-200 text-slate-700 hover:border-slate-300"
                       }`}
                     >
                       <div className="text-sm">💎</div>
@@ -685,8 +711,8 @@ export default function DashboardPage() {
                       onClick={() => setNewTemplate("creative_sidebar")}
                       className={`p-2 rounded-xl border text-center transition ${
                         newTemplate === "creative_sidebar"
-                          ? "bg-purple-500/20 border-purple-500 text-purple-300 font-bold"
-                          : "bg-slate-800 border-slate-700 text-slate-400 hover:text-white"
+                          ? "bg-purple-50 border-purple-500 text-purple-800 font-bold shadow-2xs"
+                          : "bg-slate-50 border-slate-200 text-slate-700 hover:border-slate-300"
                       }`}
                     >
                       <div className="text-sm">🎨</div>
@@ -695,37 +721,11 @@ export default function DashboardPage() {
 
                     <button
                       type="button"
-                      onClick={() => setNewTemplate("compact_metro")}
-                      className={`p-2 rounded-xl border text-center transition ${
-                        newTemplate === "compact_metro"
-                          ? "bg-indigo-500/20 border-indigo-500 text-indigo-300 font-bold"
-                          : "bg-slate-800 border-slate-700 text-slate-400 hover:text-white"
-                      }`}
-                    >
-                      <div className="text-sm">🏙️</div>
-                      <div className="text-[10px] mt-0.5">Compact</div>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => setNewTemplate("gradient_header")}
-                      className={`p-2 rounded-xl border text-center transition ${
-                        newTemplate === "gradient_header"
-                          ? "bg-pink-500/20 border-pink-500 text-pink-300 font-bold"
-                          : "bg-slate-800 border-slate-700 text-slate-400 hover:text-white"
-                      }`}
-                    >
-                      <div className="text-sm">🌅</div>
-                      <div className="text-[10px] mt-0.5">Gradient</div>
-                    </button>
-
-                    <button
-                      type="button"
                       onClick={() => setNewTemplate("minimalist_clean")}
                       className={`p-2 rounded-xl border text-center transition ${
                         newTemplate === "minimalist_clean"
-                          ? "bg-slate-800 border-slate-400 text-white font-bold"
-                          : "bg-slate-800 border-slate-700 text-slate-400 hover:text-white"
+                          ? "bg-slate-100 border-slate-800 text-slate-950 font-bold shadow-2xs"
+                          : "bg-slate-50 border-slate-200 text-slate-700 hover:border-slate-300"
                       }`}
                     >
                       <div className="text-sm">📄</div>
@@ -736,7 +736,7 @@ export default function DashboardPage() {
 
                 <button
                   type="submit"
-                  className="w-full py-3 bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-500 hover:to-rose-600 text-white text-xs font-bold rounded-xl shadow-lg shadow-rose-600/30 transition flex items-center justify-center gap-2 cursor-pointer"
+                  className="w-full py-3 bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-500 hover:to-rose-600 text-white text-xs font-bold rounded-xl shadow-lg shadow-rose-600/25 transition flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <span>Créer et Ouvrir dans l'Éditeur</span>
                   <ArrowRight className="w-3.5 h-3.5" />
