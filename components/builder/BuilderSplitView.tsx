@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { ResumeData, TemplateId } from "@/types/resume";
 import { UserAccount } from "@/types/auth";
-import { getCurrentUser, getStoredUsers, fetchServerUser, updateUserProfile } from "@/lib/auth/authStore";
+import { getCurrentUser, getStoredUsers, fetchServerUser, updateUserProfile, consumeUserCredits } from "@/lib/auth/authStore";
 import { INITIAL_RESUME_DATA } from "@/lib/sampleData";
 import { ResumeForm } from "./ResumeForm";
 import { TemplateRenderer } from "../templates/TemplateRenderer";
@@ -320,7 +320,7 @@ Expériences: ${activeResume.experiences.map((e) => `${e.title} chez ${e.company
 Formation: ${activeResume.education.map((ed) => `${ed.degree} (${ed.institution})`).join(", ")}`;
   };
 
-  const userCredits = currentUser?.credits ?? 10;
+  const userCredits = currentUser?.credits ?? 0;
 
   if (!isLoaded) {
     return (
@@ -666,9 +666,9 @@ Formation: ${activeResume.education.map((ed) => `${ed.degree} (${ed.institution}
                   onOpenCreditCalculator={() => setIsCreditCalculatorOpen(true)}
                   onDeductCredits={(deducted) => {
                     if (currentUser) {
-                      const newCredits = Math.max(0, (currentUser.credits || 10) - deducted);
-                      updateUserProfile(currentUser.id, { credits: newCredits });
-                      setCurrentUser({ ...currentUser, credits: newCredits });
+                      consumeUserCredits(currentUser.id, deducted);
+                      const updated = getCurrentUser();
+                      if (updated) setCurrentUser(updated);
                     }
                   }}
                 />

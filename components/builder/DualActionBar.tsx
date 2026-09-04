@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { Download, Sparkles, Loader2, Coins } from "lucide-react";
 import { ResumeData } from "@/types/resume";
 import { exportResumeToPDF } from "@/lib/pdf/pdfExporter";
+import { getCurrentUser, consumeUserCredits } from "@/lib/auth/authStore";
 
 interface Props {
   resumeData: ResumeData;
@@ -23,12 +24,18 @@ export const DualActionBar: React.FC<Props> = ({
   const [downloadingType, setDownloadingType] = useState<"free" | "pro" | null>(null);
 
   const handleDownload = async (outputType: "free_watermark" | "clean") => {
-    if (outputType === "clean" && userCredits < 10) {
-      onOpenCreditCalculator();
-      return;
+    const isClean = outputType === "clean";
+    const current = getCurrentUser();
+
+    if (isClean) {
+      const activeBalance = current?.credits ?? userCredits;
+      if (current?.role !== "admin" && activeBalance < 10) {
+        onOpenCreditCalculator();
+        return;
+      }
     }
 
-    setDownloadingType(outputType === "clean" ? "pro" : "free");
+    setDownloadingType(isClean ? "pro" : "free");
 
     try {
       const isFree = outputType === "free_watermark";
@@ -45,8 +52,14 @@ export const DualActionBar: React.FC<Props> = ({
         throw new Error("Échec de l'exportation PDF");
       }
 
-      if (outputType === "clean" && onDeductCredits) {
-        onDeductCredits(10);
+      // Deduct exactly 10 credits from balance
+      if (isClean) {
+        if (current?.id) {
+          consumeUserCredits(current.id, 10);
+        }
+        if (onDeductCredits) {
+          onDeductCredits(10);
+        }
       }
     } catch (error) {
       alert("Une erreur est survenue lors de la génération de votre CV.");
