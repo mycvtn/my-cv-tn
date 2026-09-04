@@ -1,10 +1,11 @@
-﻿"use client";
+"use client";
 
 import React, { useState } from "react";
 import { Download, Loader2, FileCode, ChevronDown, Sparkles, Printer } from "lucide-react";
 import { exportResumeToPDF } from "@/lib/pdf/pdfExporter";
 import { useLatexPdf } from "@/hooks/useLatexPdf";
 import { ResumeData } from "@/types/resume";
+import { getCurrentUser, consumeUserCredits } from "@/lib/auth/authStore";
 import confetti from "canvas-confetti";
 
 interface Props {
@@ -29,24 +30,32 @@ export const ExportButton: React.FC<Props> = ({
 
   // Direct 1-Click Instant PDF File Download
   const handleDirectDownload = async () => {
-    if (!isUnlocked && onRequireUnlock) {
-      onRequireUnlock();
+    const user = getCurrentUser();
+    const currentCredits = user?.credits ?? 0;
+
+    if (user?.role !== "admin" && currentCredits < 10) {
+      if (onRequireUnlock) onRequireUnlock();
       return;
     }
+
     setDropdownOpen(false);
     setExporting(true);
     setProgress(15);
 
     const cleanName = (candidateName || "CV").replace(/[^a-zA-Z0-9]/g, "_");
-    const fileName = `CV_${cleanName}_A4.pdf`;
+    const fileName = `CV_${cleanName}_Pro_A4.pdf`;
 
     const success = await exportResumeToPDF(elementId, {
       fileName,
-      isWatermarked: !isUnlocked,
+      isWatermarked: false,
       onProgress: (p) => setProgress(p),
     });
 
     if (success) {
+      // Deduct exactly 10 credits
+      if (user?.id) {
+        consumeUserCredits(user.id, 10);
+      }
       try {
         confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
       } catch (e) {}
@@ -57,14 +66,22 @@ export const ExportButton: React.FC<Props> = ({
   };
 
   const handleExportLatex = async () => {
-    if (!isUnlocked && onRequireUnlock) {
-      onRequireUnlock();
+    const user = getCurrentUser();
+    const currentCredits = user?.credits ?? 0;
+
+    if (user?.role !== "admin" && currentCredits < 10) {
+      if (onRequireUnlock) onRequireUnlock();
       return;
     }
+
     setDropdownOpen(false);
     if (resumeData) {
       const ok = await downloadLatexPdf(resumeData);
-      if (!ok) {
+      if (ok) {
+        if (user?.id) {
+          consumeUserCredits(user.id, 10);
+        }
+      } else {
         handleDirectDownload();
       }
     }
@@ -100,7 +117,7 @@ export const ExportButton: React.FC<Props> = ({
           ) : (
             <>
               <Download className="w-4 h-4" />
-              <span>Télécharger PDF (Direct A4)</span>
+              <span>Télécharger PDF Pro (10 Crédits)</span>
             </>
           )}
         </button>

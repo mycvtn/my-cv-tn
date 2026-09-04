@@ -499,8 +499,8 @@ Formation: ${activeResume.education.map((ed) => `${ed.degree} (${ed.institution}
               elementId="resume-sheet-preview"
               resumeData={activeResume}
               candidateName={activeResume.personalInfo.fullName}
-              isUnlocked={userCredits > 0}
-              onRequireUnlock={() => setIsPricingOpen(true)}
+              isUnlocked={userCredits >= 10}
+              onRequireUnlock={() => setIsCreditCalculatorOpen(true)}
             />
           )}
         </div>
