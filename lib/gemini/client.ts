@@ -283,6 +283,7 @@ function polishSentenceAuthentic(draft: string, lang: "fr" | "en" | "ar"): strin
 /**
  * Optimizes a resume bullet point into an Authentic Professional Mode (Mode Pro)
  * The sentence ALWAYS starts with a natural, varied unconjugated INFINITIVE VERB tailored to the specific action described.
+ * Gemini returns ONLY the refined text with ZERO conversational fluff, greetings, commentary, or markdown formatting.
  */
 export async function optimizeBulletPoint(
   bullet: string,
@@ -290,7 +291,7 @@ export async function optimizeBulletPoint(
   targetLanguage: string = "fr"
 ): Promise<string> {
   const client = getGeminiClient();
-  const cleanedDraft = bullet.replace(/^[-•*]\s*/, "").trim();
+  const cleanedDraft = bullet.replace(/^[-•*]\s*/, "").replace(/^["']|["']$/g, "").trim();
   const langKey = targetLanguage === "ar" ? "ar" : targetLanguage === "en" ? "en" : "fr";
 
   if (!client) {
@@ -304,36 +305,24 @@ export async function optimizeBulletPoint(
     : "French (Français)";
 
   const prompt = `
-You are an Elite Executive Resume Editor.
-Rewrite the following resume bullet point in a STRICTLY PROFESSIONAL EXECUTIVE TONE (Mode Pro).
+You are an expert Executive Resume & ATS Optimization Engine.
+Rewrite the following resume bullet point into an impactful, action-oriented, professional bullet point.
 
 Candidate Role: ${role || "Professional"}
-Original Phrase: "${cleanedDraft}"
+Original Draft: "${cleanedDraft}"
 Target Language: ${langInstruction}
 
-STRICT GRAMMATICAL RULES:
-1. In French (${targetLanguage === "fr" ? "MANDATORY RULE" : "N/A"}): ALWAYS START WITH THE MOST ACCURATE, UNCONJUGATED INFINITIVE VERB (Verbe à l'infinitif non conjugué) THAT DIRECTLY MATCHES THE CANDIDATE'S ACTUAL ACTION.
-   - For development/coding: "Développer", "Programmer", "Intégrer", "Implémenter".
-   - For architecture/design: "Concevoir", "Modéliser", "Structurer".
-   - For project/team/management: "Piloter", "Gérer", "Coordonner", "Manager", "Animer".
-   - For deployment/cloud/DevOps: "Déployer", "Industrialiser", "Automatiser".
-   - For configuration/setup: "Mettre en place", "Configurer", "Installer".
-   - For optimization/performance: "Optimiser", "Restructurer", "Améliorer".
-   - For testing/QA/bugs: "Tester", "Valider", "Corriger", "Résoudre".
-   - For security/audit: "Sécuriser", "Auditer".
-   - For support/maintenance/helpdesk: "Assurer le support de", "Maintenir", "Prendre en charge".
-   - For analysis/specs: "Analyser", "Spécifier", "Étudier".
-   - For training/mentoring: "Encadrer", "Former", "Accompagner".
-   DO NOT always use "Assurer". Select the EXACT natural infinitive verb for the specific task!
-2. In English: Start with a strong action base verb (e.g. Design, Develop, Architect, Lead, Optimize, Deploy, Test, Analyze).
-3. In Arabic: Start with an infinitive/verbal noun (المصدر, e.g. تطوير, تصميم, إدارة, أتمتة, تحليل, اختبار).
-4. ONLY rewrite the candidate's actual phrase in clean, executive style.
-5. DO NOT add invented sentences, fake statistics, or canned boilerplate suffixes.
-6. Keep the exact technical terms and real tools described by the candidate.
-7. Output EXACTLY ONE polished sentence ending with a single period.
-8. No bullet symbols (- or •), no quotation marks.
+MANDATORY RULES:
+1. NO CONVERSATIONAL FLUFF: DO NOT include greetings ("Bonjour", "Voici votre phrase"), conversational introductions, explanations, notes, markdown formatting (no bold **, no asterisks *, no hashtags #), or quotation marks.
+2. PRESERVE TARGET LANGUAGE: Output strictly in ${langInstruction}.
+3. STRICT ATS ACTION-VERB STRUCTURE:
+   - In French: ALWAYS start with a precise, unconjugated INFINITIVE VERB (e.g. Développer, Concevoir, Piloter, Optimiser, Mettre en place, Administrer, Automatiser, Sécuriser, Tester, Encadrer, Analyser).
+   - In English: ALWAYS start with a strong active verb (e.g. Develop, Design, Architect, Lead, Optimize, Implement, Deploy, Analyze, Automate).
+   - In Arabic: ALWAYS start with a verbal noun (المصدر, e.g. تطوير, تصميم, قيادة, أتمتة, تحسين, إدارة).
+4. PRESERVE FACTUAL TOOLS: Keep all technical skills, programming languages, frameworks, and metrics mentioned in the original draft.
+5. CONCISE & EXACT: Output EXACTLY ONE polished sentence ending with a single period.
 
-Return ONLY the rewritten professional sentence.
+Output ONLY the final polished sentence:
 `;
 
   try {
@@ -341,7 +330,19 @@ Return ONLY the rewritten professional sentence.
       model: GEMINI_MODEL,
       contents: prompt,
     });
-    const result = response.text?.trim().replace(/^[-•*]\s*/, "").replace(/^"|"$/g, "");
+    let result = response.text?.trim() || "";
+    // Clean any accidental fluff, quotes, markdown, or commentary prefixes
+    result = result
+      .replace(/^```[a-z]*\s*/i, "")
+      .replace(/\s*```$/i, "")
+      .replace(/^["'«»“]+|["'«»”]+$/g, "")
+      .replace(/^[-•*#\s]+/, "")
+      .replace(/\*\*/g, "")
+      .replace(/^\*([^*]+)\*$/, "$1")
+      .replace(/^(voici|voici la phrase|phrase optimisée|optimisation|résultat|recommandation|bullet point|mode pro)\s*:\s*/i, "")
+      .replace(/^(here is|optimized bullet|result)\s*:\s*/i, "")
+      .trim();
+
     return result || polishSentenceAuthentic(cleanedDraft, langKey);
   } catch (error) {
     console.error("Gemini optimization error, using authentic polish:", error);
@@ -516,10 +517,35 @@ Return ONLY raw valid JSON without markdown code fences.
       model: GEMINI_MODEL,
       contents: prompt,
     });
-    const cleaned = (response.text || "{}").replace(/^```json\s*/, "").replace(/\s*```$/, "").trim();
-    return JSON.parse(cleaned);
+    const text = response.text || "{}";
+    const cleaned = text
+      .replace(/^```[a-z]*\s*/i, "")
+      .replace(/\s*```$/i, "")
+      .trim();
+
+    // Extract JSON object if wrapped in text
+    const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      const parsed = JSON.parse(jsonMatch[0]);
+      return {
+        subject: parsed.subject || `Candidature au poste de ${jobData.jobTitle} - ${candidateData.name}`,
+        greeting: parsed.greeting || "Madame, Monsieur,",
+        openingParagraph: parsed.openingParagraph || "",
+        bodyParagraph: parsed.bodyParagraph || "",
+        closingParagraph: parsed.closingParagraph || "",
+        signoff: parsed.signoff || "Veuillez agréer, Madame, Monsieur, l'expression de mes salutations distinguées.",
+      };
+    }
+    throw new Error("Invalid JSON returned from Gemini");
   } catch (error) {
-    console.error("Gemini Cover Letter error:", error);
-    throw error;
+    console.error("Gemini Cover Letter error, falling back to structured template:", error);
+    return {
+      subject: `Candidature au poste de ${jobData.jobTitle} - ${candidateData.name}`,
+      greeting: "Madame, Monsieur,",
+      openingParagraph: `C'est avec un vif intérêt que je vous adresse ma candidature pour le poste de ${jobData.jobTitle} au sein de ${jobData.companyName}. Fort de mon parcours et passionné par les défis technologiques, je suis convaincu que mon profil correspond aux exigences de votre structure.`,
+      bodyParagraph: `Au cours de mes expériences professionnelles, notamment sur ${candidateData.experiences ? candidateData.experiences.slice(0, 150) : "des projets stratégiques"}, j'ai développé une solide expertise en ${candidateData.skills || "ingénierie et résolution de problèmes complexes"}. Mon parcours académique (${candidateData.education || "formation supérieure"}) m'a permis d'acquérir une rigueur méthodologique que je souhaite mettre au service des objectifs ambitieux de ${jobData.companyName}.`,
+      closingParagraph: `Je serais ravi de vous rencontrer lors d'un entretien afin d'échanger plus en détail sur ma motivation et sur la manière dont mes compétences peuvent contribuer au succès de vos équipes.`,
+      signoff: "Veuillez agréer, Madame, Monsieur, l'expression de mes salutations distinguées."
+    };
   }
 }

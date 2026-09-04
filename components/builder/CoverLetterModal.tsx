@@ -2,8 +2,9 @@
 
 import React, { useState } from "react";
 import { ResumeData } from "@/types/resume";
-import { X, Sparkles, Loader2, Copy, Check, FileText, ArrowRight, Building2, Briefcase, FileCode2 } from "lucide-react";
+import { X, Sparkles, Loader2, Copy, Check, FileText, ArrowRight, Building2, Briefcase, Download } from "lucide-react";
 import confetti from "canvas-confetti";
+import { exportCoverLetterToPDF } from "@/lib/pdf/pdfExporter";
 
 interface Props {
   isOpen: boolean;
@@ -17,6 +18,7 @@ export const CoverLetterModal: React.FC<Props> = ({ isOpen, onClose, resumeData 
   const [jobDescription, setJobDescription] = useState("");
   const [tone, setTone] = useState<"formal" | "dynamic" | "academic">("formal");
   const [loading, setLoading] = useState(false);
+  const [exportingPdf, setExportingPdf] = useState(false);
   const [generatedLetter, setGeneratedLetter] = useState<{
     subject: string;
     greeting: string;
@@ -111,6 +113,18 @@ ${resumeData.personalInfo.fullName}`;
     navigator.clipboard.writeText(getFullText());
     setCopied(true);
     setTimeout(() => setCopied(false), 2500);
+  };
+
+  const handleDownloadPDF = async () => {
+    setExportingPdf(true);
+    try {
+      const fileName = `Lettre_Motivation_${(resumeData.personalInfo.fullName || "Candidat").replace(/\s+/g, "_")}.pdf`;
+      await exportCoverLetterToPDF("modal-cover-letter-sheet", fileName);
+    } catch (e) {
+      console.error("PDF export error:", e);
+    } finally {
+      setExportingPdf(false);
+    }
   };
 
   return (
@@ -236,35 +250,66 @@ ${resumeData.personalInfo.fullName}`;
           {/* Generated Result */}
           {generatedLetter && (
             <div className="border-t pt-4 space-y-3 animate-in fade-in duration-200">
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between flex-wrap gap-2">
                 <span className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
                   <span className="w-2 h-2 rounded-full bg-emerald-500" />
                   Lettre de Motivation Sur-Mesure Générée :
                 </span>
-                <button
-                  onClick={handleCopy}
-                  title="Copier le texte de la lettre de motivation dans le presse-papier"
-                  aria-label="Copier le texte de la lettre de motivation dans le presse-papier"
-                  className="text-xs text-indigo-600 hover:text-indigo-800 font-semibold flex items-center gap-1.5 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-xl border border-indigo-200 transition"
-                >
-                  {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
-                  {copied ? "Copié dans le presse-papier !" : "Copier le texte"}
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={handleCopy}
+                    title="Copier le texte de la lettre de motivation dans le presse-papier"
+                    aria-label="Copier le texte de la lettre de motivation dans le presse-papier"
+                    className="text-xs text-slate-700 hover:text-slate-900 font-semibold flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 px-3 py-1.5 rounded-xl border border-slate-200 transition"
+                  >
+                    {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5 text-slate-500" />}
+                    {copied ? "Copié !" : "Copier le texte"}
+                  </button>
+                  <button
+                    onClick={handleDownloadPDF}
+                    disabled={exportingPdf}
+                    title="Télécharger la lettre de motivation en format PDF"
+                    aria-label="Télécharger la lettre de motivation en format PDF"
+                    className="text-xs text-white bg-indigo-600 hover:bg-indigo-700 font-bold flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl shadow-sm transition disabled:opacity-50"
+                  >
+                    {exportingPdf ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Download className="w-3.5 h-3.5" />}
+                    {exportingPdf ? "Exportation..." : "Télécharger PDF"}
+                  </button>
+                </div>
               </div>
 
-              <div className="p-5 rounded-2xl border bg-slate-50/70 text-xs text-slate-800 space-y-3 font-sans leading-relaxed border-slate-200 shadow-inner">
-                <div className="font-bold text-slate-950 pb-2 border-b border-slate-200">
+              {/* Styled Printable / Exportable Sheet */}
+              <div
+                id="modal-cover-letter-sheet"
+                className="p-8 rounded-2xl border bg-white text-slate-900 space-y-5 font-sans leading-relaxed border-slate-200 shadow-sm"
+              >
+                {/* Sender & Recipient Header */}
+                <div className="flex justify-between items-start text-xs border-b border-slate-100 pb-4">
+                  <div>
+                    <div className="font-bold text-slate-950 text-sm">{resumeData.personalInfo.fullName}</div>
+                    <div className="text-slate-600">{resumeData.personalInfo.email}</div>
+                    <div className="text-slate-600">{resumeData.personalInfo.phone}</div>
+                    <div className="text-slate-600">{resumeData.personalInfo.location}</div>
+                  </div>
+                  <div className="text-right">
+                    <div className="font-bold text-slate-900">Direction des Ressources Humaines</div>
+                    <div className="font-semibold text-indigo-700">{companyName}</div>
+                    <div className="text-slate-500 mt-1">Le {new Date().toLocaleDateString("fr-FR")}</div>
+                  </div>
+                </div>
+
+                <div className="font-bold text-slate-950 text-xs pb-1">
                   Objet : {generatedLetter.subject}
                 </div>
-                <div className="font-semibold text-slate-900">{generatedLetter.greeting}</div>
-                <p className="text-justify text-slate-800">{generatedLetter.openingParagraph}</p>
-                <p className="text-justify text-slate-800 bg-white/80 p-3 rounded-xl border border-slate-200/60 font-medium">
+                <div className="font-semibold text-slate-900 text-xs">{generatedLetter.greeting}</div>
+                <p className="text-justify text-slate-800 text-xs">{generatedLetter.openingParagraph}</p>
+                <p className="text-justify text-slate-800 text-xs">
                   {generatedLetter.bodyParagraph}
                 </p>
-                <p className="text-justify text-slate-800">{generatedLetter.closingParagraph}</p>
-                <div className="pt-2">
-                  <p>{generatedLetter.signoff}</p>
-                  <p className="font-bold text-slate-950 mt-1">{resumeData.personalInfo.fullName}</p>
+                <p className="text-justify text-slate-800 text-xs">{generatedLetter.closingParagraph}</p>
+                <div className="pt-3">
+                  <p className="text-xs text-slate-800">{generatedLetter.signoff}</p>
+                  <p className="font-bold text-slate-950 text-xs mt-3">{resumeData.personalInfo.fullName}</p>
                 </div>
               </div>
             </div>
