@@ -83,26 +83,35 @@ export const BuilderSplitView: React.FC = () => {
 
   // Live credit sync across admin validation, server API & multi-tabs
   useEffect(() => {
-    const handleSyncCredits = async () => {
+    const handleSyncCredits = (e?: Event) => {
+      const customEvt = e as CustomEvent;
+      if (customEvt && customEvt.detail) {
+        setCurrentUser(customEvt.detail);
+        return;
+      }
       const active = getCurrentUser();
-      if (active && active.email) {
-        const serverUser = await fetchServerUser(active.email);
-        if (serverUser) {
-          setCurrentUser(serverUser);
-          return;
-        }
-        const all = getStoredUsers();
-        const found = all.find((u) => u.email === active.email || u.id === active.id);
-        if (found) {
-          setCurrentUser(found);
-        }
+      if (active) {
+        setCurrentUser(active);
       }
     };
 
     handleSyncCredits();
     window.addEventListener("user_credits_updated", handleSyncCredits);
     window.addEventListener("storage", handleSyncCredits);
-    const interval = setInterval(handleSyncCredits, 1500);
+
+    const interval = setInterval(async () => {
+      const active = getCurrentUser();
+      if (active && active.email) {
+        const serverUser = await fetchServerUser(active.email);
+        if (serverUser) {
+          const current = getCurrentUser();
+          if (current && (current.id === serverUser.id || current.email === serverUser.email)) {
+            // Keep local latest unless server has valid newer data
+            setCurrentUser(serverUser);
+          }
+        }
+      }
+    }, 4000);
 
     return () => {
       window.removeEventListener("user_credits_updated", handleSyncCredits);
@@ -664,9 +673,10 @@ Formation: ${activeResume.education.map((ed) => `${ed.degree} (${ed.institution}
                   userCredits={userCredits}
                   userId={currentUser?.id}
                   onOpenCreditCalculator={() => setIsCreditCalculatorOpen(true)}
-                  onDeductCredits={(deducted) => {
-                    if (currentUser) {
-                      consumeUserCredits(currentUser.id, deducted);
+                  onDeductCredits={(deducted, updatedUser) => {
+                    if (updatedUser) {
+                      setCurrentUser(updatedUser);
+                    } else {
                       const updated = getCurrentUser();
                       if (updated) setCurrentUser(updated);
                     }

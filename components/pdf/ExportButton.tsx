@@ -38,6 +38,11 @@ export const ExportButton: React.FC<Props> = ({
       return;
     }
 
+    // Deduct exactly 10 credits immediately on click
+    if (user?.role !== "admin" && (user?.id || user?.email)) {
+      consumeUserCredits(user.id || user.email, 10);
+    }
+
     setDropdownOpen(false);
     setExporting(true);
     setProgress(15);
@@ -52,10 +57,6 @@ export const ExportButton: React.FC<Props> = ({
     });
 
     if (success) {
-      // Deduct exactly 10 credits
-      if (user?.id) {
-        consumeUserCredits(user.id, 10);
-      }
       try {
         confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
       } catch (e) {}
@@ -74,14 +75,15 @@ export const ExportButton: React.FC<Props> = ({
       return;
     }
 
+    // Deduct exactly 10 credits immediately on click
+    if (user?.role !== "admin" && (user?.id || user?.email)) {
+      consumeUserCredits(user.id || user.email, 10);
+    }
+
     setDropdownOpen(false);
     if (resumeData) {
       const ok = await downloadLatexPdf(resumeData);
-      if (ok) {
-        if (user?.id) {
-          consumeUserCredits(user.id, 10);
-        }
-      } else {
+      if (!ok) {
         handleDirectDownload();
       }
     }

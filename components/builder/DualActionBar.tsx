@@ -11,7 +11,7 @@ interface Props {
   userCredits: number;
   userId?: string;
   onOpenCreditCalculator: () => void;
-  onDeductCredits?: (amount: number) => void;
+  onDeductCredits?: (amount: number, updatedUser?: any) => void;
 }
 
 export const DualActionBar: React.FC<Props> = ({
@@ -33,6 +33,14 @@ export const DualActionBar: React.FC<Props> = ({
         onOpenCreditCalculator();
         return;
       }
+
+      // Deduct exactly 10 credits immediately on click (instant 0ms response)
+      if (current?.role !== "admin" && (current?.id || current?.email)) {
+        const result = consumeUserCredits(current.id || current.email, 10);
+        if (onDeductCredits) {
+          onDeductCredits(10, result.user);
+        }
+      }
     }
 
     setDownloadingType(isClean ? "pro" : "free");
@@ -50,16 +58,6 @@ export const DualActionBar: React.FC<Props> = ({
 
       if (!success) {
         throw new Error("Échec de l'exportation PDF");
-      }
-
-      // Deduct exactly 10 credits from balance
-      if (isClean) {
-        if (current?.id) {
-          consumeUserCredits(current.id, 10);
-        }
-        if (onDeductCredits) {
-          onDeductCredits(10);
-        }
       }
     } catch (error) {
       alert("Une erreur est survenue lors de la génération de votre CV.");
