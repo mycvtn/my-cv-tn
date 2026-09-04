@@ -1,4 +1,4 @@
-﻿import { ResumeData, CoverLetterData } from "@/types/resume";
+import { ResumeData, CoverLetterData } from "@/types/resume";
 
 export const INITIAL_RESUME_DATA: ResumeData = {
   title: "CV Ingénieur Logiciel & Cloud Full-Stack",
@@ -171,23 +171,23 @@ export const INITIAL_RESUME_DATA: ResumeData = {
 };
 
 export const INITIAL_COVER_LETTER_DATA: CoverLetterData = {
-  candidateName: "Yassine Ben Salem",
-  candidateEmail: "yassine.bensalem@email.tn",
-  candidatePhone: "+216 98 123 456",
-  candidateAddress: "Tunis, Tunisie",
-  recipientName: "Direction des Ressources Humaines",
-  recipientTitle: "Responsable Recrutement Tech",
-  companyName: "TechCorp Global Solutions",
-  companyAddress: "Paris, France (Éligible Remote / Relocation)",
-  jobTitle: "Senior Full-Stack Cloud Engineer",
-  jobReference: "TC-2026-FS",
-  date: "1 Septembre 2026",
-  subject: "Candidature au poste de Senior Full-Stack Cloud Engineer (Réf: TC-2026-FS)",
+  candidateName: "",
+  candidateEmail: "",
+  candidatePhone: "",
+  candidateAddress: "",
+  recipientName: "",
+  recipientTitle: "Direction des Ressources Humaines",
+  companyName: "",
+  companyAddress: "",
+  jobTitle: "",
+  jobReference: "",
+  date: new Date().toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" }),
+  subject: "",
   greeting: "Madame, Monsieur,",
-  openingParagraph: "C'est avec un enthousiasme marqué que je vous soumets ma candidature pour le poste de Senior Full-Stack Cloud Engineer au sein de TechCorp Global Solutions. Suivant de près vos récentes innovations dans le domaine des solutions distribuées à haute disponibilité, je suis convaincu que mon profil d'ingénieur logiciel et mon expertise full-stack constituent un atout majeur pour soutenir vos objectifs de croissance.",
-  bodyParagraph: "Diplômé de l'INSAT avec plus de 4 années d'expérience en conception d'architectures SaaS scalables, j'ai notamment piloté la refonte d'applications critiques sous Next.js et microservices, aboutissant à une réduction de 45% des temps de latence et à un renforcement notable de la fiabilité des pipelines CI/CD. Habitué à travailler au sein d'environnements agiles et multiculturels, je combine rigueur algorithmique, sens du produit et passion pour le partage des bonnes pratiques techniques.",
-  closingParagraph: "Intégrer vos équipes représente pour moi une opportunité stimulante de relever de nouveaux défis d'envergure. Je me tiens à votre entière disposition pour convenir d'un entretien au cours duquel nous pourrons aborder plus concrètement ma contribution à vos projets futurs.",
-  signoff: "Je vous prie d'agréer, Madame, Monsieur, l'assurance de ma considération distinguée.",
+  openingParagraph: "",
+  bodyParagraph: "",
+  closingParagraph: "",
+  signoff: "Veuillez agréer, Madame, Monsieur, l'expression de mes salutations distinguées.",
   language: "fr",
   template: "modern"
 };

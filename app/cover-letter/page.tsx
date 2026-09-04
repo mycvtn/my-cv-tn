@@ -231,35 +231,108 @@ ${data.candidateName}`;
             )}
 
             <div className="space-y-3 text-xs">
-              <div>
-                <label className="block font-semibold text-slate-700 mb-1">Votre Nom & Prénom</label>
-                <input
-                  type="text"
-                  value={data.candidateName}
-                  onChange={(e) => setData({ ...data, candidateName: e.target.value })}
-                  className="w-full px-3 py-2 border rounded-xl bg-slate-50 focus:bg-white focus:ring-2 focus:ring-indigo-500 transition"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-2">
+              {/* Candidate Coordinates */}
+              <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-2.5">
+                <span className="font-bold text-slate-800 text-[11px] uppercase tracking-wider block">Vos Coordonnées (Expéditeur)</span>
                 <div>
-                  <label className="block font-semibold text-slate-700 mb-1">Poste Visé *</label>
+                  <label className="block font-semibold text-slate-700 mb-1">Nom & Prénom *</label>
                   <input
                     type="text"
-                    value={data.jobTitle}
-                    onChange={(e) => setData({ ...data, jobTitle: e.target.value })}
-                    placeholder="Ex: Ingénieur Logiciel"
-                    className="w-full px-3 py-2 border rounded-xl bg-slate-50 focus:bg-white focus:ring-2 focus:ring-indigo-500 transition"
+                    value={data.candidateName}
+                    onChange={(e) => setData({ ...data, candidateName: e.target.value })}
+                    placeholder="Votre Nom & Prénom"
+                    className="w-full px-3 py-2 border rounded-xl bg-white focus:ring-2 focus:ring-indigo-500 transition"
                   />
                 </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="block font-semibold text-slate-700 mb-1">Email</label>
+                    <input
+                      type="email"
+                      value={data.candidateEmail}
+                      onChange={(e) => setData({ ...data, candidateEmail: e.target.value })}
+                      placeholder="votre.email@domaine.tn"
+                      className="w-full px-3 py-2 border rounded-xl bg-white focus:ring-2 focus:ring-indigo-500 transition"
+                    />
+                  </div>
+                  <div>
+                    <label className="block font-semibold text-slate-700 mb-1">Téléphone</label>
+                    <input
+                      type="tel"
+                      value={data.candidatePhone}
+                      onChange={(e) => setData({ ...data, candidatePhone: e.target.value })}
+                      placeholder="+216 -- --- ---"
+                      className="w-full px-3 py-2 border rounded-xl bg-white focus:ring-2 focus:ring-indigo-500 transition"
+                    />
+                  </div>
+                </div>
                 <div>
-                  <label className="block font-semibold text-slate-700 mb-1">Entreprise *</label>
+                  <label className="block font-semibold text-slate-700 mb-1">Adresse / Ville</label>
                   <input
                     type="text"
-                    value={data.companyName}
-                    onChange={(e) => setData({ ...data, companyName: e.target.value })}
-                    placeholder="Ex: Entreprise Cible"
-                    className="w-full px-3 py-2 border rounded-xl bg-slate-50 focus:bg-white focus:ring-2 focus:ring-indigo-500 transition"
+                    value={data.candidateAddress}
+                    onChange={(e) => setData({ ...data, candidateAddress: e.target.value })}
+                    placeholder="Ex: Tunis, Tunisie"
+                    className="w-full px-3 py-2 border rounded-xl bg-white focus:ring-2 focus:ring-indigo-500 transition"
+                  />
+                </div>
+              </div>
+
+              {/* Recipient & Job Coordinates */}
+              <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-2.5">
+                <span className="font-bold text-slate-800 text-[11px] uppercase tracking-wider block">Coordonnées de l'Entreprise Cible</span>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="block font-semibold text-slate-700 mb-1">Poste Visé *</label>
+                    <input
+                      type="text"
+                      value={data.jobTitle}
+                      onChange={(e) => setData({ ...data, jobTitle: e.target.value })}
+                      placeholder="Ex: Ingénieur Logiciel"
+                      className="w-full px-3 py-2 border rounded-xl bg-white focus:ring-2 focus:ring-indigo-500 transition"
+                    />
+                  </div>
+                  <div>
+                    <label className="block font-semibold text-slate-700 mb-1">Entreprise *</label>
+                    <input
+                      type="text"
+                      value={data.companyName}
+                      onChange={(e) => setData({ ...data, companyName: e.target.value })}
+                      placeholder="Ex: Entreprise Cible"
+                      className="w-full px-3 py-2 border rounded-xl bg-white focus:ring-2 focus:ring-indigo-500 transition"
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="block font-semibold text-slate-700 mb-1">Titre du Destinataire</label>
+                    <input
+                      type="text"
+                      value={data.recipientTitle}
+                      onChange={(e) => setData({ ...data, recipientTitle: e.target.value })}
+                      placeholder="Ex: Direction du Recrutement"
+                      className="w-full px-3 py-2 border rounded-xl bg-white focus:ring-2 focus:ring-indigo-500 transition"
+                    />
+                  </div>
+                  <div>
+                    <label className="block font-semibold text-slate-700 mb-1">Date de la Lettre</label>
+                    <input
+                      type="text"
+                      value={data.date}
+                      onChange={(e) => setData({ ...data, date: e.target.value })}
+                      placeholder="Ex: 4 Septembre 2026"
+                      className="w-full px-3 py-2 border rounded-xl bg-white focus:ring-2 focus:ring-indigo-500 transition"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block font-semibold text-slate-700 mb-1">Adresse de l'Entreprise</label>
+                  <input
+                    type="text"
+                    value={data.companyAddress}
+                    onChange={(e) => setData({ ...data, companyAddress: e.target.value })}
+                    placeholder="Ex: Tunis, Tunisie"
+                    className="w-full px-3 py-2 border rounded-xl bg-white focus:ring-2 focus:ring-indigo-500 transition"
                   />
                 </div>
               </div>
@@ -270,7 +343,7 @@ ${data.candidateName}`;
                   rows={3}
                   value={jobDescription}
                   onChange={(e) => setJobDescription(e.target.value)}
-                  placeholder="Collez ici les missions ou exigences de l'offre..."
+                  placeholder="Collez ici les missions ou exigences de l'offre pour cibler précisément la lettre..."
                   className="w-full px-3 py-2 border rounded-xl bg-slate-50 focus:bg-white focus:ring-2 focus:ring-indigo-500 transition"
                 />
               </div>

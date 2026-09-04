@@ -15,6 +15,9 @@ interface Props {
 export const CoverLetterModal: React.FC<Props> = ({ isOpen, onClose, resumeData }) => {
   const [jobTitle, setJobTitle] = useState(resumeData.personalInfo.jobTitle || "");
   const [companyName, setCompanyName] = useState("");
+  const [recipientTitle, setRecipientTitle] = useState("Direction du Recrutement");
+  const [companyAddress, setCompanyAddress] = useState(resumeData.personalInfo.location || "Tunisie");
+  const [letterDate, setLetterDate] = useState(new Date().toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" }));
   const [jobDescription, setJobDescription] = useState("");
   const [tone, setTone] = useState<"formal" | "dynamic" | "academic">("formal");
   const [loading, setLoading] = useState(false);
@@ -92,8 +95,11 @@ export const CoverLetterModal: React.FC<Props> = ({ isOpen, onClose, resumeData 
 ${resumeData.personalInfo.email} | ${resumeData.personalInfo.phone}
 ${resumeData.personalInfo.location}
 
-À l'attention du Responsable du Recrutement
+${recipientTitle}
 ${companyName}
+${companyAddress}
+
+Le ${letterDate}
 
 Objet : ${generatedLetter.subject}
 
@@ -200,6 +206,45 @@ ${resumeData.personalInfo.fullName}`;
             </div>
           </div>
 
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+              <label className="block text-xs font-bold text-slate-900 mb-1">
+                Titre Destinataire
+              </label>
+              <input
+                type="text"
+                value={recipientTitle}
+                onChange={(e) => setRecipientTitle(e.target.value)}
+                placeholder="Ex: Direction du Recrutement"
+                className="w-full text-xs px-3 py-2 border rounded-xl bg-slate-50 focus:bg-white focus:ring-2 focus:ring-indigo-500 transition"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-slate-900 mb-1">
+                Adresse Entreprise
+              </label>
+              <input
+                type="text"
+                value={companyAddress}
+                onChange={(e) => setCompanyAddress(e.target.value)}
+                placeholder="Ex: Tunis, Tunisie"
+                className="w-full text-xs px-3 py-2 border rounded-xl bg-slate-50 focus:bg-white focus:ring-2 focus:ring-indigo-500 transition"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-slate-900 mb-1">
+                Date de la Lettre
+              </label>
+              <input
+                type="text"
+                value={letterDate}
+                onChange={(e) => setLetterDate(e.target.value)}
+                placeholder="Ex: 4 Septembre 2026"
+                className="w-full text-xs px-3 py-2 border rounded-xl bg-slate-50 focus:bg-white focus:ring-2 focus:ring-indigo-500 transition"
+              />
+            </div>
+          </div>
+
           <div>
             <div className="flex justify-between items-center mb-1">
               <label className="block text-xs font-bold text-slate-900">
@@ -292,9 +337,10 @@ ${resumeData.personalInfo.fullName}`;
                     <div className="text-slate-600">{resumeData.personalInfo.location}</div>
                   </div>
                   <div className="text-right">
-                    <div className="font-bold text-slate-900">Direction des Ressources Humaines</div>
+                    <div className="font-bold text-slate-900">{recipientTitle || "Direction du Recrutement"}</div>
                     <div className="font-semibold text-indigo-700">{companyName}</div>
-                    <div className="text-slate-500 mt-1">Le {new Date().toLocaleDateString("fr-FR")}</div>
+                    {companyAddress && <div className="text-slate-600">{companyAddress}</div>}
+                    <div className="text-slate-500 mt-1">Le {letterDate}</div>
                   </div>
                 </div>
 
