@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -58,7 +58,7 @@ export default function ForgotPasswordPage() {
             ⚡
           </div>
           <span className="font-extrabold text-2xl tracking-tight text-slate-950">
-            MY-CV<span className="text-rose-600">.AI</span>
+            MY-CV<span className="text-rose-600">.TN</span>
           </span>
         </a>
         <p className="text-xs text-slate-500">Plateforme Intelligente de Création de CV & Recrutement</p>

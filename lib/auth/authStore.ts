@@ -6,8 +6,8 @@ const ACTIVE_USER_STORAGE_KEY = "my_cv_current_active_user";
 
 const DEFAULT_ADMIN: UserAccount = {
   id: "usr-admin-01",
-  name: "Administrateur My-CV AI",
-  email: "admin@my-cv.ai",
+  name: "Administrateur MY-CV TN",
+  email: "admin@my-cv.tn",
   password: "admin123",
   role: "admin",
   credits: 999,
@@ -21,7 +21,7 @@ const SEED_USERS: UserAccount[] = [
   {
     id: "usr-demo-02",
     name: "Yassine Ben Salem",
-    email: "user@my-cv.ai",
+    email: "user@my-cv.tn",
     password: "password123",
     role: "user",
     credits: 280,

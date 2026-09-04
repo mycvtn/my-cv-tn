@@ -343,7 +343,7 @@ Formation: ${activeResume.education.map((ed) => `${ed.degree} (${ed.institution}
               ⚡
             </div>
             <div className="hidden sm:block">
-              <span className="font-extrabold text-sm tracking-tight text-slate-950">MY-CV<span className="text-rose-600">.AI</span></span>
+              <span className="font-extrabold text-sm tracking-tight text-slate-950">MY-CV<span className="text-rose-600">.TN</span></span>
               <span className="text-[10px] text-slate-500 block -mt-1 font-medium">Plateforme Trilingue Pro</span>
             </div>
           </a>

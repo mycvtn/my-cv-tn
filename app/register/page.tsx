@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -121,7 +121,7 @@ export default function RegisterPage() {
             ⚡
           </div>
           <span className="font-extrabold text-2xl tracking-tight text-slate-950">
-            MY-CV<span className="text-rose-600">.AI</span>
+            MY-CV<span className="text-rose-600">.TN</span>
           </span>
         </a>
         <p className="text-xs text-slate-500">Plateforme Intelligente de Création de CV & Recrutement</p>
@@ -295,8 +295,8 @@ export default function RegisterPage() {
               <button
                 type="submit"
                 disabled={loading || !!oauthLoading}
-                title="Créer votre compte My-CV.AI"
-                aria-label="Créer votre compte My-CV.AI"
+                title="Créer votre compte MY-CV.TN"
+                aria-label="Créer votre compte MY-CV.TN"
                 className="w-full mt-2 py-3 bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-500 hover:to-rose-600 text-white text-xs font-bold rounded-xl transition shadow-lg shadow-rose-600/25 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
               >
                 {loading ? (

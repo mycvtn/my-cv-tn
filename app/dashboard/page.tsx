@@ -228,7 +228,7 @@ export default function DashboardPage() {
                 ⚡
               </div>
               <span className="font-black text-base tracking-tight text-slate-950 hidden sm:inline">
-                MY-CV<span className="text-rose-600">.AI</span>
+                MY-CV<span className="text-rose-600">.TN</span>
               </span>
             </a>
 

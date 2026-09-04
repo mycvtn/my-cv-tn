@@ -19,8 +19,8 @@ export interface ServerUserAccount {
 
 const DEFAULT_ADMIN: ServerUserAccount = {
   id: "usr-admin-01",
-  name: "Administrateur My-CV AI",
-  email: "admin@my-cv.ai",
+  name: "Administrateur MY-CV TN",
+  email: "admin@my-cv.tn",
   password: "admin123",
   role: "admin",
   credits: 999,
@@ -34,7 +34,7 @@ const SEED_USERS: ServerUserAccount[] = [
   {
     id: "usr-demo-02",
     name: "Yassine Ben Salem",
-    email: "user@my-cv.ai",
+    email: "user@my-cv.tn",
     password: "password123",
     role: "user",
     credits: 280,

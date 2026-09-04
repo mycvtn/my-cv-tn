@@ -1,10 +1,10 @@
-﻿import type { Metadata } from "next";
+import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "My-CV AI (سيرتي) | Créateur de CV & Lettres de Motivation IA - Tunisie, Europe & Canada",
+  title: "MY-CV.TN (سيرتي) | Créateur de CV & Lettres de Motivation IA - Tunisie, Europe & Canada",
   description: "Plateforme IA de génération de CV et lettres de motivation optimisés pour le marché tunisien, Europass (Europe) et Canadien (anti-discrimination ATS). Propulsé par Google Gemini.",
-  keywords: ["CV Tunisie", "Lettre de motivation IA", "Europass Tunisie", "CV Canada sans photo", "Flouci", "Konnect", "D17", "Gemini AI"],
+  keywords: ["CV Tunisie", "MY-CV.TN", "Lettre de motivation IA", "Europass Tunisie", "CV Canada sans photo", "Flouci", "Konnect", "D17", "Gemini AI"],
 };
 
 export default function RootLayout({

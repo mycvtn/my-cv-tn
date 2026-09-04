@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
@@ -30,7 +30,7 @@ export default function LandingPage() {
             ⚡
           </div>
           <span className="font-extrabold text-xl tracking-tight text-slate-950">
-            MY-CV<span className="text-rose-600">.AI</span>
+            MY-CV<span className="text-rose-600">.TN</span>
           </span>
         </div>
 
@@ -237,11 +237,11 @@ export default function LandingPage() {
       <footer className="border-t border-slate-200/80 bg-white py-8 mt-auto">
         <div className="max-w-6xl w-full mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
           <div className="flex items-center gap-2 font-bold text-slate-800">
-            <span>⚡ MY-CV.AI</span>
+            <span>⚡ MY-CV.TN</span>
             <span>—</span>
             <span className="font-normal text-slate-500">Plateforme de CV & Recrutement IA</span>
           </div>
-          <div>© {new Date().getFullYear()} MY-CV.AI. Tous droits réservés.</div>
+          <div>© {new Date().getFullYear()} MY-CV.TN. Tous droits réservés.</div>
         </div>
       </footer>
     </div>

@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Konnect Payment Gateway Integration Helper
  * Official API documentation: https://konnect.network
  */
@@ -36,7 +36,7 @@ export async function createKonnectPayment(payload: KonnectPaymentPayload) {
       token: "TND",
       amount: payload.amount,
       type: "immediate",
-      description: `Paiement My-CV AI - Commande #${payload.orderId}`,
+      description: `Paiement MY-CV.TN - Commande #${payload.orderId}`,
       acceptedPaymentMethods: ["bank_card", "e-DINAR", "flouci"],
       lifespan: 30,
       checkoutForm: false,
