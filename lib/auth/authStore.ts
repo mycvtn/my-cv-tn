@@ -47,8 +47,30 @@ export function getStoredUsers(): UserAccount[] {
   try {
     const raw = localStorage.getItem(USERS_STORAGE_KEY);
     if (raw) {
-      const parsed = JSON.parse(raw);
-      if (Array.isArray(parsed)) {
+      let parsed: UserAccount[] = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        let needsSave = false;
+        parsed = parsed.map((u) => {
+          if (u.email.toLowerCase() === "admin@my-cv.ai") {
+            needsSave = true;
+            return { ...u, email: "admin@my-cv.tn", name: "Administrateur MY-CV TN" };
+          }
+          if (u.email.toLowerCase() === "user@my-cv.ai") {
+            needsSave = true;
+            return { ...u, email: "user@my-cv.tn" };
+          }
+          return u;
+        });
+
+        // Ensure default admin account is always present if no admin exists
+        if (!parsed.some((u) => u.role === "admin" || u.email.toLowerCase() === "admin@my-cv.tn")) {
+          parsed = [DEFAULT_ADMIN, ...parsed];
+          needsSave = true;
+        }
+
+        if (needsSave) {
+          localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(parsed));
+        }
         return parsed;
       }
     }
@@ -169,7 +191,18 @@ export function setCurrentUser(user: UserAccount | null): void {
 export function authenticateUser(email: string, password?: string): { success: boolean; user?: UserAccount; error?: string } {
   const users = getStoredUsers();
   const normalized = email.trim().toLowerCase();
-  const found = users.find((u) => u.email.toLowerCase() === normalized);
+  
+  let found = users.find(
+    (u) =>
+      u.email.toLowerCase() === normalized ||
+      (normalized === "admin@my-cv.tn" && u.email.toLowerCase() === "admin@my-cv.ai") ||
+      (normalized === "admin@my-cv.ai" && u.email.toLowerCase() === "admin@my-cv.tn")
+  );
+
+  // Fallback for default administrator if omitted from array
+  if (!found && (normalized === "admin@my-cv.tn" || normalized === "admin@my-cv.ai")) {
+    found = DEFAULT_ADMIN;
+  }
 
   if (!found) {
     return { success: false, error: "Compte introuvable ou supprimé." };
@@ -188,7 +221,10 @@ export function authenticateUser(email: string, password?: string): { success: b
     lastLoginAt: new Date().toISOString(),
   };
 
-  const updatedList = users.map((u) => (u.id === found.id ? updatedUser : u));
+  const updatedList = users.some((u) => u.id === found.id)
+    ? users.map((u) => (u.id === found.id ? updatedUser : u))
+    : [updatedUser, ...users];
+
   saveStoredUsers(updatedList);
   setCurrentUser(updatedUser);
 
