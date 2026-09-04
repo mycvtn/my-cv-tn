@@ -176,38 +176,6 @@ export function getCurrentUser(): UserAccount | null {
     const active: UserAccount = JSON.parse(raw);
     if (!active || !active.email) return null;
 
-    // Check with users list
-    const allUsers = getStoredUsers();
-    const match = allUsers.find(
-      (u) =>
-        (u.id && u.id.toLowerCase() === active.id?.toLowerCase()) ||
-        (u.email && u.email.toLowerCase() === active.email?.toLowerCase())
-    );
-
-    if (match) {
-      // Pick the highest credits between active and match to prevent cache overwrite
-      const bestCredits = Math.max(active.credits ?? 0, match.credits ?? 0);
-      const unified: UserAccount = {
-        ...match,
-        ...active,
-        credits: bestCredits,
-      };
-
-      if (match.credits !== bestCredits) {
-        const idx = allUsers.findIndex((u) => u.id === match.id);
-        if (idx >= 0) {
-          allUsers[idx] = unified;
-          saveStoredUsers(allUsers);
-        }
-      }
-
-      if (active.credits !== bestCredits) {
-        localStorage.setItem(ACTIVE_USER_STORAGE_KEY, JSON.stringify(unified));
-      }
-
-      return unified;
-    }
-
     return active;
   } catch (e) {
     return null;
@@ -522,7 +490,7 @@ export function updateUserProfile(userId: string, updates: Partial<UserAccount>)
 }
 
 /**
- * Verifies and consumes credits for AI actions (e.g. 5 credits for Cover Letter generator)
+ * Verifies and consumes credits for actions (e.g. 10 credits for CV Pro download, 5 credits for Cover Letter)
  */
 export function consumeUserCredits(
   userIdOrEmail: string,
@@ -549,13 +517,12 @@ export function consumeUserCredits(
     return { success: true, remainingCredits: target.credits ?? 999, user: target };
   }
 
-  // Ensure we check the freshest credits value between target and active session
-  const currentCredits = Math.max(target.credits || 0, (active && active.email.toLowerCase() === target.email.toLowerCase() ? active.credits : 0) || 0);
+  const currentCredits = target.credits ?? active?.credits ?? 0;
   if (currentCredits < amount) {
     return {
       success: false,
       remainingCredits: currentCredits,
-      error: `Solde insuffisant (${currentCredits} crédits). Vous avez besoin de ${amount} crédits pour rédiger avec l'IA.`,
+      error: `Solde insuffisant (${currentCredits} crédits). Vous avez besoin de ${amount} crédits.`,
     };
   }
 
