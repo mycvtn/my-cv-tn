@@ -16,7 +16,7 @@
     "email": "asma1@gmail.com",
     "password": "Test@1234",
     "role": "user",
-    "credits": 5,
+    "credits": 40,
     "status": "active",
     "createdAt": "2026-09-01T20:25:33.340Z",
     "lastLoginAt": "2026-09-01T20:25:33.340Z"
