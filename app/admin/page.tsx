@@ -17,7 +17,7 @@ import {
   Users, Ticket, DollarSign, Shield, ShieldCheck, Search, 
   Plus, PlusCircle, MinusCircle, Ban, CheckCircle2, Trash2, 
   ArrowLeft, RefreshCw, LogOut, FileText, Activity, AlertCircle, Edit3,
-  CreditCard, Clock, XCircle, Eye, Settings, Check, Phone, Landmark, MessageSquare, UserCheck
+  CreditCard, Clock, XCircle, Eye, Settings, Check, Phone, Landmark, MessageSquare, UserCheck, Zap
 } from "lucide-react";
 
 export default function AdminDashboardPage() {
@@ -35,6 +35,10 @@ export default function AdminDashboardPage() {
   const [newUserPassword, setNewUserPassword] = useState<string>("");
   const [newUserRole, setNewUserRole] = useState<UserRole>("user");
   const [newUserCredits, setNewUserCredits] = useState<number>(5);
+
+  // Quick Credit Edit Modal
+  const [editingCreditsUser, setEditingCreditsUser] = useState<UserAccount | null>(null);
+  const [customCreditsValue, setCustomCreditsValue] = useState<number>(0);
 
   // Payment Requests State
   const [paymentRequests, setPaymentRequests] = useState<PaymentRequest[]>([]);
@@ -67,11 +71,13 @@ export default function AdminDashboardPage() {
   const [toastMessage, setToastMessage] = useState<string>("");
 
   const refreshAllData = async () => {
-    const sUsers = await fetchServerUsers();
-    setUsers(sUsers);
-    const reqs = await fetchServerPaymentRequests();
-    setPaymentRequests(reqs);
-    setSettingsForm(getPaymentSettings());
+    try {
+      const sUsers = await fetchServerUsers();
+      if (sUsers && sUsers.length > 0) setUsers(sUsers);
+      const reqs = await fetchServerPaymentRequests();
+      if (reqs) setPaymentRequests(reqs);
+      setSettingsForm(getPaymentSettings());
+    } catch (e) {}
   };
 
   useEffect(() => {
@@ -83,57 +89,88 @@ export default function AdminDashboardPage() {
       return;
     }
 
+    // Initial load from local store immediately (0ms)
+    setUsers(getStoredUsers());
+    setSettingsForm(getPaymentSettings());
+
+    // Then background fetch
     refreshAllData();
 
-    const handleSync = () => {
-      refreshAllData();
-    };
-
-    window.addEventListener("storage", handleSync);
-    window.addEventListener("payment_requests_updated", handleSync);
-    const interval = setInterval(refreshAllData, 2000);
+    // Background sync every 10s (clean & low network footprint)
+    const interval = setInterval(refreshAllData, 10000);
 
     return () => {
-      window.removeEventListener("storage", handleSync);
-      window.removeEventListener("payment_requests_updated", handleSync);
       clearInterval(interval);
     };
-  }, [router, activeTab]);
+  }, [router]);
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
-    setTimeout(() => setToastMessage(""), 3500);
+    setTimeout(() => setToastMessage(""), 2500);
   };
 
-  // User Actions
-  const handleUpdateCredits = (userId: string, amount: number) => {
-    const updated = adminUpdateUserCredits(userId, amount);
+  // Instant Optimistic User Actions
+  const handleUpdateCredits = (userId: string, deltaOrExact: number, isExact = false) => {
+    // 1. Instant UI update (0ms latency)
+    setUsers((prev) =>
+      prev.map((u) => {
+        if (u.id === userId || u.email.toLowerCase() === userId.toLowerCase()) {
+          const newCredits = isExact
+            ? Math.max(0, deltaOrExact)
+            : Math.max(0, (u.credits || 0) + deltaOrExact);
+          return { ...u, credits: newCredits };
+        }
+        return u;
+      })
+    );
+
+    // 2. Persist in store & sync to server API
+    const updated = adminUpdateUserCredits(userId, deltaOrExact, isExact);
     if (updated) {
-      setUsers(getStoredUsers());
-      showToast(`Crédits mis à jour pour ${updated.name} (${updated.credits} crédits).`);
+      showToast(`⚡ Solde de ${updated.name} mis à jour : ${updated.credits} crédits`);
     }
   };
 
+  const handleOpenCreditEditor = (u: UserAccount) => {
+    setEditingCreditsUser(u);
+    setCustomCreditsValue(u.credits || 0);
+  };
+
+  const handleSaveCustomCredits = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingCreditsUser) return;
+    handleUpdateCredits(editingCreditsUser.id, Number(customCreditsValue), true);
+    setEditingCreditsUser(null);
+  };
+
   const handleToggleStatus = (userId: string) => {
+    // Instant UI update
+    setUsers((prev) =>
+      prev.map((u) => {
+        if (u.id === userId || u.email.toLowerCase() === userId.toLowerCase()) {
+          return { ...u, status: u.status === "active" ? "suspended" : "active" };
+        }
+        return u;
+      })
+    );
     const updated = adminToggleUserStatus(userId);
     if (updated) {
-      setUsers(getStoredUsers());
       showToast(`Statut de ${updated.name} modifié en ${updated.status}.`);
     }
   };
 
   const handleDeleteUser = async (userId: string, name: string) => {
     if (confirm(`Confirmez-vous la suppression définitive du compte de ${name} ?`)) {
+      setUsers((prev) => prev.filter((u) => u.id !== userId));
       adminDeleteUser(userId);
-      await refreshAllData();
       showToast(`Compte de ${name} définitivement supprimé.`);
     }
   };
 
   const handleDeleteAllUsers = async () => {
     if (confirm("⚠️ ATTENTION : Confirmez-vous la suppression définitive de TOUS les comptes utilisateurs ? Seul le compte Administrateur sera conservé.")) {
+      setUsers((prev) => prev.filter((u) => u.role === "admin"));
       adminDeleteAllUsers();
-      await refreshAllData();
       showToast("Tous les comptes utilisateurs ont été définitivement supprimés.");
     }
   };
@@ -150,8 +187,8 @@ export default function AdminDashboardPage() {
       newUserRole === "admin" ? 999 : Number(newUserCredits) || 5
     );
 
-    if (res.success) {
-      await refreshAllData();
+    if (res.success && res.user) {
+      setUsers(getStoredUsers());
       setIsAddUserModal(false);
       setNewUserName("");
       setNewUserEmail("");
@@ -166,10 +203,15 @@ export default function AdminDashboardPage() {
 
   // Payment Actions
   const handleApprovePayment = async (reqId: string, clientName: string, credits: number) => {
+    // Instant UI update
+    setPaymentRequests((prev) =>
+      prev.map((p) => (p.id === reqId ? { ...p, status: "approved" } : p))
+    );
+    showToast(`Paiement validé ! +${credits} crédits ajoutés à ${clientName}.`);
+
     const res = await approvePaymentRequest(reqId);
     if (res.success) {
-      await refreshAllData();
-      showToast(`Paiement validé ! +${credits} crédits ajoutés à ${clientName}.`);
+      setUsers(getStoredUsers());
     } else {
       alert(res.error || "Erreur lors de la validation.");
     }
@@ -182,12 +224,14 @@ export default function AdminDashboardPage() {
 
   const handleConfirmReject = async () => {
     if (!rejectingRequestId) return;
-    const res = await rejectPaymentRequest(rejectingRequestId, rejectionReasonInput);
-    if (res.success) {
-      await refreshAllData();
-      setRejectingRequestId(null);
-      showToast("Demande de paiement refusée avec motif transmis.");
-    }
+    const reqId = rejectingRequestId;
+    setPaymentRequests((prev) =>
+      prev.map((p) => (p.id === reqId ? { ...p, status: "rejected", rejectionReason: rejectionReasonInput } : p))
+    );
+    setRejectingRequestId(null);
+    showToast("Demande de paiement refusée avec motif transmis.");
+
+    await rejectPaymentRequest(reqId, rejectionReasonInput);
   };
 
   // Settings Actions
@@ -344,7 +388,7 @@ export default function AdminDashboardPage() {
         <div className="flex items-center gap-3">
           <button
             onClick={() => router.push("/builder")}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-slate-700 hover:text-slate-950 bg-slate-100 hover:bg-slate-200 rounded-xl border border-slate-200 transition shadow-2xs"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-slate-700 hover:text-slate-950 bg-slate-100 hover:bg-slate-200 rounded-xl border border-slate-200 transition shadow-2xs cursor-pointer"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             <span>Éditeur de CV</span>
@@ -352,7 +396,7 @@ export default function AdminDashboardPage() {
 
           <button
             onClick={handleLogout}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-rose-700 hover:text-white bg-rose-50 hover:bg-rose-600 rounded-xl border border-rose-200 transition shadow-2xs"
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-rose-700 hover:text-white bg-rose-50 hover:bg-rose-600 rounded-xl border border-rose-200 transition shadow-2xs cursor-pointer"
           >
             <LogOut className="w-3.5 h-3.5" />
             <span>Déconnexion</span>
@@ -423,7 +467,7 @@ export default function AdminDashboardPage() {
         <div className="flex items-center gap-2 bg-slate-100 p-1.5 rounded-2xl border border-slate-200 w-fit">
           <button
             onClick={() => setActiveTab("users")}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition ${
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition cursor-pointer ${
               activeTab === "users"
                 ? "bg-white text-slate-950 shadow-xs border border-slate-200/60"
                 : "text-slate-600 hover:text-slate-950"
@@ -435,7 +479,7 @@ export default function AdminDashboardPage() {
 
           <button
             onClick={() => setActiveTab("payments")}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition ${
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition cursor-pointer ${
               activeTab === "payments"
                 ? "bg-white text-slate-950 shadow-xs border border-slate-200/60"
                 : "text-slate-600 hover:text-slate-950"
@@ -452,7 +496,7 @@ export default function AdminDashboardPage() {
 
           <button
             onClick={() => setActiveTab("settings")}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition ${
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition cursor-pointer ${
               activeTab === "settings"
                 ? "bg-white text-slate-950 shadow-xs border border-slate-200/60"
                 : "text-slate-600 hover:text-slate-950"
@@ -522,7 +566,7 @@ export default function AdminDashboardPage() {
                     <th className="p-3.5">Utilisateur</th>
                     <th className="p-3.5">Email</th>
                     <th className="p-3.5">Rôle</th>
-                    <th className="p-3.5">Solde Crédits</th>
+                    <th className="p-3.5">Solde Crédits (Action Rapide ⚡)</th>
                     <th className="p-3.5">Statut</th>
                     <th className="p-3.5 text-right">Actions rapides</th>
                   </tr>
@@ -558,25 +602,53 @@ export default function AdminDashboardPage() {
                           </span>
                         </td>
                         <td className="p-3.5">
-                          <div className="flex items-center gap-2 font-black text-amber-700 text-sm">
-                            <Ticket className="w-3.5 h-3.5 text-amber-600" />
-                            <span>{u.credits ?? 0}</span>
-                            <div className="flex items-center gap-1 ml-1">
-                              <button
-                                onClick={() => handleUpdateCredits(u.id, 5)}
-                                className="p-1 hover:bg-slate-100 rounded text-emerald-600 font-bold"
-                                title="+5 Crédits"
-                              >
-                                +5
-                              </button>
-                              <button
-                                onClick={() => handleUpdateCredits(u.id, -5)}
-                                className="p-1 hover:bg-slate-100 rounded text-rose-600 font-bold"
-                                title="-5 Crédits"
-                              >
-                                -5
-                              </button>
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <div className="flex items-center gap-1 font-black text-amber-700 text-sm bg-amber-50/80 px-2 py-1 rounded-lg border border-amber-200/60 min-w-[55px]">
+                              <Ticket className="w-3.5 h-3.5 text-amber-600 flex-shrink-0" />
+                              <span>{u.credits ?? 0}</span>
                             </div>
+
+                            {/* Quick Instant Credit Action Buttons */}
+                            <button
+                              type="button"
+                              onClick={() => handleUpdateCredits(u.id, 1)}
+                              className="px-2 py-1 bg-slate-100 hover:bg-emerald-100 hover:text-emerald-700 text-slate-700 rounded-lg text-xs font-bold border border-slate-200 transition cursor-pointer"
+                              title="+1 Crédit Instantané"
+                            >
+                              +1
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleUpdateCredits(u.id, 5)}
+                              className="px-2 py-1 bg-slate-100 hover:bg-emerald-100 hover:text-emerald-700 text-slate-700 rounded-lg text-xs font-bold border border-slate-200 transition cursor-pointer"
+                              title="+5 Crédits Instantanés"
+                            >
+                              +5
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleUpdateCredits(u.id, 20)}
+                              className="px-2 py-1 bg-slate-100 hover:bg-emerald-100 hover:text-emerald-700 text-slate-700 rounded-lg text-xs font-bold border border-slate-200 transition cursor-pointer"
+                              title="+20 Crédits Instantanés"
+                            >
+                              +20
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleUpdateCredits(u.id, -5)}
+                              className="px-2 py-1 bg-slate-100 hover:bg-rose-100 hover:text-rose-700 text-slate-600 rounded-lg text-xs font-bold border border-slate-200 transition cursor-pointer"
+                              title="-5 Crédits"
+                            >
+                              -5
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleOpenCreditEditor(u)}
+                              className="p-1 hover:bg-amber-100 hover:text-amber-800 text-slate-400 rounded-lg border border-transparent hover:border-amber-200 transition cursor-pointer"
+                              title="Définir un montant de crédits exact"
+                            >
+                              <Edit3 className="w-3.5 h-3.5" />
+                            </button>
                           </div>
                         </td>
                         <td className="p-3.5">
@@ -591,7 +663,7 @@ export default function AdminDashboardPage() {
                         <td className="p-3.5 text-right space-x-1.5">
                           <button
                             onClick={() => handleToggleStatus(u.id)}
-                            className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-500 hover:text-slate-800 transition"
+                            className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-500 hover:text-slate-800 transition cursor-pointer"
                             title={u.status === "active" ? "Suspendre ce compte" : "Réactiver ce compte"}
                           >
                             <Ban className="w-4 h-4" />
@@ -599,7 +671,7 @@ export default function AdminDashboardPage() {
                           {u.role !== "admin" && (
                             <button
                               onClick={() => handleDeleteUser(u.id, u.name)}
-                              className="p-1.5 hover:bg-rose-50 rounded-lg text-slate-400 hover:text-rose-600 transition"
+                              className="p-1.5 hover:bg-rose-50 rounded-lg text-slate-400 hover:text-rose-600 transition cursor-pointer"
                               title="Supprimer définitivement"
                             >
                               <Trash2 className="w-4 h-4" />
@@ -626,7 +698,7 @@ export default function AdminDashboardPage() {
                 <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200">
                   <button
                     onClick={() => setFilterPaymentStatus("pending")}
-                    className={`px-3 py-1 text-xs font-bold rounded-lg transition ${
+                    className={`px-3 py-1 text-xs font-bold rounded-lg transition cursor-pointer ${
                       filterPaymentStatus === "pending"
                         ? "bg-amber-500 text-white shadow-xs"
                         : "text-slate-600 hover:text-slate-900"
@@ -636,7 +708,7 @@ export default function AdminDashboardPage() {
                   </button>
                   <button
                     onClick={() => setFilterPaymentStatus("approved")}
-                    className={`px-3 py-1 text-xs font-bold rounded-lg transition ${
+                    className={`px-3 py-1 text-xs font-bold rounded-lg transition cursor-pointer ${
                       filterPaymentStatus === "approved"
                         ? "bg-emerald-600 text-white shadow-xs"
                         : "text-slate-600 hover:text-slate-900"
@@ -646,7 +718,7 @@ export default function AdminDashboardPage() {
                   </button>
                   <button
                     onClick={() => setFilterPaymentStatus("rejected")}
-                    className={`px-3 py-1 text-xs font-bold rounded-lg transition ${
+                    className={`px-3 py-1 text-xs font-bold rounded-lg transition cursor-pointer ${
                       filterPaymentStatus === "rejected"
                         ? "bg-rose-600 text-white shadow-xs"
                         : "text-slate-600 hover:text-slate-900"
@@ -656,7 +728,7 @@ export default function AdminDashboardPage() {
                   </button>
                   <button
                     onClick={() => setFilterPaymentStatus("all")}
-                    className={`px-3 py-1 text-xs font-bold rounded-lg transition ${
+                    className={`px-3 py-1 text-xs font-bold rounded-lg transition cursor-pointer ${
                       filterPaymentStatus === "all"
                         ? "bg-slate-800 text-white shadow-xs"
                         : "text-slate-600 hover:text-slate-900"
@@ -1025,6 +1097,63 @@ export default function AdminDashboardPage() {
       {/* ========================================================================= */}
       {/* MODALS */}
       {/* ========================================================================= */}
+
+      {/* Quick Edit Exact Credits Modal */}
+      {editingCreditsUser && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 backdrop-blur-sm p-4 animate-in zoom-in-95 duration-150">
+          <div className="bg-white border border-slate-200 rounded-3xl max-w-sm w-full p-6 space-y-4 shadow-2xl">
+            <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+              <h4 className="text-sm font-bold text-slate-950 flex items-center gap-2">
+                <Zap className="w-4 h-4 text-amber-500" />
+                Modifier le Solde de Crédits
+              </h4>
+              <button
+                onClick={() => setEditingCreditsUser(null)}
+                className="p-1 text-slate-400 hover:text-slate-700 rounded-lg cursor-pointer"
+              >
+                <XCircle className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveCustomCredits} className="space-y-3.5 text-xs">
+              <div className="p-3 bg-slate-50 border border-slate-200 rounded-2xl">
+                <div className="font-bold text-slate-900">{editingCreditsUser.name}</div>
+                <div className="text-[11px] text-slate-500">{editingCreditsUser.email}</div>
+              </div>
+
+              <div>
+                <label className="block text-slate-700 font-bold mb-1.5">Nouveau solde exact de crédits :</label>
+                <input
+                  type="number"
+                  min={0}
+                  max={99999}
+                  value={customCreditsValue}
+                  onChange={(e) => setCustomCreditsValue(Number(e.target.value))}
+                  className="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-slate-950 font-black text-base focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500"
+                  autoFocus
+                  required
+                />
+              </div>
+
+              <div className="flex items-center gap-2 pt-2 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => setEditingCreditsUser(null)}
+                  className="w-1/2 py-2.5 text-slate-600 hover:text-slate-900 font-bold"
+                >
+                  Annuler
+                </button>
+                <button
+                  type="submit"
+                  className="w-1/2 py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black rounded-xl shadow-sm transition"
+                >
+                  Enregistrer
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* 1. Modal Visualisation du Reçu */}
       {selectedReceiptUrl && (

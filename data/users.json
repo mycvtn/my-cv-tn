@@ -1,5 +1,16 @@
 [
   {
+    "id": "usr-1788536818019",
+    "name": "Rami GOUADER",
+    "email": "ramigouader@gmail.com",
+    "password": "R@mail1603",
+    "role": "admin",
+    "credits": 999,
+    "status": "active",
+    "createdAt": "2026-09-04T15:46:58.019Z",
+    "lastLoginAt": "2026-09-04T15:46:58.019Z"
+  },
+  {
     "id": "usr-1788442088332",
     "name": "Rami Gouader",
     "email": "rrr@gmail.com",
@@ -16,7 +27,7 @@
     "email": "asma1@gmail.com",
     "password": "Test@1234",
     "role": "user",
-    "credits": 40,
+    "credits": 45,
     "status": "active",
     "createdAt": "2026-09-01T20:25:33.340Z",
     "lastLoginAt": "2026-09-01T20:25:33.340Z"
