@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
+import { createClient } from "@supabase/supabase-js";
 
 const DATA_DIR = path.join(process.cwd(), "data");
 const USERS_FILE = path.join(DATA_DIR, "users.json");
@@ -32,28 +33,28 @@ const DEFAULT_ADMIN: ServerUserAccount = {
 const SEED_USERS: ServerUserAccount[] = [
   DEFAULT_ADMIN,
   {
-    id: "usr-demo-02",
-    name: "Yassine Ben Salem",
-    email: "user@my-cv.tn",
-    password: "password123",
-    role: "user",
-    credits: 280,
+    id: "usr-admin-02",
+    name: "Rami GOUADER",
+    email: "ramigouader@gmail.com",
+    password: "R@mail1603",
+    role: "admin",
+    credits: 999,
     status: "active",
-    createdAt: "2026-08-15T10:30:00.000Z",
-    lastLoginAt: "2026-09-01T20:00:00.000Z",
-  },
-  {
-    id: "usr-asma-01",
-    name: "Asma Sahraoui",
-    email: "asma@gmail.com",
-    password: "password123",
-    role: "user",
-    credits: 35,
-    status: "active",
-    createdAt: "2026-09-01T10:00:00.000Z",
-    lastLoginAt: "2026-09-01T20:00:00.000Z",
+    createdAt: "2026-09-04T15:46:58.019Z",
+    lastLoginAt: "2026-09-04T15:46:58.019Z",
   },
 ];
+
+function getSupabase() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!url || !key || url.includes("placeholder")) return null;
+  try {
+    return createClient(url, key, { auth: { persistSession: false } });
+  } catch (e) {
+    return null;
+  }
+}
 
 function readUsers(): ServerUserAccount[] {
   try {
@@ -68,7 +69,7 @@ function readUsers(): ServerUserAccount[] {
     fs.writeFileSync(USERS_FILE, JSON.stringify(SEED_USERS, null, 2), "utf-8");
     return SEED_USERS;
   } catch (e) {
-    return [DEFAULT_ADMIN];
+    return SEED_USERS;
   }
 }
 
@@ -85,10 +86,37 @@ export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const email = searchParams.get("email")?.toLowerCase().trim();
   const id = searchParams.get("id");
-  const users = readUsers();
+  const localUsers = readUsers();
+
+  const supabase = getSupabase();
+  let supabaseUsers: ServerUserAccount[] = [];
+
+  if (supabase) {
+    try {
+      const { data } = await supabase.from("profiles").select("*").order("created_at", { ascending: false });
+      if (data && Array.isArray(data)) {
+        supabaseUsers = data.map((p: any) => ({
+          id: p.id,
+          name: p.full_name || p.email?.split("@")[0] || "Utilisateur",
+          email: p.email,
+          role: (p.email === "ramigouader@gmail.com" || p.email === "admin@my-cv.tn" || p.role === "admin") ? "admin" : "user",
+          credits: p.credit_balance !== undefined ? p.credit_balance : 10,
+          status: p.status || "active",
+          createdAt: p.created_at || new Date().toISOString(),
+          lastLoginAt: p.updated_at || p.created_at || new Date().toISOString(),
+        }));
+      }
+    } catch (e) {}
+  }
+
+  // Merge Supabase + Local files
+  const mergedMap = new Map<string, ServerUserAccount>();
+  localUsers.forEach((u) => mergedMap.set(u.email.toLowerCase(), u));
+  supabaseUsers.forEach((u) => mergedMap.set(u.email.toLowerCase(), u));
+  const allUsers = Array.from(mergedMap.values());
 
   if (email || id) {
-    const found = users.find(
+    const found = allUsers.find(
       (u) =>
         (email && u.email.toLowerCase() === email) ||
         (id && u.id === id)
@@ -99,7 +127,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ success: false, error: "Utilisateur non trouvé" }, { status: 404 });
   }
 
-  return NextResponse.json({ success: true, users });
+  return NextResponse.json({ success: true, users: allUsers });
 }
 
 export async function POST(req: NextRequest) {
@@ -107,6 +135,7 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { action } = body;
     const users = readUsers();
+    const supabase = getSupabase();
 
     if (action === "authenticate") {
       const { email, password } = body;
@@ -146,46 +175,57 @@ export async function POST(req: NextRequest) {
       });
 
       writeUsers(updatedList);
+
+      if (supabase) {
+        try {
+          const { data: prof } = await supabase.from("profiles").select("id, credit_balance").or(`id.eq.${userId},email.eq.${lookup}`).maybeSingle();
+          if (prof) {
+            const newCreds = isExact ? Math.max(0, deltaOrExact) : Math.max(0, (prof.credit_balance || 0) + deltaOrExact);
+            await supabase.from("profiles").update({ credit_balance: newCreds, updated_at: new Date().toISOString() }).eq("id", prof.id);
+          }
+        } catch (e) {}
+      }
+
       return NextResponse.json({ success: true, user: updatedTarget, users: updatedList });
     }
 
-    if (action === "register") {
-      const { name, email, password } = body;
-      const normalizedEmail = (email || "").trim().toLowerCase();
-
-      if (users.some((u) => u.email.toLowerCase() === normalizedEmail)) {
-        return NextResponse.json({ error: "Email déjà utilisé" }, { status: 400 });
-      }
-
-      const newUser: ServerUserAccount = {
+    if (action === "register" || action === "admin-create") {
+      const userObj = body.user || {
         id: `usr-${Date.now()}`,
-        name: name.trim() || "Nouvel Utilisateur",
-        email: normalizedEmail,
-        password: password || "password123",
-        role: "user",
-        credits: 5,
-        status: "active",
+        name: body.name?.trim() || "Nouvel Utilisateur",
+        email: body.email?.trim().toLowerCase(),
+        password: body.password || "password123",
+        role: body.role || "user",
+        credits: body.credits !== undefined ? body.credits : 10,
+        status: body.status || "active",
         createdAt: new Date().toISOString(),
         lastLoginAt: new Date().toISOString(),
       };
 
-      const updatedList = [newUser, ...users];
-      writeUsers(updatedList);
-      return NextResponse.json({ success: true, user: newUser });
-    }
+      const normalizedEmail = (userObj.email || "").trim().toLowerCase();
+      const existing = users.find((u) => u.email.toLowerCase() === normalizedEmail);
+      let updatedList = users;
 
-    if (action === "admin-create") {
-      const { user } = body;
-      if (!user || !user.email) {
-        return NextResponse.json({ error: "Données incomplètes" }, { status: 400 });
+      if (existing) {
+        updatedList = users.map((u) => u.email.toLowerCase() === normalizedEmail ? { ...u, ...userObj } : u);
+      } else {
+        updatedList = [userObj, ...users];
       }
-      const normalizedEmail = (user.email || "").trim().toLowerCase();
-      if (users.some((u) => u.email.toLowerCase() === normalizedEmail)) {
-        return NextResponse.json({ error: "Email déjà utilisé" }, { status: 400 });
-      }
-      const updatedList = [user, ...users];
+
       writeUsers(updatedList);
-      return NextResponse.json({ success: true, user });
+
+      if (supabase) {
+        try {
+          await supabase.from("profiles").upsert({
+            email: normalizedEmail,
+            full_name: userObj.name,
+            credit_balance: userObj.credits,
+            updated_at: new Date().toISOString(),
+          }, { onConflict: "email" });
+        } catch (e) {}
+      }
+
+      return NextResponse.json({ success: true, user: userObj, users: updatedList });
     }
 
     if (action === "toggle-status") {
@@ -197,6 +237,17 @@ export async function POST(req: NextRequest) {
         return u;
       });
       writeUsers(updatedList);
+
+      if (supabase) {
+        try {
+          const { data: prof } = await supabase.from("profiles").select("id, status").or(`id.eq.${userId},email.eq.${userId}`).maybeSingle();
+          if (prof) {
+            const nextStatus = prof.status === "active" ? "suspended" : "active";
+            await supabase.from("profiles").update({ status: nextStatus }).eq("id", prof.id);
+          }
+        } catch (e) {}
+      }
+
       return NextResponse.json({ success: true, users: updatedList });
     }
 
@@ -205,6 +256,13 @@ export async function POST(req: NextRequest) {
       const lookup = (userId || "").toString().trim().toLowerCase();
       const updatedList = users.filter((u) => u.id !== userId && u.email.toLowerCase() !== lookup);
       writeUsers(updatedList);
+
+      if (supabase) {
+        try {
+          await supabase.from("profiles").delete().or(`id.eq.${userId},email.eq.${lookup}`);
+        } catch (e) {}
+      }
+
       return NextResponse.json({ success: true, users: updatedList });
     }
 
