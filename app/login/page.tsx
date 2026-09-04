@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { authenticateUser } from "@/lib/auth/authStore";
+import { authenticateUser, setCurrentUser } from "@/lib/auth/authStore";
 import { supabase } from "@/lib/supabase/client";
 import { Lock, Mail, ArrowRight, AlertCircle, CheckCircle2 } from "lucide-react";
 
@@ -73,30 +73,49 @@ function LoginForm() {
       const res = await fetch("/api/users", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "authenticate", email, password }),
+        body: JSON.stringify({ action: "authenticate", email: email.trim(), password }),
       });
       const data = await res.json();
-      if (data.success && data.user) {
-        authenticateUser(email, password);
+      
+      if (res.ok && data.success && data.user) {
+        setCurrentUser(data.user);
+        authenticateUser(email.trim(), password);
         setLoading(false);
         if (data.user.role === "admin") {
-          router.push("/admin");
+          router.replace("/admin");
         } else {
-          router.push("/dashboard");
+          router.replace("/dashboard");
         }
         return;
+      } else {
+        // Fallback to local store
+        const localRes = authenticateUser(email.trim(), password);
+        if (localRes.success && localRes.user) {
+          setCurrentUser(localRes.user);
+          setLoading(false);
+          if (localRes.user.role === "admin") {
+            router.replace("/admin");
+          } else {
+            router.replace("/dashboard");
+          }
+          return;
+        }
+
+        setError(data?.error || localRes?.error || "Identifiants incorrects. Veuillez vérifier votre email et mot de passe.");
+        setLoading(false);
       }
     } catch (err) {
-      const localRes = authenticateUser(email, password);
+      const localRes = authenticateUser(email.trim(), password);
       setLoading(false);
-      if (localRes.success) {
-        if (localRes.user?.role === "admin") {
-          router.push("/admin");
+      if (localRes.success && localRes.user) {
+        setCurrentUser(localRes.user);
+        if (localRes.user.role === "admin") {
+          router.replace("/admin");
         } else {
-          router.push("/dashboard");
+          router.replace("/dashboard");
         }
       } else {
-        setError(localRes.error || "Compte introuvable ou supprimé.");
+        setError(localRes.error || "Compte introuvable ou mot de passe incorrect.");
       }
     }
   };

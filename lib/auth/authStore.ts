@@ -223,16 +223,21 @@ export function setCurrentUser(user: UserAccount | null): void {
       const raw = localStorage.getItem(USERS_STORAGE_KEY);
       let usersList: UserAccount[] = raw ? JSON.parse(raw) : [];
       const index = usersList.findIndex(
-        (u) => u.email.toLowerCase() === user.email.toLowerCase() || u.id === user.id
+        (u) =>
+          (u.email && u.email.toLowerCase() === user.email?.toLowerCase()) ||
+          (u.id && u.id === user.id)
       );
       if (index >= 0) {
-        usersList[index] = { ...usersList[index], name: user.name, role: user.role, status: user.status };
+        usersList[index] = { ...usersList[index], ...user };
       } else {
         usersList = [user, ...usersList];
       }
       localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(usersList));
+      window.dispatchEvent(new CustomEvent("user_credits_updated", { detail: user }));
+      window.dispatchEvent(new Event("storage"));
     } else {
       localStorage.removeItem(ACTIVE_USER_STORAGE_KEY);
+      window.dispatchEvent(new Event("storage"));
     }
   } catch (e) {}
 }
