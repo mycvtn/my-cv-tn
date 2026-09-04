@@ -14,15 +14,8 @@ interface Props {
 export const AuthGuard: React.FC<Props> = ({ children, requireAdmin = false }) => {
   const router = useRouter();
   
-  // Instant synchronous initialization from local session (0ms delay)
-  const [user, setUser] = useState<UserAccount | null>(() => {
-    if (typeof window !== "undefined") {
-      return getCurrentUser();
-    }
-    return null;
-  });
-
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
+  // 1. Instant check on mount
+  const [authorized, setAuthorized] = useState<boolean>(() => {
     if (typeof window !== "undefined") {
       const active = getCurrentUser();
       if (active) {
@@ -33,124 +26,82 @@ export const AuthGuard: React.FC<Props> = ({ children, requireAdmin = false }) =
     return false;
   });
 
-  const [isChecking, setIsChecking] = useState<boolean>(() => {
+  const [checking, setChecking] = useState<boolean>(() => {
     if (typeof window !== "undefined") {
       const active = getCurrentUser();
       if (active) {
         if (requireAdmin) return active.role !== "admin";
-        return false; // Already verified instantly!
+        return false; // Verified instantly!
       }
     }
-    return true; // Only show spinner if no local session exists yet
+    return true;
   });
 
   useEffect(() => {
-    let mounted = true;
-
-    const checkAuth = async () => {
-      // 1. Check local session first (fastest)
-      let active = getCurrentUser();
-
-      if (active) {
-        if (requireAdmin && active.role !== "admin") {
-          router.push("/dashboard");
-          return;
-        }
-        if (mounted) {
-          setUser(active);
-          setIsAuthenticated(true);
-          setIsChecking(false);
-        }
+    // 1. Fast local verification (0ms synchronous)
+    const active = getCurrentUser();
+    if (active) {
+      if (requireAdmin && active.role !== "admin") {
+        router.replace("/dashboard");
         return;
       }
+      setAuthorized(true);
+      setChecking(false);
+      return;
+    }
 
-      // 2. If no local session, check Supabase Auth session in background
+    // 2. Only if no local user exists, check Supabase with a quick 500ms timeout
+    let cancelled = false;
+    const checkRemote = async () => {
       try {
-        const { data: { user: supaUser } } = await supabase.auth.getUser();
-        if (supaUser) {
-          let creditBalance = 5;
-          let role: "user" | "admin" = "user";
-          let fullName = supaUser.user_metadata?.full_name || supaUser.user_metadata?.name || supaUser.email?.split("@")[0] || "Utilisateur";
-
-          try {
-            const res: any = await supabase
-              .from("profiles")
-              .select("full_name, credit_balance, role, status")
-              .eq("id", supaUser.id)
-              .single();
-
-            const profile = res?.data;
-            if (profile) {
-              creditBalance = profile.credit_balance ?? 5;
-              role = profile.role ?? "user";
-              fullName = profile.full_name || fullName;
-            }
-          } catch (pErr) {}
-
+        const timeout = new Promise((_, reject) => setTimeout(() => reject("timeout"), 500));
+        const req = supabase.auth.getUser();
+        const res: any = await Promise.race([req, timeout]);
+        
+        if (res?.data?.user && !cancelled) {
+          const supaUser = res.data.user;
           const newAccount: UserAccount = {
             id: supaUser.id,
-            name: fullName,
+            name: supaUser.user_metadata?.full_name || supaUser.email?.split("@")[0] || "Utilisateur",
             email: supaUser.email || "",
-            role: role,
-            credits: creditBalance,
+            role: "user",
+            credits: 5,
             status: "active",
             createdAt: supaUser.created_at || new Date().toISOString(),
             lastLoginAt: new Date().toISOString(),
           };
-
           setCurrentUser(newAccount);
-          active = newAccount;
+          setAuthorized(true);
+          setChecking(false);
+          return;
         }
       } catch (e) {}
 
-      if (!mounted) return;
-
-      if (!active) {
-        router.push("/login");
-        return;
+      if (!cancelled) {
+        setChecking(false);
+        router.replace("/login");
       }
-
-      if (requireAdmin && active.role !== "admin") {
-        router.push("/dashboard");
-        return;
-      }
-
-      setUser(active);
-      setIsAuthenticated(true);
-      setIsChecking(false);
     };
 
-    checkAuth();
-
-    // Listen for auth state changes from Supabase (e.g. login/logout)
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === "SIGNED_OUT") {
-        setCurrentUser(null);
-        if (mounted) {
-          setIsAuthenticated(false);
-          setIsChecking(false);
-          router.push("/login");
-        }
-      }
-    });
+    checkRemote();
 
     return () => {
-      mounted = false;
-      subscription?.unsubscribe();
+      cancelled = true;
     };
   }, [router, requireAdmin]);
 
-  // If already authenticated with user, render immediately without any spinner delay
-  if (isAuthenticated && user) {
+  // If authorized, render children instantly
+  if (authorized) {
     return <>{children}</>;
   }
 
-  if (isChecking) {
+  // Only show loading if actively resolving an unknown session
+  if (checking) {
     return (
       <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center text-slate-400 font-sans">
         <div className="flex flex-col items-center gap-3">
           <div className="w-8 h-8 border-2 border-rose-500 border-t-transparent rounded-full animate-spin" />
-          <span className="text-xs font-medium">Vérification de votre session...</span>
+          <span className="text-xs font-medium">Chargement...</span>
         </div>
       </div>
     );
