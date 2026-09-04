@@ -1,60 +1,5 @@
 [
   {
-    "id": "usr-1788556902700",
-    "name": "asma sahraoui",
-    "email": "sahraouiasma304@gmail.com",
-    "password": "123456",
-    "role": "user",
-    "credits": 25,
-    "status": "active",
-    "createdAt": "2026-09-04T21:21:42.700Z",
-    "lastLoginAt": "2026-09-04T21:21:42.700Z"
-  },
-  {
-    "id": "usr-1788556882338",
-    "name": "Test Candidat",
-    "email": "testcandidat@gmail.com",
-    "password": "password123",
-    "role": "user",
-    "credits": 5,
-    "status": "active",
-    "createdAt": "2026-09-04T21:21:22.338Z",
-    "lastLoginAt": "2026-09-04T21:21:22.338Z"
-  },
-  {
-    "id": "usr-1788536818019",
-    "name": "Rami GOUADER",
-    "email": "ramigouader@gmail.com",
-    "password": "R@mail1603",
-    "role": "admin",
-    "credits": 999,
-    "status": "active",
-    "createdAt": "2026-09-04T15:46:58.019Z",
-    "lastLoginAt": "2026-09-04T15:46:58.019Z"
-  },
-  {
-    "id": "usr-1788442088332",
-    "name": "Rami Gouader",
-    "email": "rrr@gmail.com",
-    "password": "123456",
-    "role": "user",
-    "credits": 256,
-    "status": "active",
-    "createdAt": "2026-09-03T13:28:08.332Z",
-    "lastLoginAt": "2026-09-03T13:28:08.332Z"
-  },
-  {
-    "id": "usr-1788294333340",
-    "name": "asma sahraoui",
-    "email": "asma1@gmail.com",
-    "password": "Test@1234",
-    "role": "user",
-    "credits": 45,
-    "status": "active",
-    "createdAt": "2026-09-01T20:25:33.340Z",
-    "lastLoginAt": "2026-09-01T20:25:33.340Z"
-  },
-  {
     "id": "usr-admin-01",
     "name": "Administrateur MY-CV TN",
     "email": "admin@my-cv.tn",
@@ -64,5 +9,16 @@
     "status": "active",
     "createdAt": "2026-01-01T00:00:00.000Z",
     "lastLoginAt": "2026-09-01T01:00:00.000Z"
+  },
+  {
+    "id": "usr-admin-02",
+    "name": "Rami GOUADER",
+    "email": "ramigouader@gmail.com",
+    "password": "R@mail1603",
+    "role": "admin",
+    "credits": 999,
+    "status": "active",
+    "createdAt": "2026-09-04T15:46:58.019Z",
+    "lastLoginAt": "2026-09-04T15:46:58.019Z"
   }
 ]
