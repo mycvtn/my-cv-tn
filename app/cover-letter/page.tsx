@@ -99,17 +99,6 @@ export default function CoverLetterPage() {
 
     if (!user) return;
 
-    // Refresh user from server if available to ensure latest credits
-    if (user.email) {
-      try {
-        const fresh = await fetchServerUser(user.email);
-        if (fresh) {
-          user = fresh;
-          setCurrentUser(fresh);
-        }
-      } catch (e) {}
-    }
-
     const availableCredits = user.credits ?? 0;
 
     // Check if user has less than 5 credits (Admins have unlimited)
@@ -118,18 +107,22 @@ export default function CoverLetterPage() {
       return;
     }
 
+    // Immediate 0ms UI feedback
+    setLoading(true);
+
     // Consume 5 credits immediately on click
-    const consumption = consumeUserCredits(user.id || user.email, 5);
-    if (!consumption.success && user.role !== "admin") {
-      setIsRechargeModalOpen(true);
-      return;
+    if (user.role !== "admin") {
+      const consumption = consumeUserCredits(user.id || user.email, 5);
+      if (!consumption.success) {
+        setLoading(false);
+        setIsRechargeModalOpen(true);
+        return;
+      }
     }
 
-    // Refresh current user state with new balance
+    // Refresh current user state with new balance immediately
     const updatedUser = getCurrentUser();
     if (updatedUser) setCurrentUser(updatedUser);
-
-    setLoading(true);
     try {
       const candidateData = activeResume
         ? {

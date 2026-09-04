@@ -84,16 +84,6 @@ export const CoverLetterModal: React.FC<Props> = ({ isOpen, onClose, resumeData,
       return;
     }
 
-    if (user.email) {
-      try {
-        const fresh = await fetchServerUser(user.email);
-        if (fresh) {
-          user = fresh;
-          setCurrentUser(fresh);
-        }
-      } catch (e) {}
-    }
-
     const availableCredits = user.credits ?? 0;
 
     // Check if user has at least 5 credits (Admins have unlimited)
@@ -106,22 +96,26 @@ export const CoverLetterModal: React.FC<Props> = ({ isOpen, onClose, resumeData,
       return;
     }
 
+    // Immediate 0ms UI feedback
+    setLoading(true);
+    setGeneratedLetter(null);
+
     // Consume 5 credits immediately on click
-    const consumption = consumeUserCredits(user.id || user.email, 5);
-    if (!consumption.success && user.role !== "admin") {
-      if (onOpenRecharge) {
-        onOpenRecharge();
-      } else {
-        setIsRechargeModalOpen(true);
+    if (user.role !== "admin") {
+      const consumption = consumeUserCredits(user.id || user.email, 5);
+      if (!consumption.success) {
+        setLoading(false);
+        if (onOpenRecharge) {
+          onOpenRecharge();
+        } else {
+          setIsRechargeModalOpen(true);
+        }
+        return;
       }
-      return;
     }
 
     const updatedUser = getCurrentUser();
     if (updatedUser) setCurrentUser(updatedUser);
-
-    setLoading(true);
-    setGeneratedLetter(null);
 
     // Format full candidate CV profile
     const candidateData = {
