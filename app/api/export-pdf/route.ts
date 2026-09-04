@@ -5,7 +5,7 @@ export async function POST(req: NextRequest) {
   let browser = null;
   try {
     const body = await req.json();
-    const { html, styles = "", fileName = "Mon_CV_A4.pdf", isWatermarked = false } = body;
+    const { html, styles = "", fileName = "Mon_CV_A4.pdf", isWatermarked = false, margin = "10mm" } = body;
 
     if (!html) {
       return NextResponse.json({ error: "Contenu HTML manquant" }, { status: 400 });
@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
           <style>
             @page {
               size: A4 portrait;
-              margin: 3mm;
+              margin: ${margin};
             }
             *, *::before, *::after {
               box-sizing: border-box !important;
@@ -130,10 +130,10 @@ export async function POST(req: NextRequest) {
     const pdfUint8 = await page.pdf({
       format: "A4",
       margin: {
-        top: "3mm",
-        right: "3mm",
-        bottom: "3mm",
-        left: "3mm",
+        top: margin,
+        right: margin,
+        bottom: margin,
+        left: margin,
       },
       printBackground: true,
       preferCSSPageSize: true,

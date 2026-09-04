@@ -183,6 +183,7 @@ export async function exportCoverLetterToPDF(
         styles: allStyles,
         fileName,
         isWatermarked: false,
+        margin: "10mm",
       }),
     });
 
@@ -215,7 +216,7 @@ export async function exportCoverLetterToPDF(
       const html2pdf = (await import("html2pdf.js")).default;
       if (html2pdf) {
         const opt = {
-          margin: 3,
+          margin: 10,
           filename: fileName.endsWith(".pdf") ? fileName : `${fileName}.pdf`,
           image: { type: "jpeg", quality: 0.98 },
           html2canvas: { scale: 3, useCORS: true, logging: false },
@@ -248,7 +249,7 @@ export async function exportCoverLetterToPDF(
         compress: true,
       });
 
-      const margin = 3; // Strict 3mm margin around the page
+      const margin = 10; // Exact 10mm margin around the page
       const printableWidth = 210 - margin * 2;
       const printableHeight = 297 - margin * 2;
       const imgHeight = (canvas.height * printableWidth) / canvas.width;
