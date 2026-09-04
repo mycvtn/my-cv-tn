@@ -21,6 +21,17 @@ export default function RegisterPage() {
     setError("");
     setOauthLoading(provider === "google" ? "google" : "linkedin");
     try {
+      const isSupabaseConfigured =
+        typeof process.env.NEXT_PUBLIC_SUPABASE_URL === "string" &&
+        process.env.NEXT_PUBLIC_SUPABASE_URL.length > 0 &&
+        !process.env.NEXT_PUBLIC_SUPABASE_URL.includes("placeholder");
+
+      if (!isSupabaseConfigured) {
+        setError("La connexion OAuth requiert la configuration des clés Supabase dans les variables d'environnement.");
+        setOauthLoading(null);
+        return;
+      }
+
       const redirectUrl = `${window.location.origin}/auth/callback`;
       const { error: oauthErr } = await supabase.auth.signInWithOAuth({
         provider,
@@ -65,46 +76,48 @@ export default function RegisterPage() {
     setLoading(true);
     setError("");
 
-    try {
-      const redirectUrl = `${window.location.origin}/auth/callback`;
-      const { data: supaData, error: supaErr } = await supabase.auth.signUp({
-        email: email.trim(),
-        password: password,
-        options: {
-          data: {
-            full_name: name.trim(),
+    const isSupabaseConfigured =
+      typeof process.env.NEXT_PUBLIC_SUPABASE_URL === "string" &&
+      process.env.NEXT_PUBLIC_SUPABASE_URL.length > 0 &&
+      !process.env.NEXT_PUBLIC_SUPABASE_URL.includes("placeholder");
+
+    if (isSupabaseConfigured) {
+      try {
+        const redirectUrl = `${window.location.origin}/auth/callback`;
+        const { data: supaData, error: supaErr } = await supabase.auth.signUp({
+          email: email.trim(),
+          password: password,
+          options: {
+            data: {
+              full_name: name.trim(),
+            },
+            emailRedirectTo: redirectUrl,
           },
-          emailRedirectTo: redirectUrl,
-        },
-      });
+        });
 
-      if (supaErr && !supaErr.message?.includes("placeholder")) {
-        setError(supaErr.message || "Erreur lors de la création du compte.");
-        setLoading(false);
-        return;
+        if (supaErr) {
+          if (!supaErr.message?.includes("fetch") && !supaErr.message?.includes("placeholder")) {
+            setError(supaErr.message || "Erreur lors de la création du compte.");
+            setLoading(false);
+            return;
+          }
+        } else if (supaData?.user && !supaData.session) {
+          setEmailConfirmationRequired(true);
+          setLoading(false);
+          return;
+        }
+      } catch (err: any) {
+        console.warn("Supabase auth non joignable, enregistrement via le store local:", err);
       }
+    }
 
-      if (supaData?.user && !supaData.session) {
-        setEmailConfirmationRequired(true);
-        setLoading(false);
-        return;
-      }
-
-      const res = registerNewUser(name, email, password);
-      setLoading(false);
-      if (res.success) {
-        router.push("/dashboard");
-      } else {
-        setError(res.error || "Une erreur est survenue.");
-      }
-    } catch (err: any) {
-      const res = registerNewUser(name, email, password);
-      setLoading(false);
-      if (res.success) {
-        router.push("/dashboard");
-      } else {
-        setError(res.error || "Une erreur est survenue.");
-      }
+    // Always register in local store & server API
+    const res = registerNewUser(name.trim(), email.trim(), password);
+    setLoading(false);
+    if (res.success) {
+      router.push("/dashboard");
+    } else {
+      setError(res.error || "Une erreur est survenue lors de la création du compte.");
     }
   };
 

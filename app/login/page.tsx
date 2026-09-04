@@ -26,6 +26,17 @@ function LoginForm() {
     setError("");
     setOauthLoading(provider === "google" ? "google" : "linkedin");
     try {
+      const isSupabaseConfigured =
+        typeof process.env.NEXT_PUBLIC_SUPABASE_URL === "string" &&
+        process.env.NEXT_PUBLIC_SUPABASE_URL.length > 0 &&
+        !process.env.NEXT_PUBLIC_SUPABASE_URL.includes("placeholder");
+
+      if (!isSupabaseConfigured) {
+        setError("La connexion OAuth requiert la configuration des clés Supabase dans les variables d'environnement.");
+        setOauthLoading(null);
+        return;
+      }
+
       const redirectUrl = `${window.location.origin}/auth/callback`;
       const { error: oauthErr } = await supabase.auth.signInWithOAuth({
         provider,
