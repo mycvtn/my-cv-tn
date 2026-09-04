@@ -141,20 +141,6 @@ export async function fetchServerUser(emailOrId: string): Promise<UserAccount | 
         }
         return data.user;
       }
-    } else if (res.status === 404) {
-      // User was deleted on server! Invalidate local session if active
-      if (typeof window !== "undefined") {
-        const rawActive = localStorage.getItem(ACTIVE_USER_STORAGE_KEY);
-        if (rawActive) {
-          try {
-            const active = JSON.parse(rawActive);
-            const lookup = emailOrId.toLowerCase();
-            if (active && (active.id?.toLowerCase() === lookup || active.email?.toLowerCase() === lookup)) {
-              setCurrentUser(null);
-            }
-          } catch (e) {}
-        }
-      }
     }
   } catch (e) {}
   return null;
@@ -282,7 +268,7 @@ export function registerNewUser(name: string, email: string, password?: string):
     fetch("/api/users", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action: "register", name, email: normalizedEmail, password }),
+      body: JSON.stringify({ action: "admin-create", user: newUser }),
     }).catch(() => {});
   } catch (e) {}
 
