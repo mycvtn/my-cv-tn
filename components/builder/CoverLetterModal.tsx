@@ -78,14 +78,26 @@ export const CoverLetterModal: React.FC<Props> = ({ isOpen, onClose, resumeData,
     if (!jobTitle || !companyName) return;
     setCreditError(null);
 
-    const currentUser = getCurrentUser();
-    if (!currentUser) {
+    let user = getCurrentUser() || currentUser;
+    if (!user) {
       setCreditError("Veuillez vous connecter pour générer votre lettre.");
       return;
     }
 
+    if (user.email) {
+      try {
+        const fresh = await fetchServerUser(user.email);
+        if (fresh) {
+          user = fresh;
+          setCurrentUser(fresh);
+        }
+      } catch (e) {}
+    }
+
+    const availableCredits = user.credits ?? 0;
+
     // Check if user has at least 5 credits (Admins have unlimited)
-    if (currentUser.role !== "admin" && (currentUser.credits || 0) < 5) {
+    if (user.role !== "admin" && availableCredits < 5) {
       if (onOpenRecharge) {
         onOpenRecharge();
       } else {
@@ -95,8 +107,8 @@ export const CoverLetterModal: React.FC<Props> = ({ isOpen, onClose, resumeData,
     }
 
     // Consume 5 credits immediately on click
-    const consumption = consumeUserCredits(currentUser.id, 5);
-    if (!consumption.success && currentUser.role !== "admin") {
+    const consumption = consumeUserCredits(user.id || user.email, 5);
+    if (!consumption.success && user.role !== "admin") {
       if (onOpenRecharge) {
         onOpenRecharge();
       } else {
@@ -104,6 +116,9 @@ export const CoverLetterModal: React.FC<Props> = ({ isOpen, onClose, resumeData,
       }
       return;
     }
+
+    const updatedUser = getCurrentUser();
+    if (updatedUser) setCurrentUser(updatedUser);
 
     setLoading(true);
     setGeneratedLetter(null);

@@ -91,27 +91,43 @@ export default function CoverLetterPage() {
   }, []);
 
   const handleGenerateAI = async () => {
-    const user = getCurrentUser();
-    if (!user) {
+    let user = getCurrentUser() || currentUser;
+    if (!user && typeof window !== "undefined") {
       alert("Veuillez vous connecter pour utiliser l'IA.");
       return;
     }
 
+    if (!user) return;
+
+    // Refresh user from server if available to ensure latest credits
+    if (user.email) {
+      try {
+        const fresh = await fetchServerUser(user.email);
+        if (fresh) {
+          user = fresh;
+          setCurrentUser(fresh);
+        }
+      } catch (e) {}
+    }
+
+    const availableCredits = user.credits ?? 0;
+
     // Check if user has less than 5 credits (Admins have unlimited)
-    if (user.role !== "admin" && (user.credits || 0) < 5) {
+    if (user.role !== "admin" && availableCredits < 5) {
       setIsRechargeModalOpen(true);
       return;
     }
 
     // Consume 5 credits immediately on click
-    const consumption = consumeUserCredits(user.id, 5);
+    const consumption = consumeUserCredits(user.id || user.email, 5);
     if (!consumption.success && user.role !== "admin") {
       setIsRechargeModalOpen(true);
       return;
     }
 
     // Refresh current user state with new balance
-    setCurrentUser(getCurrentUser());
+    const updatedUser = getCurrentUser();
+    if (updatedUser) setCurrentUser(updatedUser);
 
     setLoading(true);
     try {

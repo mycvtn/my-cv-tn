@@ -107,20 +107,52 @@ export async function fetchServerUser(emailOrId: string): Promise<UserAccount | 
       const data = await res.json();
       if (data.user) {
         if (typeof window !== "undefined") {
-          const current = getCurrentUser();
-          if (current && (current.id === data.user.id || current.email.toLowerCase() === data.user.email.toLowerCase())) {
-            localStorage.setItem(ACTIVE_USER_STORAGE_KEY, JSON.stringify(data.user));
-            window.dispatchEvent(new CustomEvent("user_credits_updated", { detail: data.user }));
+          // 1. Update the global stored users list
+          const allUsers = getStoredUsers();
+          const targetId = (data.user.id || "").toLowerCase();
+          const targetEmail = (data.user.email || "").toLowerCase();
+          const idx = allUsers.findIndex(
+            (u) => (u.id || "").toLowerCase() === targetId || (u.email || "").toLowerCase() === targetEmail
+          );
+          if (idx >= 0) {
+            allUsers[idx] = { ...allUsers[idx], ...data.user };
+          } else {
+            allUsers.push(data.user);
           }
+          saveStoredUsers(allUsers);
+
+          // 2. If this is the currently active user, update active user storage
+          const rawActive = localStorage.getItem(ACTIVE_USER_STORAGE_KEY);
+          if (rawActive) {
+            try {
+              const active = JSON.parse(rawActive);
+              if (
+                active &&
+                ((active.id || "").toLowerCase() === targetId ||
+                  (active.email || "").toLowerCase() === targetEmail)
+              ) {
+                localStorage.setItem(ACTIVE_USER_STORAGE_KEY, JSON.stringify(data.user));
+              }
+            } catch (e) {}
+          }
+
+          window.dispatchEvent(new CustomEvent("user_credits_updated", { detail: data.user }));
+          window.dispatchEvent(new Event("storage"));
         }
         return data.user;
       }
     } else if (res.status === 404) {
       // User was deleted on server! Invalidate local session if active
       if (typeof window !== "undefined") {
-        const current = getCurrentUser();
-        if (current && (current.id === emailOrId || current.email.toLowerCase() === emailOrId.toLowerCase())) {
-          setCurrentUser(null);
+        const rawActive = localStorage.getItem(ACTIVE_USER_STORAGE_KEY);
+        if (rawActive) {
+          try {
+            const active = JSON.parse(rawActive);
+            const lookup = emailOrId.toLowerCase();
+            if (active && (active.id?.toLowerCase() === lookup || active.email?.toLowerCase() === lookup)) {
+              setCurrentUser(null);
+            }
+          } catch (e) {}
         }
       }
     }
@@ -144,22 +176,39 @@ export function getCurrentUser(): UserAccount | null {
     const active: UserAccount = JSON.parse(raw);
     if (!active || !active.email) return null;
 
-    // Check with users list (Source of Truth)
+    // Check with users list
     const allUsers = getStoredUsers();
     const match = allUsers.find(
-      (u) => u.id === active.id || u.email.toLowerCase() === active.email.toLowerCase()
+      (u) =>
+        (u.id && u.id.toLowerCase() === active.id?.toLowerCase()) ||
+        (u.email && u.email.toLowerCase() === active.email?.toLowerCase())
     );
 
-    // If user was deleted from the system, destroy session!
-    if (!match) {
-      localStorage.removeItem(ACTIVE_USER_STORAGE_KEY);
-      return null;
+    if (match) {
+      // Pick the highest credits between active and match to prevent cache overwrite
+      const bestCredits = Math.max(active.credits ?? 0, match.credits ?? 0);
+      const unified: UserAccount = {
+        ...match,
+        ...active,
+        credits: bestCredits,
+      };
+
+      if (match.credits !== bestCredits) {
+        const idx = allUsers.findIndex((u) => u.id === match.id);
+        if (idx >= 0) {
+          allUsers[idx] = unified;
+          saveStoredUsers(allUsers);
+        }
+      }
+
+      if (active.credits !== bestCredits) {
+        localStorage.setItem(ACTIVE_USER_STORAGE_KEY, JSON.stringify(unified));
+      }
+
+      return unified;
     }
 
-    if (match.credits !== active.credits || match.status !== active.status || match.name !== active.name) {
-      localStorage.setItem(ACTIVE_USER_STORAGE_KEY, JSON.stringify(match));
-    }
-    return match;
+    return active;
   } catch (e) {
     return null;
   }
@@ -474,11 +523,17 @@ export function consumeUserCredits(
   userIdOrEmail: string,
   amount: number = 5
 ): { success: boolean; remainingCredits: number; user?: UserAccount; error?: string } {
-  const users = getStoredUsers();
+  const active = getCurrentUser();
   const lookup = (userIdOrEmail || "").trim().toLowerCase();
-  const target = users.find(
-    (u) => u.id.toLowerCase() === lookup || u.email.toLowerCase() === lookup
+  
+  const users = getStoredUsers();
+  let target = users.find(
+    (u) => (u.id && u.id.toLowerCase() === lookup) || (u.email && u.email.toLowerCase() === lookup)
   );
+
+  if (!target && active && ((active.id && active.id.toLowerCase() === lookup) || (active.email && active.email.toLowerCase() === lookup))) {
+    target = active;
+  }
 
   if (!target) {
     return { success: false, remainingCredits: 0, error: "Utilisateur non connecté ou introuvable." };
@@ -489,7 +544,8 @@ export function consumeUserCredits(
     return { success: true, remainingCredits: target.credits ?? 999, user: target };
   }
 
-  const currentCredits = target.credits || 0;
+  // Ensure we check the freshest credits value between target and active session
+  const currentCredits = Math.max(target.credits || 0, (active && active.email.toLowerCase() === target.email.toLowerCase() ? active.credits : 0) || 0);
   if (currentCredits < amount) {
     return {
       success: false,
@@ -498,7 +554,7 @@ export function consumeUserCredits(
     };
   }
 
-  const updated = adminUpdateUserCredits(target.id, -amount);
+  const updated = adminUpdateUserCredits(target.id || target.email, -amount);
   return {
     success: true,
     remainingCredits: updated ? (updated.credits || 0) : currentCredits - amount,
