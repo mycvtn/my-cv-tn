@@ -5,7 +5,7 @@ import {
   X, Sparkles, FileText, Bot, CreditCard, Shield, 
   CheckCircle2, ArrowRight, ArrowLeft, Upload, Clock, AlertCircle, Copy, Check
 } from "lucide-react";
-import { getCurrentUser } from "@/lib/auth/authStore";
+import { getCurrentUser, fetchServerUser } from "@/lib/auth/authStore";
 import { getPaymentSettings, createPaymentRequest, PaymentMethod, PaymentSettings, CustomPaymentMethod } from "@/lib/payments/paymentStore";
 
 interface Props {
@@ -28,6 +28,7 @@ export const CreditCalculatorModal: React.FC<Props> = ({
   const [receiptImage, setReceiptImage] = useState<string>("");
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [displayBalance, setDisplayBalance] = useState<number>(currentBalance);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const PRICE_PER_CREDIT_TND = 0.8; // 1 Crédit = 0.800 TND
@@ -39,6 +40,22 @@ export const CreditCalculatorModal: React.FC<Props> = ({
       setStep("calculate");
       setReceiptImage("");
 
+      // Read real-time balance
+      const local = getCurrentUser();
+      if (local && typeof local.credits === "number") {
+        setDisplayBalance(local.credits);
+      } else {
+        setDisplayBalance(currentBalance);
+      }
+
+      if (local?.email) {
+        fetchServerUser(local.email).then((serverUser) => {
+          if (serverUser && typeof serverUser.credits === "number") {
+            setDisplayBalance(serverUser.credits);
+          }
+        });
+      }
+
       // Default to first active method
       if (settings.flouciEnabled !== false) {
         setSelectedMethod("flouci");
@@ -49,7 +66,7 @@ export const CreditCalculatorModal: React.FC<Props> = ({
         if (firstActive) setSelectedMethod(firstActive.id);
       }
     }
-  }, [isOpen]);
+  }, [isOpen, currentBalance]);
 
   if (!isOpen) return null;
 
@@ -197,7 +214,7 @@ export const CreditCalculatorModal: React.FC<Props> = ({
             <div className="bg-slate-50 p-3 rounded-2xl flex items-center justify-between border border-slate-200/80 text-xs">
               <span className="text-slate-600 font-semibold">Votre solde actuel :</span>
               <span className="font-extrabold text-slate-900 bg-white px-2.5 py-1 rounded-xl border border-slate-200 shadow-2xs">
-                {currentBalance} Crédits ({ (currentBalance * PRICE_PER_CREDIT_TND).toFixed(2) } DT)
+                {displayBalance} Crédits ({ (displayBalance * PRICE_PER_CREDIT_TND).toFixed(2) } DT)
               </span>
             </div>
 

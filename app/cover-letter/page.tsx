@@ -10,7 +10,7 @@ import {
 import Link from "next/link";
 import confetti from "canvas-confetti";
 import { AuthGuard } from "@/components/auth/AuthGuard";
-import { getCurrentUser, consumeUserCredits } from "@/lib/auth/authStore";
+import { getCurrentUser, consumeUserCredits, fetchServerUser, getStoredUsers } from "@/lib/auth/authStore";
 import { UserAccount } from "@/types/auth";
 import { exportCoverLetterToPDF } from "@/lib/pdf/pdfExporter";
 import { CreditCalculatorModal } from "@/components/modals/CreditCalculatorModal";
@@ -26,21 +26,36 @@ export default function CoverLetterPage() {
   const [currentUser, setCurrentUser] = useState<UserAccount | null>(null);
   const [isRechargeModalOpen, setIsRechargeModalOpen] = useState(false);
 
-  // Auto-populate from active resume & current user
+  // Live credit sync and active resume loading
   useEffect(() => {
-    const refreshUser = () => {
-      const user = getCurrentUser();
-      setCurrentUser(user);
-      return user;
+    const refreshUser = async () => {
+      const active = getCurrentUser();
+      if (active && active.email) {
+        const serverUser = await fetchServerUser(active.email);
+        if (serverUser) {
+          setCurrentUser(serverUser);
+          return serverUser;
+        }
+        const all = getStoredUsers();
+        const found = all.find((u) => u.email.toLowerCase() === active.email.toLowerCase() || u.id === active.id);
+        if (found) {
+          setCurrentUser(found);
+          return found;
+        }
+      }
+      setCurrentUser(active);
+      return active;
     };
 
-    const user = refreshUser();
+    refreshUser();
 
-    // Listen for balance updates
+    // Listen for balance updates & poll every 1.5s
     const handleStorage = () => refreshUser();
     window.addEventListener("storage", handleStorage);
     window.addEventListener("user_credits_updated", handleStorage);
+    const interval = setInterval(refreshUser, 1500);
 
+    const user = getCurrentUser();
     try {
       const userId = user ? user.id : "guest";
       const listKey = `my_cv_resumes_list_${userId}`;
@@ -71,6 +86,7 @@ export default function CoverLetterPage() {
     return () => {
       window.removeEventListener("storage", handleStorage);
       window.removeEventListener("user_credits_updated", handleStorage);
+      clearInterval(interval);
     };
   }, []);
 

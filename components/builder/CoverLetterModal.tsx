@@ -5,7 +5,8 @@ import { ResumeData } from "@/types/resume";
 import { X, Sparkles, Loader2, Copy, Check, FileText, ArrowRight, Building2, Briefcase, Download, Coins } from "lucide-react";
 import confetti from "canvas-confetti";
 import { exportCoverLetterToPDF } from "@/lib/pdf/pdfExporter";
-import { getCurrentUser, consumeUserCredits } from "@/lib/auth/authStore";
+import { getCurrentUser, consumeUserCredits, fetchServerUser, getStoredUsers } from "@/lib/auth/authStore";
+import { UserAccount } from "@/types/auth";
 import { CreditCalculatorModal } from "@/components/modals/CreditCalculatorModal";
 
 interface Props {
@@ -25,8 +26,42 @@ export const CoverLetterModal: React.FC<Props> = ({ isOpen, onClose, resumeData,
   const [tone, setTone] = useState<"formal" | "dynamic" | "academic">("formal");
   const [loading, setLoading] = useState(false);
   const [exportingPdf, setExportingPdf] = useState(false);
+  const [currentUser, setCurrentUser] = useState<UserAccount | null>(null);
   const [isRechargeModalOpen, setIsRechargeModalOpen] = useState(false);
   const [creditError, setCreditError] = useState<string | null>(null);
+
+  React.useEffect(() => {
+    if (!isOpen) return;
+
+    const syncUser = async () => {
+      const active = getCurrentUser();
+      if (active && active.email) {
+        const serverUser = await fetchServerUser(active.email);
+        if (serverUser) {
+          setCurrentUser(serverUser);
+          return;
+        }
+        const all = getStoredUsers();
+        const found = all.find((u) => u.email.toLowerCase() === active.email.toLowerCase() || u.id === active.id);
+        if (found) {
+          setCurrentUser(found);
+          return;
+        }
+      }
+      setCurrentUser(active);
+    };
+
+    syncUser();
+    window.addEventListener("user_credits_updated", syncUser);
+    window.addEventListener("storage", syncUser);
+    const interval = setInterval(syncUser, 1500);
+
+    return () => {
+      window.removeEventListener("user_credits_updated", syncUser);
+      window.removeEventListener("storage", syncUser);
+      clearInterval(interval);
+    };
+  }, [isOpen]);
   const [generatedLetter, setGeneratedLetter] = useState<{
     subject: string;
     greeting: string;
@@ -459,7 +494,7 @@ ${resumeData.personalInfo.fullName}`;
         <CreditCalculatorModal
           isOpen={isRechargeModalOpen}
           onClose={() => setIsRechargeModalOpen(false)}
-          currentBalance={getCurrentUser()?.credits || 0}
+          currentBalance={currentUser?.credits ?? 0}
         />
       )}
     </div>
