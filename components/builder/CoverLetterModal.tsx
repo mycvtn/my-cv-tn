@@ -326,36 +326,93 @@ ${resumeData.personalInfo.fullName}`;
               {/* Styled Printable / Exportable Sheet */}
               <div
                 id="modal-cover-letter-sheet"
-                className="p-8 rounded-2xl border bg-white text-slate-900 space-y-5 font-sans leading-relaxed border-slate-200 shadow-sm"
+                className="bg-white rounded-2xl shadow-sheet p-8 sm:p-10 border border-slate-200 text-slate-800 font-sans relative overflow-hidden flex flex-col justify-between"
               >
-                {/* Sender & Recipient Header */}
-                <div className="flex justify-between items-start text-xs border-b border-slate-100 pb-4">
-                  <div>
-                    <div className="font-bold text-slate-950 text-sm">{resumeData.personalInfo.fullName}</div>
-                    <div className="text-slate-600">{resumeData.personalInfo.email}</div>
-                    <div className="text-slate-600">{resumeData.personalInfo.phone}</div>
-                    <div className="text-slate-600">{resumeData.personalInfo.location}</div>
+                {/* Top Accent Line */}
+                <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-indigo-600 via-blue-600 to-indigo-800" />
+
+                <div>
+                  {/* Sender & Recipient Header */}
+                  <div className="flex flex-col sm:flex-row justify-between items-start gap-4 border-b border-slate-200/80 pb-5">
+                    {/* Left: Sender Information */}
+                    <div className="space-y-1">
+                      <div className="font-extrabold text-slate-950 text-base sm:text-lg tracking-tight">
+                        {resumeData.personalInfo.fullName || "Votre Nom & Prénom"}
+                      </div>
+                      {jobTitle && (
+                        <div className="text-xs font-bold text-indigo-600">
+                          {jobTitle}
+                        </div>
+                      )}
+                      <div className="w-10 h-0.5 bg-indigo-500 rounded-full my-1.5" />
+                      <div className="text-[11px] text-slate-600 space-y-0.5 font-medium">
+                        {resumeData.personalInfo.email && <div>{resumeData.personalInfo.email}</div>}
+                        {resumeData.personalInfo.phone && <div>{resumeData.personalInfo.phone}</div>}
+                        {resumeData.personalInfo.location && <div>{resumeData.personalInfo.location}</div>}
+                      </div>
+                    </div>
+
+                    {/* Right: Recipient Card */}
+                    <div className="bg-slate-50/90 border border-slate-200 rounded-xl p-3 min-w-[220px] text-left shadow-2xs space-y-1">
+                      <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">À l'attention de :</div>
+                      <div className="font-bold text-slate-900 text-xs">
+                        {recipientTitle || "Direction du Recrutement"}
+                      </div>
+                      <div className="font-extrabold text-indigo-700 text-xs sm:text-sm">
+                        {companyName || "Entreprise Cible"}
+                      </div>
+                      {companyAddress && (
+                        <div className="text-slate-600 text-[11px]">{companyAddress}</div>
+                      )}
+                      <div className="pt-2 mt-1 border-t border-slate-200/70 text-slate-500 text-[11px] flex items-center justify-between">
+                        <span>Date :</span>
+                        <span className="font-semibold text-slate-700">{letterDate || new Date().toLocaleDateString("fr-FR")}</span>
+                      </div>
+                    </div>
                   </div>
-                  <div className="text-right">
-                    <div className="font-bold text-slate-900">{recipientTitle || "Direction du Recrutement"}</div>
-                    <div className="font-semibold text-indigo-700">{companyName}</div>
-                    {companyAddress && <div className="text-slate-600">{companyAddress}</div>}
-                    <div className="text-slate-500 mt-1">Le {letterDate}</div>
+
+                  {/* Subject Banner */}
+                  <div className="my-5 border-l-4 border-indigo-600 pl-3.5 py-2 bg-indigo-50/50 rounded-r-xl font-bold text-slate-950 text-xs sm:text-sm tracking-wide shadow-2xs">
+                    Objet : {generatedLetter.subject}
+                  </div>
+
+                  {/* Greeting */}
+                  <div className="mb-3 font-bold text-slate-900 text-xs sm:text-sm">
+                    {generatedLetter.greeting || "Madame, Monsieur,"}
+                  </div>
+
+                  {/* Paragraphs */}
+                  <div className="space-y-3.5 text-justify text-slate-800 text-xs sm:text-[12px] leading-[1.7] font-normal">
+                    {generatedLetter.openingParagraph && (
+                      <p className="indent-4">{generatedLetter.openingParagraph}</p>
+                    )}
+                    {generatedLetter.bodyParagraph && (
+                      <p className="indent-4 p-3.5 rounded-xl bg-slate-50/60 border border-slate-100 font-normal">
+                        {generatedLetter.bodyParagraph}
+                      </p>
+                    )}
+                    {generatedLetter.closingParagraph && (
+                      <p className="indent-4">{generatedLetter.closingParagraph}</p>
+                    )}
+                  </div>
+
+                  {/* Signoff */}
+                  <div className="mt-5 pt-1 text-slate-800 text-xs sm:text-[12px] leading-relaxed">
+                    <p>{generatedLetter.signoff}</p>
                   </div>
                 </div>
 
-                <div className="font-bold text-slate-950 text-xs pb-1">
-                  Objet : {generatedLetter.subject}
-                </div>
-                <div className="font-semibold text-slate-900 text-xs">{generatedLetter.greeting}</div>
-                <p className="text-justify text-slate-800 text-xs">{generatedLetter.openingParagraph}</p>
-                <p className="text-justify text-slate-800 text-xs">
-                  {generatedLetter.bodyParagraph}
-                </p>
-                <p className="text-justify text-slate-800 text-xs">{generatedLetter.closingParagraph}</p>
-                <div className="pt-3">
-                  <p className="text-xs text-slate-800">{generatedLetter.signoff}</p>
-                  <p className="font-bold text-slate-950 text-xs mt-3">{resumeData.personalInfo.fullName}</p>
+                {/* Signature Block & Footer */}
+                <div className="mt-6 pt-4 border-t border-slate-100 flex justify-between items-end">
+                  <div>
+                    <div className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-1">Signature du Candidat</div>
+                    <div className="font-extrabold text-slate-950 text-sm tracking-tight">
+                      {resumeData.personalInfo.fullName || "Signature"}
+                    </div>
+                  </div>
+                  <div className="text-[10px] text-slate-400 font-medium">
+                    Document officiel de candidature
+                  </div>
                 </div>
               </div>
             </div>

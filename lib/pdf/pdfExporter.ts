@@ -215,7 +215,7 @@ export async function exportCoverLetterToPDF(
       const html2pdf = (await import("html2pdf.js")).default;
       if (html2pdf) {
         const opt = {
-          margin: 15,
+          margin: 3,
           filename: fileName.endsWith(".pdf") ? fileName : `${fileName}.pdf`,
           image: { type: "jpeg", quality: 0.98 },
           html2canvas: { scale: 3, useCORS: true, logging: false },
@@ -248,11 +248,21 @@ export async function exportCoverLetterToPDF(
         compress: true,
       });
 
-      const pdfWidth = 210;
-      const pdfHeight = 297;
-      const imgHeight = (canvas.height * pdfWidth) / canvas.width;
+      const margin = 3; // Strict 3mm margin around the page
+      const printableWidth = 210 - margin * 2;
+      const printableHeight = 297 - margin * 2;
+      const imgHeight = (canvas.height * printableWidth) / canvas.width;
 
-      pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, Math.min(imgHeight, pdfHeight), undefined, "FAST");
+      pdf.addImage(
+        imgData,
+        "PNG",
+        margin,
+        margin,
+        printableWidth,
+        Math.min(imgHeight, printableHeight),
+        undefined,
+        "FAST"
+      );
       const cleanFileName = fileName.endsWith(".pdf") ? fileName : `${fileName}.pdf`;
       pdf.save(cleanFileName);
 

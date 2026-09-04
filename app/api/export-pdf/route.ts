@@ -47,7 +47,7 @@ export async function POST(req: NextRequest) {
               -webkit-print-color-adjust: exact !important;
               print-color-adjust: exact !important;
             }
-            #resume-sheet-preview {
+            #resume-sheet-preview, #cover-letter-sheet, #modal-cover-letter-sheet {
               box-shadow: none !important;
               border: none !important;
               margin: 0 auto !important;

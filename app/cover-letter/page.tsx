@@ -416,43 +416,93 @@ ${data.candidateName}`;
           <div className="lg:col-span-7 flex justify-center items-start">
             <div
               id="cover-letter-sheet"
-              className="bg-white rounded-xl shadow-sheet p-10 max-w-[700px] w-full min-h-[850px] text-slate-800 text-xs font-sans leading-relaxed border border-slate-200"
+              className="bg-white rounded-2xl shadow-sheet p-8 sm:p-12 max-w-[760px] w-full min-h-[1020px] text-slate-800 font-sans border border-slate-200 relative overflow-hidden flex flex-col justify-between"
             >
-              {/* Header sender / receiver */}
-              <div className="flex justify-between items-start mb-8 text-xs border-b border-slate-100 pb-5">
+              {/* Top Accent Line */}
+              <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-indigo-600 via-blue-600 to-indigo-800" />
+
+              <div>
+                {/* Header sender / receiver */}
+                <div className="flex flex-col sm:flex-row justify-between items-start gap-6 border-b border-slate-200/80 pb-6">
+                  {/* Left: Sender Information */}
+                  <div className="space-y-1">
+                    <h1 className="font-extrabold text-slate-950 text-base sm:text-lg tracking-tight">
+                      {data.candidateName || "Votre Nom & Prénom"}
+                    </h1>
+                    {data.jobTitle && (
+                      <div className="text-xs font-bold text-indigo-600">
+                        {data.jobTitle}
+                      </div>
+                    )}
+                    <div className="w-10 h-0.5 bg-indigo-500 rounded-full my-2" />
+                    <div className="text-[11px] text-slate-600 space-y-0.5 font-medium">
+                      {data.candidateEmail && <div>{data.candidateEmail}</div>}
+                      {data.candidatePhone && <div>{data.candidatePhone}</div>}
+                      {data.candidateAddress && <div>{data.candidateAddress}</div>}
+                    </div>
+                  </div>
+
+                  {/* Right: Recipient Card */}
+                  <div className="bg-slate-50/90 border border-slate-200 rounded-xl p-3.5 min-w-[240px] text-left shadow-2xs space-y-1">
+                    <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">À l'attention de :</div>
+                    <div className="font-bold text-slate-900 text-xs">
+                      {data.recipientTitle || "Direction des Ressources Humaines"}
+                    </div>
+                    <div className="font-extrabold text-indigo-700 text-xs sm:text-sm">
+                      {data.companyName || "Entreprise Cible"}
+                    </div>
+                    {data.companyAddress && (
+                      <div className="text-slate-600 text-[11px]">{data.companyAddress}</div>
+                    )}
+                    <div className="pt-2 mt-1 border-t border-slate-200/70 text-slate-500 text-[11px] flex items-center justify-between">
+                      <span>Date :</span>
+                      <span className="font-semibold text-slate-700">{data.date || new Date().toLocaleDateString("fr-FR")}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Subject Banner */}
+                <div className="my-6 border-l-4 border-indigo-600 pl-3.5 py-2.5 bg-indigo-50/50 rounded-r-xl font-bold text-slate-950 text-xs sm:text-sm tracking-wide shadow-2xs">
+                  Objet : {data.subject || `Candidature au poste de ${data.jobTitle || "votre offre"}`}
+                </div>
+
+                {/* Greeting */}
+                <div className="mb-4 font-bold text-slate-900 text-xs sm:text-sm">
+                  {data.greeting || "Madame, Monsieur,"}
+                </div>
+
+                {/* Paragraphs */}
+                <div className="space-y-4 text-justify text-slate-800 text-xs sm:text-[12.5px] leading-[1.75] font-normal">
+                  {data.openingParagraph && (
+                    <p className="indent-4">{data.openingParagraph}</p>
+                  )}
+                  {data.bodyParagraph && (
+                    <p className="indent-4 p-4 rounded-xl bg-slate-50/60 border border-slate-100 font-normal">
+                      {data.bodyParagraph}
+                    </p>
+                  )}
+                  {data.closingParagraph && (
+                    <p className="indent-4">{data.closingParagraph}</p>
+                  )}
+                </div>
+
+                {/* Signoff */}
+                <div className="mt-6 pt-2 text-slate-800 text-xs sm:text-[12.5px] leading-relaxed">
+                  <p>{data.signoff}</p>
+                </div>
+              </div>
+
+              {/* Signature Block & Footer */}
+              <div className="mt-8 pt-4 border-t border-slate-100 flex justify-between items-end">
                 <div>
-                  <div className="font-bold text-slate-950 text-sm">{data.candidateName}</div>
-                  <div className="text-slate-600">{data.candidateEmail}</div>
-                  <div className="text-slate-600">{data.candidatePhone}</div>
-                  <div className="text-slate-600">{data.candidateAddress}</div>
+                  <div className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider mb-1">Signature du Candidat</div>
+                  <div className="font-extrabold text-slate-950 text-sm tracking-tight">
+                    {data.candidateName || "Signature"}
+                  </div>
                 </div>
-                <div className="text-right">
-                  <div className="font-bold text-slate-900">{data.recipientTitle || "Direction des Ressources Humaines"}</div>
-                  <div className="font-semibold text-indigo-700">{data.companyName}</div>
-                  <div className="text-slate-600">{data.companyAddress || "Tunisie"}</div>
-                  <div className="text-slate-500 mt-2">{data.date}</div>
+                <div className="text-[10px] text-slate-400 font-medium">
+                  Document officiel de candidature
                 </div>
-              </div>
-
-              {/* Subject */}
-              <div className="font-bold text-slate-950 text-xs mb-6 pb-2 border-b border-slate-100">
-                Objet : {data.subject}
-              </div>
-
-              {/* Greeting */}
-              <div className="mb-4 font-semibold text-slate-900">{data.greeting}</div>
-
-              {/* Paragraphs */}
-              <div className="space-y-4 text-justify text-slate-800 leading-relaxed">
-                <p>{data.openingParagraph}</p>
-                <p>{data.bodyParagraph}</p>
-                <p>{data.closingParagraph}</p>
-              </div>
-
-              {/* Signoff */}
-              <div className="mt-8 pt-4">
-                <p>{data.signoff}</p>
-                <p className="font-bold text-slate-950 mt-4">{data.candidateName}</p>
               </div>
             </div>
           </div>
