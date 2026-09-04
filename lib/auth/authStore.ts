@@ -1,4 +1,4 @@
-import { UserAccount, AuthState } from "@/types/auth";
+import { UserAccount, AuthState, UserRole } from "@/types/auth";
 import { supabase } from "@/lib/supabase/client";
 
 const USERS_STORAGE_KEY = "my_cv_all_users_list";
@@ -236,6 +236,47 @@ export function logoutUser(): void {
   try {
     supabase.auth.signOut().catch(() => {});
   } catch (e) {}
+}
+
+export function adminCreateUser(
+  name: string,
+  email: string,
+  password?: string,
+  role: UserRole = "user",
+  initialCredits = 5
+): { success: boolean; user?: UserAccount; error?: string } {
+  const users = getStoredUsers();
+  const normalizedEmail = email.trim().toLowerCase();
+
+  if (users.some((u) => u.email.toLowerCase() === normalizedEmail)) {
+    return { success: false, error: "Cette adresse email est déjà associée à un compte." };
+  }
+
+  const newUser: UserAccount = {
+    id: `usr-${Date.now()}`,
+    name: name.trim() || (role === "admin" ? "Administrateur" : "Nouvel Utilisateur"),
+    email: normalizedEmail,
+    password: password || "password123",
+    role: role,
+    credits: role === "admin" ? 999 : initialCredits,
+    status: "active",
+    createdAt: new Date().toISOString(),
+    lastLoginAt: new Date().toISOString(),
+  };
+
+  const updatedList = [newUser, ...users];
+  saveStoredUsers(updatedList);
+
+  // Sync to server API in background
+  try {
+    fetch("/api/users", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "admin-create", user: newUser }),
+    }).catch(() => {});
+  } catch (e) {}
+
+  return { success: true, user: newUser };
 }
 
 // Admin Operations

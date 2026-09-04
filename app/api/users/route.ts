@@ -174,6 +174,20 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: true, user: newUser });
     }
 
+    if (action === "admin-create") {
+      const { user } = body;
+      if (!user || !user.email) {
+        return NextResponse.json({ error: "Données incomplètes" }, { status: 400 });
+      }
+      const normalizedEmail = (user.email || "").trim().toLowerCase();
+      if (users.some((u) => u.email.toLowerCase() === normalizedEmail)) {
+        return NextResponse.json({ error: "Email déjà utilisé" }, { status: 400 });
+      }
+      const updatedList = [user, ...users];
+      writeUsers(updatedList);
+      return NextResponse.json({ success: true, user });
+    }
+
     if (action === "toggle-status") {
       const { userId } = body;
       const updatedList = users.map((u) => {

@@ -2,11 +2,11 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { UserAccount } from "@/types/auth";
+import { UserAccount, UserRole } from "@/types/auth";
 import { 
   getStoredUsers, getCurrentUser, adminUpdateUserCredits, 
   adminToggleUserStatus, adminDeleteUser, adminDeleteAllUsers, registerNewUser, logoutUser,
-  fetchServerUsers
+  adminCreateUser, fetchServerUsers
 } from "@/lib/auth/authStore";
 import { 
   getPaymentSettings, savePaymentSettings,
@@ -17,7 +17,7 @@ import {
   Users, Ticket, DollarSign, Shield, ShieldCheck, Search, 
   Plus, PlusCircle, MinusCircle, Ban, CheckCircle2, Trash2, 
   ArrowLeft, RefreshCw, LogOut, FileText, Activity, AlertCircle, Edit3,
-  CreditCard, Clock, XCircle, Eye, Settings, Check, Phone, Landmark, MessageSquare
+  CreditCard, Clock, XCircle, Eye, Settings, Check, Phone, Landmark, MessageSquare, UserCheck
 } from "lucide-react";
 
 export default function AdminDashboardPage() {
@@ -33,6 +33,8 @@ export default function AdminDashboardPage() {
   const [newUserName, setNewUserName] = useState<string>("");
   const [newUserEmail, setNewUserEmail] = useState<string>("");
   const [newUserPassword, setNewUserPassword] = useState<string>("");
+  const [newUserRole, setNewUserRole] = useState<UserRole>("user");
+  const [newUserCredits, setNewUserCredits] = useState<number>(5);
 
   // Payment Requests State
   const [paymentRequests, setPaymentRequests] = useState<PaymentRequest[]>([]);
@@ -136,18 +138,27 @@ export default function AdminDashboardPage() {
     }
   };
 
-  const handleCreateUser = (e: React.FormEvent) => {
+  const handleCreateUser = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newUserName.trim() || !newUserEmail.trim()) return;
 
-    const res = registerNewUser(newUserName, newUserEmail, newUserPassword || "password123");
+    const res = adminCreateUser(
+      newUserName,
+      newUserEmail,
+      newUserPassword || "password123",
+      newUserRole,
+      newUserRole === "admin" ? 999 : Number(newUserCredits) || 5
+    );
+
     if (res.success) {
-      setUsers(getStoredUsers());
+      await refreshAllData();
       setIsAddUserModal(false);
       setNewUserName("");
       setNewUserEmail("");
       setNewUserPassword("");
-      showToast("Nouvel utilisateur ajouté avec 5 crédits offerts !");
+      setNewUserRole("user");
+      setNewUserCredits(5);
+      showToast(`Compte ${newUserRole === "admin" ? "Administrateur 🛡️" : "Utilisateur 👤"} créé avec succès !`);
     } else {
       alert(res.error || "Erreur lors de la création.");
     }
@@ -326,7 +337,7 @@ export default function AdminDashboardPage() {
                 my-cv.tn
               </span>
             </h1>
-            <p className="text-[10px] text-slate-500">Gestion des utilisateurs & méthodes de paiement</p>
+            <p className="text-[10px] text-slate-500">Gestion des utilisateurs, rôles & méthodes de paiement</p>
           </div>
         </div>
 
@@ -359,8 +370,13 @@ export default function AdminDashboardPage() {
               <span>Utilisateurs Inscrits</span>
               <Users className="w-4 h-4 text-blue-600" />
             </div>
-            <div className="text-2xl font-black text-slate-950">{users.length}</div>
-            <div className="text-[10px] text-slate-500">Comptes actifs sur my-cv.tn</div>
+            <div className="text-2xl font-black text-slate-950 flex items-center gap-2">
+              <span>{users.length}</span>
+              <span className="text-[10px] font-bold text-rose-700 bg-rose-50 px-1.5 py-0.5 rounded border border-rose-200">
+                {users.filter(u => u.role === "admin").length} admin{users.filter(u => u.role === "admin").length > 1 ? "s" : ""}
+              </span>
+            </div>
+            <div className="text-[10px] text-slate-500">Comptes sur my-cv.tn</div>
           </div>
 
           <div 
@@ -414,7 +430,7 @@ export default function AdminDashboardPage() {
             }`}
           >
             <Users className="w-3.5 h-3.5 text-blue-600" />
-            <span>Gestion Utilisateurs ({users.length})</span>
+            <span>Gestion Utilisateurs & Rôles ({users.length})</span>
           </button>
 
           <button
@@ -477,17 +493,21 @@ export default function AdminDashboardPage() {
                 </select>
 
                 <button
-                  onClick={() => setIsAddUserModal(true)}
-                  className="flex items-center gap-1.5 px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white font-extrabold text-xs rounded-xl shadow-sm transition"
+                  onClick={() => {
+                    setNewUserRole("user");
+                    setNewUserCredits(5);
+                    setIsAddUserModal(true);
+                  }}
+                  className="flex items-center gap-1.5 px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white font-extrabold text-xs rounded-xl shadow-sm transition cursor-pointer"
                 >
                   <Plus className="w-3.5 h-3.5" />
-                  <span>Ajouter Utilisateur</span>
+                  <span>+ Créer Compte (Admin / User)</span>
                 </button>
 
                 <button
                   onClick={handleDeleteAllUsers}
-                  className="px-3 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-bold rounded-xl transition"
-                  title="Supprimer tous les utilisateurs"
+                  className="px-3 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-bold rounded-xl transition cursor-pointer"
+                  title="Supprimer tous les utilisateurs ordinaires"
                 >
                   Tout Supprimer
                 </button>
@@ -518,19 +538,23 @@ export default function AdminDashboardPage() {
                     filteredUsers.map((u) => (
                       <tr key={u.id} className="hover:bg-slate-50/80 transition">
                         <td className="p-3.5 font-bold text-slate-950 flex items-center gap-2.5">
-                          <div className="w-7 h-7 rounded-lg bg-slate-100 border border-slate-200 text-slate-700 flex items-center justify-center font-bold text-xs">
-                            {u.name.charAt(0).toUpperCase()}
+                          <div className={`w-7 h-7 rounded-lg flex items-center justify-center font-bold text-xs ${
+                            u.role === "admin" 
+                              ? "bg-rose-100 text-rose-700 border border-rose-200" 
+                              : "bg-slate-100 text-slate-700 border border-slate-200"
+                          }`}>
+                            {u.role === "admin" ? "🛡️" : u.name.charAt(0).toUpperCase()}
                           </div>
                           <span>{u.name}</span>
                         </td>
                         <td className="p-3.5 text-slate-600">{u.email}</td>
                         <td className="p-3.5">
-                          <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold ${
+                          <span className={`px-2.5 py-1 rounded-md text-[10px] font-extrabold uppercase ${
                             u.role === "admin"
-                              ? "bg-rose-50 text-rose-700 border border-rose-200"
-                              : "bg-slate-100 text-slate-700"
+                              ? "bg-rose-50 text-rose-700 border border-rose-200 flex items-center gap-1 w-fit"
+                              : "bg-blue-50 text-blue-700 border border-blue-200"
                           }`}>
-                            {u.role}
+                            {u.role === "admin" ? "🛡️ ADMIN" : "👤 CANDIDAT"}
                           </span>
                         </td>
                         <td className="p-3.5">
@@ -686,7 +710,7 @@ export default function AdminDashboardPage() {
                           <button
                             type="button"
                             onClick={() => setSelectedReceiptUrl(p.receiptImageUrl)}
-                            className="flex items-center gap-1.5 px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold border border-slate-200 transition shadow-2xs"
+                            className="flex items-center gap-1.5 px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold border border-slate-200 transition shadow-2xs cursor-pointer"
                           >
                             <Eye className="w-3.5 h-3.5 text-blue-600" />
                             <span>Voir capture</span>
@@ -716,13 +740,13 @@ export default function AdminDashboardPage() {
                             <>
                               <button
                                 onClick={() => handleApprovePayment(p.id, p.userName, p.credits)}
-                                className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-extrabold shadow-sm transition"
+                                className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-extrabold shadow-sm transition cursor-pointer"
                               >
                                 Valider & Créditer
                               </button>
                               <button
                                 onClick={() => handleOpenReject(p.id)}
-                                className="px-2.5 py-1.5 bg-rose-100 hover:bg-rose-200 text-rose-800 rounded-xl text-xs font-bold border border-rose-300 transition"
+                                className="px-2.5 py-1.5 bg-rose-100 hover:bg-rose-200 text-rose-800 rounded-xl text-xs font-bold border border-rose-300 transition cursor-pointer"
                               >
                                 Refuser
                               </button>
@@ -761,7 +785,7 @@ export default function AdminDashboardPage() {
               <button
                 type="button"
                 onClick={() => setIsAddMethodModalOpen(true)}
-                className="flex items-center gap-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs rounded-xl shadow-sm transition"
+                className="flex items-center gap-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs rounded-xl shadow-sm transition cursor-pointer"
               >
                 <Plus className="w-4 h-4" />
                 <span>+ Ajouter une Méthode de Paiement</span>
@@ -905,7 +929,7 @@ export default function AdminDashboardPage() {
                     <button
                       type="button"
                       onClick={() => setIsAddMethodModalOpen(true)}
-                      className="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs rounded-xl shadow-xs transition inline-flex items-center gap-1.5 mt-1"
+                      className="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs rounded-xl shadow-xs transition inline-flex items-center gap-1.5 mt-1 cursor-pointer"
                     >
                       <Plus className="w-3.5 h-3.5" />
                       <span>Ajouter ma première méthode</span>
@@ -925,7 +949,7 @@ export default function AdminDashboardPage() {
                             <button
                               type="button"
                               onClick={() => handleToggleCustomMethod(method.id)}
-                              className={`px-2 py-0.5 rounded-full text-[10px] font-bold border transition ${
+                              className={`px-2 py-0.5 rounded-full text-[10px] font-bold border transition cursor-pointer ${
                                 method.enabled
                                   ? "bg-emerald-50 text-emerald-700 border-emerald-200"
                                   : "bg-slate-200 text-slate-600 border-slate-300"
@@ -937,7 +961,7 @@ export default function AdminDashboardPage() {
                             <button
                               type="button"
                               onClick={() => handleDeleteCustomMethod(method.id, method.name)}
-                              className="p-1 hover:bg-rose-100 text-slate-400 hover:text-rose-600 rounded-lg transition"
+                              className="p-1 hover:bg-rose-100 text-slate-400 hover:text-rose-600 rounded-lg transition cursor-pointer"
                               title="Supprimer cette méthode"
                             >
                               <Trash2 className="w-3.5 h-3.5" />
@@ -1013,7 +1037,7 @@ export default function AdminDashboardPage() {
               </h4>
               <button
                 onClick={() => setSelectedReceiptUrl(null)}
-                className="p-1 text-slate-400 hover:text-slate-700 rounded-lg"
+                className="p-1 text-slate-400 hover:text-slate-700 rounded-lg cursor-pointer"
               >
                 <XCircle className="w-5 h-5" />
               </button>
@@ -1030,7 +1054,7 @@ export default function AdminDashboardPage() {
 
             <button
               onClick={() => setSelectedReceiptUrl(null)}
-              className="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl shadow-sm"
+              className="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl shadow-sm cursor-pointer"
             >
               Fermer
             </button>
@@ -1049,7 +1073,7 @@ export default function AdminDashboardPage() {
               </h4>
               <button
                 onClick={() => setRejectingRequestId(null)}
-                className="p-1 text-slate-400 hover:text-slate-700 rounded-lg"
+                className="p-1 text-slate-400 hover:text-slate-700 rounded-lg cursor-pointer"
               >
                 <XCircle className="w-5 h-5" />
               </button>
@@ -1072,14 +1096,14 @@ export default function AdminDashboardPage() {
               <button
                 type="button"
                 onClick={() => setRejectingRequestId(null)}
-                className="px-3.5 py-2 text-xs font-bold text-slate-500 hover:text-slate-800"
+                className="px-3.5 py-2 text-xs font-bold text-slate-500 hover:text-slate-800 cursor-pointer"
               >
                 Annuler
               </button>
               <button
                 type="button"
                 onClick={handleConfirmReject}
-                className="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white font-extrabold text-xs rounded-xl shadow-sm"
+                className="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white font-extrabold text-xs rounded-xl shadow-sm cursor-pointer"
               >
                 Confirmer le Refus
               </button>
@@ -1088,43 +1112,87 @@ export default function AdminDashboardPage() {
         </div>
       )}
 
-      {/* 3. Modal Ajouter Utilisateur */}
+      {/* 3. Modal AJOUTER / CREER UN COMPTE (Admin ou Utilisateur) */}
       {isAddUserModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 backdrop-blur-sm p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 backdrop-blur-sm p-4 animate-in zoom-in-95 duration-150">
           <div className="bg-white border border-slate-200 rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl">
             <div className="flex items-center justify-between pb-2 border-b border-slate-100">
               <h4 className="text-sm font-bold text-slate-950 flex items-center gap-2">
                 <Plus className="w-4 h-4 text-rose-600" />
-                Ajouter un Nouvel Utilisateur
+                Créer un Nouveau Compte
               </h4>
               <button
                 onClick={() => setIsAddUserModal(false)}
-                className="p-1 text-slate-400 hover:text-slate-700 rounded-lg"
+                className="p-1 text-slate-400 hover:text-slate-700 rounded-lg cursor-pointer"
               >
                 <XCircle className="w-5 h-5" />
               </button>
             </div>
 
-            <form onSubmit={handleCreateUser} className="space-y-3 text-xs">
+            <form onSubmit={handleCreateUser} className="space-y-3.5 text-xs">
+              {/* Type de compte (Rôle) */}
+              <div>
+                <label className="block text-slate-700 font-bold mb-1.5">Type de compte (Rôle) :</label>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setNewUserRole("user");
+                      setNewUserCredits(5);
+                    }}
+                    className={`p-2.5 rounded-xl border text-left flex items-center gap-2 transition cursor-pointer ${
+                      newUserRole === "user"
+                        ? "border-blue-500 bg-blue-50 text-blue-900 font-bold ring-2 ring-blue-500/20"
+                        : "border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100"
+                    }`}
+                  >
+                    <span className="text-base">👤</span>
+                    <div>
+                      <div className="text-xs font-bold">Candidat</div>
+                      <div className="text-[10px] text-slate-500 font-normal">Utilisateur standard</div>
+                    </div>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setNewUserRole("admin");
+                      setNewUserCredits(999);
+                    }}
+                    className={`p-2.5 rounded-xl border text-left flex items-center gap-2 transition cursor-pointer ${
+                      newUserRole === "admin"
+                        ? "border-rose-500 bg-rose-50 text-rose-900 font-bold ring-2 ring-rose-500/20"
+                        : "border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100"
+                    }`}
+                  >
+                    <span className="text-base">🛡️</span>
+                    <div>
+                      <div className="text-xs font-bold">Administrateur</div>
+                      <div className="text-[10px] text-slate-500 font-normal">Accès supervision</div>
+                    </div>
+                  </button>
+                </div>
+              </div>
+
               <div>
                 <label className="block text-slate-700 font-semibold mb-1">Nom complet :</label>
                 <input
                   type="text"
                   value={newUserName}
                   onChange={(e) => setNewUserName(e.target.value)}
-                  placeholder="Ex: Yassine Ben Salem"
+                  placeholder={newUserRole === "admin" ? "Ex: Rami GOUADER (Admin)" : "Ex: Yassine Ben Salem"}
                   className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 focus:outline-none focus:border-rose-500"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-slate-700 font-semibold mb-1">Email :</label>
+                <label className="block text-slate-700 font-semibold mb-1">Email de connexion :</label>
                 <input
                   type="email"
                   value={newUserEmail}
                   onChange={(e) => setNewUserEmail(e.target.value)}
-                  placeholder="yassine@example.com"
+                  placeholder={newUserRole === "admin" ? "admin2@my-cv.tn" : "candidat@example.com"}
                   className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 focus:outline-none focus:border-rose-500"
                   required
                 />
@@ -1141,23 +1209,44 @@ export default function AdminDashboardPage() {
                 />
               </div>
 
-              <div className="p-2.5 bg-rose-50 border border-rose-200 rounded-xl text-[11px] text-rose-700">
-                ✨ L'utilisateur recevra automatiquement <strong>5 crédits de bienvenue</strong> à la création.
-              </div>
+              {newUserRole === "user" ? (
+                <div>
+                  <label className="block text-slate-700 font-semibold mb-1">Solde initial de crédits offerts :</label>
+                  <input
+                    type="number"
+                    min={0}
+                    max={1000}
+                    value={newUserCredits}
+                    onChange={(e) => setNewUserCredits(Number(e.target.value))}
+                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 focus:outline-none focus:border-rose-500 font-bold"
+                  />
+                  <p className="text-[10px] text-slate-500 mt-1">✨ Par défaut : 5 crédits de bienvenue.</p>
+                </div>
+              ) : (
+                <div className="p-2.5 bg-rose-50 border border-rose-200 rounded-xl text-[11px] text-rose-800 space-y-1">
+                  <div className="font-bold flex items-center gap-1.5">
+                    <ShieldCheck className="w-4 h-4 text-rose-600" />
+                    <span>Privilèges Administrateur Totaux</span>
+                  </div>
+                  <p className="text-[10px] text-slate-600 leading-relaxed">
+                    Ce compte aura accès à <strong>/admin</strong> pour valider les virements D17/Flouci, gérer les utilisateurs et configurer les paramètres de paiement (crédits illimités 999 Cr).
+                  </p>
+                </div>
+              )}
 
               <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
                 <button
                   type="button"
                   onClick={() => setIsAddUserModal(false)}
-                  className="px-3.5 py-2 text-slate-500 hover:text-slate-800 font-bold"
+                  className="px-3.5 py-2 text-slate-500 hover:text-slate-800 font-bold cursor-pointer"
                 >
                   Annuler
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white font-extrabold rounded-xl shadow-sm"
+                  className="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white font-extrabold rounded-xl shadow-sm cursor-pointer"
                 >
-                  Créer le Compte
+                  {newUserRole === "admin" ? "Créer Compte Admin" : "Créer Compte Candidat"}
                 </button>
               </div>
             </form>
@@ -1176,7 +1265,7 @@ export default function AdminDashboardPage() {
               </h4>
               <button
                 onClick={() => setIsAddMethodModalOpen(false)}
-                className="p-1 text-slate-400 hover:text-slate-700 rounded-lg"
+                className="p-1 text-slate-400 hover:text-slate-700 rounded-lg cursor-pointer"
               >
                 <XCircle className="w-5 h-5" />
               </button>
@@ -1254,13 +1343,13 @@ export default function AdminDashboardPage() {
                 <button
                   type="button"
                   onClick={() => setIsAddMethodModalOpen(false)}
-                  className="px-4 py-2 text-slate-500 hover:text-slate-800 font-bold"
+                  className="px-4 py-2 text-slate-500 hover:text-slate-800 font-bold cursor-pointer"
                 >
                   Annuler
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold rounded-xl shadow-sm transition"
+                  className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-extrabold rounded-xl shadow-sm transition cursor-pointer"
                 >
                   Ajouter & Activer la Méthode
                 </button>
