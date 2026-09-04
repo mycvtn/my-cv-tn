@@ -69,6 +69,42 @@ function LoginForm() {
     setLoading(true);
     setError("");
 
+    const isSupabaseConfigured =
+      typeof process.env.NEXT_PUBLIC_SUPABASE_URL === "string" &&
+      process.env.NEXT_PUBLIC_SUPABASE_URL.length > 0 &&
+      !process.env.NEXT_PUBLIC_SUPABASE_URL.includes("placeholder");
+
+    if (isSupabaseConfigured) {
+      try {
+        const { data: supaAuth, error: supaErr } = await supabase.auth.signInWithPassword({
+          email: email.trim(),
+          password: password,
+        });
+
+        if (!supaErr && supaAuth?.user) {
+          const isAdm = supaAuth.user.email === "ramigouader@gmail.com" || supaAuth.user.email === "admin@my-cv.tn";
+          const userAccount = {
+            id: supaAuth.user.id,
+            name: supaAuth.user.user_metadata?.full_name || supaAuth.user.email?.split("@")[0] || "Utilisateur",
+            email: supaAuth.user.email || email.trim(),
+            role: (isAdm ? "admin" : "user") as any,
+            credits: isAdm ? 999 : 10,
+            status: "active" as const,
+            createdAt: supaAuth.user.created_at || new Date().toISOString(),
+            lastLoginAt: new Date().toISOString(),
+          };
+          setCurrentUser(userAccount);
+          setLoading(false);
+          if (userAccount.role === "admin") {
+            router.replace("/admin");
+          } else {
+            router.replace("/dashboard");
+          }
+          return;
+        }
+      } catch (e) {}
+    }
+
     try {
       const res = await fetch("/api/users", {
         method: "POST",
