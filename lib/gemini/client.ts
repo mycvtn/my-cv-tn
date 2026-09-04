@@ -110,6 +110,9 @@ function toFrenchInfinitive(text: string): string {
   let cleaned = text.replace(/^[-•*]\s*/, "").trim();
   cleaned = cleaned.replace(/\.+$/, "").trim();
 
+  // Strip casual filler prefixes (e.g. "j'ai fait", "j ai fait", "jai fait", "responsable de", "charge de")
+  cleaned = cleaned.replace(/^(j['’\s]?ai\s+(fait|travaill[eé]\s+sur|particip[eé]\s+[aà]|réalis[eé]|conçu|d[eé]velopp[eé]|g[eé]r[eé])?|responsable\s+de\s+l['’]|responsable\s+de|charg[eé]\s+de|faire\s+le|faire\s+la|faire\s+les|travail\s+sur|missions?\s*:?)\s*/i, "").trim();
+
   // 1. Check direct conjugated verbs
   for (const [pattern, inf] of CONJUGATED_TO_INFINITIVE_MAP) {
     if (pattern.test(cleaned)) {
@@ -118,17 +121,10 @@ function toFrenchInfinitive(text: string): string {
     }
   }
 
-  // 2. Strip casual filler prefixes
-  cleaned = cleaned.replace(/^(j'ai fait|j'ai travaillé sur|responsable de|chargé de|faire le|faire la|faire les|créer|faire|travaillé sur|travail sur)\s+/i, "");
-
-  // 3. Exact action noun mappings -> Natural context-specific Infinitive verbs
+  // 2. Exact action noun mappings -> Natural context-specific Infinitive verbs
   // Support / Maintenance / Dépannage
-  if (/^(assuration|assurance|support|assistance|helpdesk|dépannage|résolution|maintenance)\b/i.test(cleaned)) {
-    if (/^support/i.test(cleaned)) {
-      let rest = cleaned.replace(/^support\s*/i, "").trim();
-      return `Assurer le support ${rest}.`;
-    }
-    let rest = cleaned.replace(/^(assuration|assurance|assurer|assuré|assurant|assistance|helpdesk|dépannage|résolution|maintenance)\s*(de\s+l'|d'|du|des|de\s+la|de)?\s*/i, "").trim();
+  if (/^(le\s+|la\s+|l['’]|les\s+|un\s+|une\s+|des\s+|du\s+)?(assuration|assurance|support|assistance|helpdesk|dépannage|résolution|maintenance)\b/i.test(cleaned)) {
+    let rest = cleaned.replace(/^(le\s+|la\s+|l['’]|les\s+|un\s+|une\s+|des\s+|du\s+)?(assuration|assurance|assurer|assuré|assurant|assistance|helpdesk|dépannage|résolution|maintenance)\s*(de\s+l'|d'|du|des|de\s+la|de)?\s*/i, "").trim();
     if (/^incidents?|pannes?|bugs?/i.test(rest)) {
       return `Prendre en charge et résoudre les ${rest}.`;
     }
@@ -137,94 +133,100 @@ function toFrenchInfinitive(text: string): string {
   }
 
   // Développement / Frontend / Backend / Fullstack / API / Code
-  if (/^(développement|codage|programmation|implémentation)\b/i.test(cleaned)) {
-    let rest = cleaned.replace(/^(développement|codage|programmation|implémentation)\s*(de\s+l'|d'|du|des|de\s+la|de)?\s*/i, "").trim();
-    if (!/^(l'|la|le|les|d'|des|du|de)\b/i.test(rest)) rest = `l'${rest}`;
+  if (/^(le\s+|la\s+|l['’]|les\s+|un\s+|une\s+|des\s+|du\s+)?(d[eé]veloppement|codage|programmation|impl[eé]mentation)\b/i.test(cleaned)) {
+    let rest = cleaned.replace(/^(le\s+|la\s+|l['’]|les\s+|un\s+|une\s+|des\s+|du\s+)?(d[eé]veloppement|codage|programmation|impl[eé]mentation)\s*(de\s+l'|d'|du|des|de\s+la|de)?\s*/i, "").trim();
+    if (/^(backend|frontend|fullstack|site|logiciel|module|portail|projet)/i.test(rest)) {
+      rest = `le ${rest}`;
+    } else if (/^(api|applications?|infrastructures?|architectures?)/i.test(rest)) {
+      rest = `l'${rest}`;
+    } else if (!/^(l'|la|le|les|d'|des|du|de)\b/i.test(rest)) {
+      rest = `les ${rest}`;
+    }
     return `Développer et concevoir ${rest}.`;
   }
 
   // Conception / Architecture / Modélisation / Design
-  if (/^(conception|architecture|modélisation|design)\b/i.test(cleaned)) {
-    let rest = cleaned.replace(/^(conception|architecture|modélisation|design)\s*(et\s+modélisation\s+)?(de\s+l'|d'|du|des|de\s+la|de)?\s*/i, "").trim();
+  if (/^(le\s+|la\s+|l['’]|les\s+|un\s+|une\s+|des\s+|du\s+)?(conception|architecture|mod[eé]lisation|design)\b/i.test(cleaned)) {
+    let rest = cleaned.replace(/^(le\s+|la\s+|l['’]|les\s+|un\s+|une\s+|des\s+|du\s+)?(conception|architecture|mod[eé]lisation|design)\s*(et\s+mod[eé]lisation\s+)?(de\s+l'|d'|du|des|de\s+la|de)?\s*/i, "").trim();
     if (!/^(l'|la|le|les|d'|des|du|de)\b/i.test(rest)) rest = `la ${rest}`;
     return `Concevoir et modéliser ${rest}.`;
   }
 
   // Création / Élaboration / Réalisation
-  if (/^(création|élaboration|réalisation)\b/i.test(cleaned)) {
-    let rest = cleaned.replace(/^(création|élaboration|réalisation)\s*(de\s+l'|d'|du|des|de\s+la|de)?\s*/i, "").trim();
+  if (/^(le\s+|la\s+|l['’]|les\s+|un\s+|une\s+|des\s+|du\s+)?(cr[eé]ation|[eé]laboration|r[eé]alisation)\b/i.test(cleaned)) {
+    let rest = cleaned.replace(/^(le\s+|la\s+|l['’]|les\s+|un\s+|une\s+|des\s+|du\s+)?(cr[eé]ation|[eé]laboration|r[eé]alisation)\s*(de\s+l'|d'|du|des|de\s+la|de)?\s*/i, "").trim();
     if (!/^(l'|la|le|les|d'|des|du|de)\b/i.test(rest)) rest = `le ${rest}`;
     return `Réaliser et mettre en place ${rest}.`;
   }
 
   // Gestion / Pilotage / Management / Suivi / Animation
-  if (/^(gestion|gérance|pilotage|management|suivi|animation)\b/i.test(cleaned)) {
-    let rest = cleaned.replace(/^(gestion|gérance|pilotage|management|suivi|animation)\s*(de\s+projet\s+agile|de\s+projet|de\s+l'|d'|du|des|de\s+la|de)?\s*/i, "").trim();
+  if (/^(le\s+|la\s+|l['’]|les\s+|un\s+|une\s+|des\s+|du\s+)?(gestion|g[eé]rance|pilotage|management|suivi|animation)\b/i.test(cleaned)) {
+    let rest = cleaned.replace(/^(le\s+|la\s+|l['’]|les\s+|un\s+|une\s+|des\s+|du\s+)?(gestion|g[eé]rance|pilotage|management|suivi|animation)\s*(de\s+projet\s+agile|de\s+projet|de\s+l'|d'|du|des|de\s+la|de)?\s*/i, "").trim();
     return `Piloter et gérer les projets ${rest}.`;
   }
 
   // Administration / Système / Réseau / Base de données
-  if (/^(administration|admin)\b/i.test(cleaned)) {
-    let rest = cleaned.replace(/^(administration|admin)\s*(de\s+l'|d'|du|des|de\s+la|de)?\s*/i, "").trim();
+  if (/^(le\s+|la\s+|l['’]|les\s+|un\s+|une\s+|des\s+|du\s+)?(administration|admin)\b/i.test(cleaned)) {
+    let rest = cleaned.replace(/^(le\s+|la\s+|l['’]|les\s+|un\s+|une\s+|des\s+|du\s+)?(administration|admin)\s*(de\s+l'|d'|du|des|de\s+la|de)?\s*/i, "").trim();
     if (!/^(l'|la|le|les|d'|des|du|de)\b/i.test(rest)) rest = `les ${rest}`;
     return `Administrer et maintenir ${rest}.`;
   }
 
   // Déploiement / Mise en production / Release
-  if (/^(déploiement|mise en production|release)\b/i.test(cleaned)) {
-    let rest = cleaned.replace(/^(déploiement|mise en production|release)\s*(de\s+l'|d'|du|des|de\s+la|de)?\s*/i, "").trim();
+  if (/^(le\s+|la\s+|l['’]|les\s+|un\s+|une\s+|des\s+|du\s+)?(d[eé]ploiement|mise\s+en\s+production|release)\b/i.test(cleaned)) {
+    let rest = cleaned.replace(/^(le\s+|la\s+|l['’]|les\s+|un\s+|une\s+|des\s+|du\s+)?(d[eé]ploiement|mise\s+en\s+production|release)\s*(de\s+l'|d'|du|des|de\s+la|de)?\s*/i, "").trim();
     return `Déployer et industrialiser ${rest}.`;
   }
 
   // Mise en place / Configuration / Installation / Paramétrage
-  if (/^(mise\s+en\s+place|configuration|installation|paramétrage|setup)\b/i.test(cleaned)) {
-    let rest = cleaned.replace(/^(mise\s+en\s+place|configuration|installation|paramétrage|setup)\s*(de\s+l'|d'|du|des|de\s+la|de)?\s*/i, "").trim();
+  if (/^(le\s+|la\s+|l['’]|les\s+|un\s+|une\s+|des\s+|du\s+)?(mise\s+en\s+place|configuration|installation|param[eé]trage|setup)\b/i.test(cleaned)) {
+    let rest = cleaned.replace(/^(le\s+|la\s+|l['’]|les\s+|un\s+|une\s+|des\s+|du\s+)?(mise\s+en\s+place|configuration|installation|param[eé]trage|setup)\s*(de\s+l'|d'|du|des|de\s+la|de)?\s*/i, "").trim();
     if (!/^(les|l'|la|le|des|du|de)\b/i.test(rest)) rest = `les ${rest}`;
     return `Mettre en place et configurer ${rest}.`;
   }
 
   // Optimisation / Performance / Refonte / Amélioration
-  if (/^(optimisation|refonte|amélioration|restructuration)\b/i.test(cleaned)) {
-    let rest = cleaned.replace(/^(optimisation|refonte|amélioration|restructuration)\s*(de\s+l'|d'|du|des|de\s+la|de)?\s*/i, "").trim();
+  if (/^(le\s+|la\s+|l['’]|les\s+|un\s+|une\s+|des\s+|du\s+)?(optimisation|refonte|am[eé]lioration|restructuration)\b/i.test(cleaned)) {
+    let rest = cleaned.replace(/^(le\s+|la\s+|l['’]|les\s+|un\s+|une\s+|des\s+|du\s+)?(optimisation|refonte|am[eé]lioration|restructuration)\s*(de\s+l'|d'|du|des|de\s+la|de)?\s*/i, "").trim();
     if (!/^(les|l'|la|le|des|du|de)\b/i.test(rest)) rest = `la ${rest}`;
     return `Optimiser et restructurer ${rest}.`;
   }
 
   // Automatisation / Scripting / CI/CD
-  if (/^(automatisation|scripting)\b/i.test(cleaned)) {
-    let rest = cleaned.replace(/^(automatisation|scripting)\s*(de\s+l'|d'|du|des|de\s+la|de)?\s*/i, "").trim();
+  if (/^(le\s+|la\s+|l['’]|les\s+|un\s+|une\s+|des\s+|du\s+)?(automatisation|scripting)\b/i.test(cleaned)) {
+    let rest = cleaned.replace(/^(le\s+|la\s+|l['’]|les\s+|un\s+|une\s+|des\s+|du\s+)?(automatisation|scripting)\s*(de\s+l'|d'|du|des|de\s+la|de)?\s*/i, "").trim();
     if (!/^(les|l'|la|le|des|du|de)\b/i.test(rest)) rest = `les ${rest}`;
     return `Automatiser et industrialiser ${rest}.`;
   }
 
   // Sécurisation / Audit / Conformité / Protection
-  if (/^(sécurisation|audit|conformité|protection)\b/i.test(cleaned)) {
-    let rest = cleaned.replace(/^(sécurisation|audit|conformité|protection)\s*(de\s+l'|d'|du|des|de\s+la|de)?\s*/i, "").trim();
+  if (/^(le\s+|la\s+|l['’]|les\s+|un\s+|une\s+|des\s+|du\s+)?(s[eé]curisation|audit|conformit[eé]|protection)\b/i.test(cleaned)) {
+    let rest = cleaned.replace(/^(le\s+|la\s+|l['’]|les\s+|un\s+|une\s+|des\s+|du\s+)?(s[eé]curisation|audit|conformit[eé]|protection)\s*(de\s+l'|d'|du|des|de\s+la|de)?\s*/i, "").trim();
     if (!/^(les|l'|la|le|des|du|de)\b/i.test(rest)) rest = `les ${rest}`;
     return `Sécuriser et auditer ${rest}.`;
   }
 
   // Encadrement / Formation / Mentoring / Coaching
-  if (/^(encadrement|formation|coaching|mentorat|accompagnement)\b/i.test(cleaned)) {
-    let rest = cleaned.replace(/^(encadrement|formation|coaching|mentorat|accompagnement)\s*(de\s+l'|d'|du|des|de\s+la|de)?\s*/i, "").trim();
+  if (/^(le\s+|la\s+|l['’]|les\s+|un\s+|une\s+|des\s+|du\s+)?(encadrement|formation|coaching|mentorat|accompagnement)\b/i.test(cleaned)) {
+    let rest = cleaned.replace(/^(le\s+|la\s+|l['’]|les\s+|un\s+|une\s+|des\s+|du\s+)?(encadrement|formation|coaching|mentorat|accompagnement)\s*(de\s+l'|d'|du|des|de\s+la|de)?\s*/i, "").trim();
     return `Encadrer et former ${rest}.`;
   }
 
   // Tests / QA / Recette / Validation
-  if (/^(tests?|qa|recette|validation|contrôle)\b/i.test(cleaned)) {
-    let rest = cleaned.replace(/^(tests?|qa|recette|validation|contrôle)\s*(unitaires\s+)?(et\s+validation\s+)?(de\s+l'|d'|du|des|de\s+la|de)?\s*/i, "").trim();
+  if (/^(le\s+|la\s+|l['’]|les\s+|un\s+|une\s+|des\s+|du\s+)?(tests?|qa|recette|validation|contr[oô]le)\b/i.test(cleaned)) {
+    let rest = cleaned.replace(/^(le\s+|la\s+|l['’]|les\s+|un\s+|une\s+|des\s+|du\s+)?(tests?|qa|recette|validation|contr[oô]le)\s*(unitaires\s+)?(et\s+validation\s+)?(de\s+l'|d'|du|des|de\s+la|de)?\s*/i, "").trim();
     return `Tester et valider ${rest ? rest : "les fonctionnalités"}.`;
   }
 
   // Analyse / Étude / Spécifications / Veille
-  if (/^(analyse|étude|spécifications?|veille)\b/i.test(cleaned)) {
-    let rest = cleaned.replace(/^(analyse|étude|spécifications?|veille)\s*(de\s+l'|d'|du|des|de\s+la|de)?\s*/i, "").trim();
+  if (/^(le\s+|la\s+|l['’]|les\s+|un\s+|une\s+|des\s+|du\s+)?(analyse|[eé]tude|sp[eé]cifications?|veille)\b/i.test(cleaned)) {
+    let rest = cleaned.replace(/^(le\s+|la\s+|l['’]|les\s+|un\s+|une\s+|des\s+|du\s+)?(analyse|[eé]tude|sp[eé]cifications?|veille)\s*(de\s+l'|d'|du|des|de\s+la|de)?\s*/i, "").trim();
     return `Analyser et spécifier ${rest}.`;
   }
 
   // Rédaction / Documentation
-  if (/^(rédaction|documentation|rédactionnelle)\b/i.test(cleaned)) {
-    let rest = cleaned.replace(/^(rédaction|documentation)\s*(technique\s+)?(et\s+rédaction\s+)?(de\s+l'|d'|du|des|de\s+la|de)?\s*/i, "").trim();
+  if (/^(le\s+|la\s+|l['’]|les\s+|un\s+|une\s+|des\s+|du\s+)?(r[eé]daction|documentation|r[eé]dactionnelle)\b/i.test(cleaned)) {
+    let rest = cleaned.replace(/^(le\s+|la\s+|l['’]|les\s+|un\s+|une\s+|des\s+|du\s+)?(r[eé]daction|documentation)\s*(technique\s+)?(et\s+r[eé]daction\s+)?(de\s+l'|d'|du|des|de\s+la|de)?\s*/i, "").trim();
     return `Rédiger et documenter ${rest ? rest : "les spécifications techniques"}.`;
   }
 
@@ -236,7 +238,7 @@ function toFrenchInfinitive(text: string): string {
 
   // Dynamic context fallback: identify verbs matching technical content
   if (/api|backend|frontend|react|node|java|python|web|application/i.test(cleaned)) {
-    return `Développer et intégrer ${cleaned}.`;
+    return `Développer et concevoir ${cleaned}.`;
   }
   if (/équipe|projet|réunion|agile|scrum|sprint|client/i.test(cleaned)) {
     return `Coordonner et piloter ${cleaned}.`;
