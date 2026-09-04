@@ -2,17 +2,20 @@
 
 import React, { useState } from "react";
 import { ResumeData } from "@/types/resume";
-import { X, Sparkles, Loader2, Copy, Check, FileText, ArrowRight, Building2, Briefcase, Download } from "lucide-react";
+import { X, Sparkles, Loader2, Copy, Check, FileText, ArrowRight, Building2, Briefcase, Download, Coins } from "lucide-react";
 import confetti from "canvas-confetti";
 import { exportCoverLetterToPDF } from "@/lib/pdf/pdfExporter";
+import { getCurrentUser, consumeUserCredits } from "@/lib/auth/authStore";
+import { CreditCalculatorModal } from "@/components/modals/CreditCalculatorModal";
 
 interface Props {
   isOpen: boolean;
   onClose: () => void;
   resumeData: ResumeData;
+  onOpenRecharge?: () => void;
 }
 
-export const CoverLetterModal: React.FC<Props> = ({ isOpen, onClose, resumeData }) => {
+export const CoverLetterModal: React.FC<Props> = ({ isOpen, onClose, resumeData, onOpenRecharge }) => {
   const [jobTitle, setJobTitle] = useState(resumeData.personalInfo.jobTitle || "");
   const [companyName, setCompanyName] = useState("");
   const [recipientTitle, setRecipientTitle] = useState("Direction du Recrutement");
@@ -22,6 +25,8 @@ export const CoverLetterModal: React.FC<Props> = ({ isOpen, onClose, resumeData 
   const [tone, setTone] = useState<"formal" | "dynamic" | "academic">("formal");
   const [loading, setLoading] = useState(false);
   const [exportingPdf, setExportingPdf] = useState(false);
+  const [isRechargeModalOpen, setIsRechargeModalOpen] = useState(false);
+  const [creditError, setCreditError] = useState<string | null>(null);
   const [generatedLetter, setGeneratedLetter] = useState<{
     subject: string;
     greeting: string;
@@ -36,6 +41,35 @@ export const CoverLetterModal: React.FC<Props> = ({ isOpen, onClose, resumeData 
 
   const handleGenerate = async () => {
     if (!jobTitle || !companyName) return;
+    setCreditError(null);
+
+    const currentUser = getCurrentUser();
+    if (!currentUser) {
+      setCreditError("Veuillez vous connecter pour générer votre lettre.");
+      return;
+    }
+
+    // Check if user has at least 5 credits (Admins have unlimited)
+    if (currentUser.role !== "admin" && (currentUser.credits || 0) < 5) {
+      if (onOpenRecharge) {
+        onOpenRecharge();
+      } else {
+        setIsRechargeModalOpen(true);
+      }
+      return;
+    }
+
+    // Consume 5 credits immediately on click
+    const consumption = consumeUserCredits(currentUser.id, 5);
+    if (!consumption.success && currentUser.role !== "admin") {
+      if (onOpenRecharge) {
+        onOpenRecharge();
+      } else {
+        setIsRechargeModalOpen(true);
+      }
+      return;
+    }
+
     setLoading(true);
     setGeneratedLetter(null);
 
@@ -283,12 +317,12 @@ ${resumeData.personalInfo.fullName}`;
             <button
               onClick={handleGenerate}
               disabled={loading || !jobTitle || !companyName}
-              title="Générer la lettre de motivation sur-mesure avec l'IA"
-              aria-label="Générer la lettre de motivation sur-mesure avec l'IA"
+              title="Générer la lettre de motivation sur-mesure avec l'IA (5 crédits)"
+              aria-label="Générer la lettre de motivation sur-mesure avec l'IA (5 crédits)"
               className="py-2.5 px-5 bg-gradient-to-r from-indigo-600 to-rose-600 hover:opacity-95 disabled:opacity-50 text-white text-xs font-bold rounded-xl transition flex items-center justify-center gap-2 shadow-md"
             >
               {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
-              {loading ? "Synthèse CV + Offre en cours..." : "Générer la Lettre Sur-Mesure"}
+              {loading ? "Synthèse CV + Offre en cours..." : "Générer avec l'IA (5 crédits)"}
             </button>
           </div>
 
@@ -419,6 +453,15 @@ ${resumeData.personalInfo.fullName}`;
           )}
         </div>
       </div>
+
+      {/* Credit Recharge Modal if Balance < 5 */}
+      {isRechargeModalOpen && (
+        <CreditCalculatorModal
+          isOpen={isRechargeModalOpen}
+          onClose={() => setIsRechargeModalOpen(false)}
+          currentBalance={getCurrentUser()?.credits || 0}
+        />
+      )}
     </div>
   );
 };

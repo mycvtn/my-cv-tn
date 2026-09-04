@@ -5,13 +5,15 @@ import { INITIAL_COVER_LETTER_DATA, INITIAL_RESUME_DATA } from "@/lib/sampleData
 import { CoverLetterData, ResumeData } from "@/types/resume";
 import { 
   FileText, Sparkles, Copy, Download, Check, ArrowLeft, 
-  Building2, Briefcase, Loader2, Sparkle
+  Building2, Briefcase, Loader2, Sparkle, Coins
 } from "lucide-react";
 import Link from "next/link";
 import confetti from "canvas-confetti";
 import { AuthGuard } from "@/components/auth/AuthGuard";
-import { getCurrentUser } from "@/lib/auth/authStore";
+import { getCurrentUser, consumeUserCredits } from "@/lib/auth/authStore";
+import { UserAccount } from "@/types/auth";
 import { exportCoverLetterToPDF } from "@/lib/pdf/pdfExporter";
+import { CreditCalculatorModal } from "@/components/modals/CreditCalculatorModal";
 
 export default function CoverLetterPage() {
   const [data, setData] = useState<CoverLetterData>(INITIAL_COVER_LETTER_DATA);
@@ -21,11 +23,25 @@ export default function CoverLetterPage() {
   const [loading, setLoading] = useState(false);
   const [exportingPdf, setExportingPdf] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [currentUser, setCurrentUser] = useState<UserAccount | null>(null);
+  const [isRechargeModalOpen, setIsRechargeModalOpen] = useState(false);
 
-  // Auto-populate from active resume if available
+  // Auto-populate from active resume & current user
   useEffect(() => {
-    try {
+    const refreshUser = () => {
       const user = getCurrentUser();
+      setCurrentUser(user);
+      return user;
+    };
+
+    const user = refreshUser();
+
+    // Listen for balance updates
+    const handleStorage = () => refreshUser();
+    window.addEventListener("storage", handleStorage);
+    window.addEventListener("user_credits_updated", handleStorage);
+
+    try {
       const userId = user ? user.id : "guest";
       const listKey = `my_cv_resumes_list_${userId}`;
       const activeIdKey = `my_cv_active_resume_id_${userId}`;
@@ -51,9 +67,36 @@ export default function CoverLetterPage() {
     } catch (e) {
       console.error("Failed to load active resume:", e);
     }
+
+    return () => {
+      window.removeEventListener("storage", handleStorage);
+      window.removeEventListener("user_credits_updated", handleStorage);
+    };
   }, []);
 
   const handleGenerateAI = async () => {
+    const user = getCurrentUser();
+    if (!user) {
+      alert("Veuillez vous connecter pour utiliser l'IA.");
+      return;
+    }
+
+    // Check if user has less than 5 credits (Admins have unlimited)
+    if (user.role !== "admin" && (user.credits || 0) < 5) {
+      setIsRechargeModalOpen(true);
+      return;
+    }
+
+    // Consume 5 credits immediately on click
+    const consumption = consumeUserCredits(user.id, 5);
+    if (!consumption.success && user.role !== "admin") {
+      setIsRechargeModalOpen(true);
+      return;
+    }
+
+    // Refresh current user state with new balance
+    setCurrentUser(getCurrentUser());
+
     setLoading(true);
     try {
       const candidateData = activeResume
@@ -211,7 +254,19 @@ ${data.candidateName}`;
             <div className="flex items-center justify-between border-b pb-3">
               <div>
                 <h2 className="text-sm font-bold text-slate-900">Paramètres de Candidature</h2>
-                <p className="text-[11px] text-slate-500">Génération ciblée avec vos expériences</p>
+                <div className="flex items-center gap-2 mt-0.5">
+                  <p className="text-[11px] text-slate-500">Génération ciblée avec vos expériences</p>
+                  {currentUser && (
+                    <button
+                      onClick={() => setIsRechargeModalOpen(true)}
+                      className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200 px-1.5 py-0.5 rounded-md transition"
+                      title="Cliquez pour recharger"
+                    >
+                      <Coins className="w-2.5 h-2.5 text-amber-500" />
+                      {currentUser.role === "admin" ? "Illimité" : `${currentUser.credits ?? 0} crédits`}
+                    </button>
+                  )}
+                </div>
               </div>
               <button
                 onClick={handleGenerateAI}
@@ -219,7 +274,7 @@ ${data.candidateName}`;
                 className="flex items-center gap-1.5 bg-gradient-to-r from-indigo-600 to-rose-600 hover:opacity-90 disabled:opacity-50 text-white text-xs font-bold px-3.5 py-2 rounded-xl shadow-sm transition"
               >
                 {loading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
-                {loading ? "Génération IA..." : "Rédiger avec l'IA"}
+                {loading ? "Génération IA..." : "Rédiger avec l'IA (5 crédits)"}
               </button>
             </div>
 
@@ -507,6 +562,13 @@ ${data.candidateName}`;
             </div>
           </div>
         </div>
+
+        {/* Credit Calculator Modal */}
+        <CreditCalculatorModal
+          isOpen={isRechargeModalOpen}
+          onClose={() => setIsRechargeModalOpen(false)}
+          currentBalance={currentUser?.credits ?? 0}
+        />
       </div>
     </AuthGuard>
   );

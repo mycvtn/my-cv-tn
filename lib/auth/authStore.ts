@@ -466,3 +466,43 @@ export function updateUserProfile(userId: string, updates: Partial<UserAccount>)
   }
   return updatedTarget;
 }
+
+/**
+ * Verifies and consumes credits for AI actions (e.g. 5 credits for Cover Letter generator)
+ */
+export function consumeUserCredits(
+  userIdOrEmail: string,
+  amount: number = 5
+): { success: boolean; remainingCredits: number; user?: UserAccount; error?: string } {
+  const users = getStoredUsers();
+  const lookup = (userIdOrEmail || "").trim().toLowerCase();
+  const target = users.find(
+    (u) => u.id.toLowerCase() === lookup || u.email.toLowerCase() === lookup
+  );
+
+  if (!target) {
+    return { success: false, remainingCredits: 0, error: "Utilisateur non connecté ou introuvable." };
+  }
+
+  // Administrators have unlimited credits
+  if (target.role === "admin") {
+    return { success: true, remainingCredits: target.credits ?? 999, user: target };
+  }
+
+  const currentCredits = target.credits || 0;
+  if (currentCredits < amount) {
+    return {
+      success: false,
+      remainingCredits: currentCredits,
+      error: `Solde insuffisant (${currentCredits} crédits). Vous avez besoin de ${amount} crédits pour rédiger avec l'IA.`,
+    };
+  }
+
+  const updated = adminUpdateUserCredits(target.id, -amount);
+  return {
+    success: true,
+    remainingCredits: updated ? (updated.credits || 0) : currentCredits - amount,
+    user: updated || undefined,
+  };
+}
+
