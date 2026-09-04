@@ -75,12 +75,15 @@ function writeRequests(reqs: ServerPaymentRequest[]): void {
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
-  const userId = searchParams.get("userId");
+  const userId = searchParams.get("userId")?.toLowerCase().trim();
+  const email = searchParams.get("email")?.toLowerCase().trim();
   const requests = readRequests();
 
-  if (userId) {
+  if (userId || email) {
     const userReqs = requests.filter(
-      (r) => r.userId === userId || r.userEmail === "asma@gmail.com" || r.userName.toLowerCase().includes("asma")
+      (r) =>
+        (userId && r.userId && r.userId.toLowerCase() === userId) ||
+        (email && r.userEmail && r.userEmail.toLowerCase() === email)
     );
     return NextResponse.json({ success: true, requests: userReqs });
   }
@@ -100,9 +103,9 @@ export async function POST(req: NextRequest) {
     const currentRequests = readRequests();
     const newReq: ServerPaymentRequest = {
       id: `pay-${Date.now()}`,
-      userId: userId || "usr-asma-01",
-      userName: userName || "Asma Sahraoui",
-      userEmail: userEmail || "asma@gmail.com",
+      userId: userId || `usr-${Date.now()}`,
+      userName: userName || "Utilisateur",
+      userEmail: userEmail || "candidat@my-cv.tn",
       method: method || "flouci",
       credits: Number(credits),
       amountTND: Number(amountTND),

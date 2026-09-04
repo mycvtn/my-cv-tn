@@ -1,5 +1,27 @@
 [
   {
+    "id": "usr-1788556902700",
+    "name": "asma sahraoui",
+    "email": "sahraouiasma304@gmail.com",
+    "password": "123456",
+    "role": "user",
+    "credits": 5,
+    "status": "active",
+    "createdAt": "2026-09-04T21:21:42.700Z",
+    "lastLoginAt": "2026-09-04T21:21:42.700Z"
+  },
+  {
+    "id": "usr-1788556882338",
+    "name": "Test Candidat",
+    "email": "testcandidat@gmail.com",
+    "password": "password123",
+    "role": "user",
+    "credits": 5,
+    "status": "active",
+    "createdAt": "2026-09-04T21:21:22.338Z",
+    "lastLoginAt": "2026-09-04T21:21:22.338Z"
+  },
+  {
     "id": "usr-1788536818019",
     "name": "Rami GOUADER",
     "email": "ramigouader@gmail.com",

@@ -157,9 +157,17 @@ export function savePaymentRequests(reqs: PaymentRequest[]): void {
   } catch (e) {}
 }
 
-export function getUserPaymentRequests(userId: string): PaymentRequest[] {
+export function getUserPaymentRequests(userId: string, email?: string): PaymentRequest[] {
+  if (!userId && !email) return [];
   const all = getPaymentRequests();
-  return all.filter((r) => r.userId === userId || r.userEmail === "asma@gmail.com" || r.userName.toLowerCase().includes("asma"));
+  const normalizedUserId = (userId || "").trim().toLowerCase();
+  const normalizedEmail = (email || "").trim().toLowerCase();
+
+  return all.filter((r) => {
+    const matchId = normalizedUserId && r.userId && r.userId.toLowerCase() === normalizedUserId;
+    const matchEmail = normalizedEmail && r.userEmail && r.userEmail.toLowerCase() === normalizedEmail;
+    return matchId || matchEmail;
+  });
 }
 
 export async function createPaymentRequest(
@@ -174,9 +182,9 @@ export async function createPaymentRequest(
   const all = getPaymentRequests();
   const newReq: PaymentRequest = {
     id: `pay-${Date.now()}`,
-    userId: userId || "usr-asma-01",
-    userName: userName || "Asma Sahraoui",
-    userEmail: userEmail || "asma@gmail.com",
+    userId: userId || `usr-${Date.now()}`,
+    userName: userName || "Utilisateur",
+    userEmail: userEmail || "candidat@my-cv.tn",
     method,
     credits,
     amountTND,

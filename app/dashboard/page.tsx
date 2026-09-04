@@ -43,7 +43,7 @@ export default function DashboardPage() {
       return;
     }
     setCurrentUser(user);
-    setUserPayments(getUserPaymentRequests(user.id));
+    setUserPayments(getUserPaymentRequests(user.id, user.email));
 
     const { listKey } = getUserStorageKeys(user);
     const savedList = localStorage.getItem(listKey);
@@ -65,11 +65,11 @@ export default function DashboardPage() {
         const serverUser = await fetchServerUser(u.email);
         if (serverUser) {
           setCurrentUser(serverUser);
-          setUserPayments(getUserPaymentRequests(serverUser.id));
+          setUserPayments(getUserPaymentRequests(serverUser.id, serverUser.email));
           return;
         }
         setCurrentUser(u);
-        setUserPayments(getUserPaymentRequests(u.id));
+        setUserPayments(getUserPaymentRequests(u.id, u.email));
       }
     };
 
