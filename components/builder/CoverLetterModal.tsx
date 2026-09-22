@@ -53,13 +53,13 @@ export const CoverLetterModal: React.FC<Props> = ({ isOpen, onClose, resumeData,
 
     syncUser();
     window.addEventListener("user_credits_updated", syncUser);
+    window.addEventListener("payment_requests_updated", syncUser);
     window.addEventListener("storage", syncUser);
-    const interval = setInterval(syncUser, 1500);
 
     return () => {
       window.removeEventListener("user_credits_updated", syncUser);
+      window.removeEventListener("payment_requests_updated", syncUser);
       window.removeEventListener("storage", syncUser);
-      clearInterval(interval);
     };
   }, [isOpen]);
   const [generatedLetter, setGeneratedLetter] = useState<{
@@ -84,10 +84,9 @@ export const CoverLetterModal: React.FC<Props> = ({ isOpen, onClose, resumeData,
       return;
     }
 
-    const availableCredits = user.credits ?? 0;
+    const isPro = user.role === "admin" || user.subscriptionTier === "semi_annual" || user.subscriptionTier === "annual";
 
-    // Check if user has at least 5 credits (Admins have unlimited)
-    if (user.role !== "admin" && availableCredits < 5) {
+    if (!isPro) {
       if (onOpenRecharge) {
         onOpenRecharge();
       } else {
@@ -99,20 +98,6 @@ export const CoverLetterModal: React.FC<Props> = ({ isOpen, onClose, resumeData,
     // Immediate 0ms UI feedback
     setLoading(true);
     setGeneratedLetter(null);
-
-    // Consume 5 credits immediately on click
-    if (user.role !== "admin") {
-      const consumption = consumeUserCredits(user.id || user.email, 5);
-      if (!consumption.success) {
-        setLoading(false);
-        if (onOpenRecharge) {
-          onOpenRecharge();
-        } else {
-          setIsRechargeModalOpen(true);
-        }
-        return;
-      }
-    }
 
     const updatedUser = getCurrentUser();
     if (updatedUser) setCurrentUser(updatedUser);
@@ -361,12 +346,12 @@ ${resumeData.personalInfo.fullName}`;
             <button
               onClick={handleGenerate}
               disabled={loading || !jobTitle || !companyName}
-              title="Générer la lettre de motivation sur-mesure avec l'IA (5 crédits)"
-              aria-label="Générer la lettre de motivation sur-mesure avec l'IA (5 crédits)"
-              className="py-2.5 px-5 bg-gradient-to-r from-indigo-600 to-rose-600 hover:opacity-95 disabled:opacity-50 text-white text-xs font-bold rounded-xl transition flex items-center justify-center gap-2 shadow-md"
+              title="Générer la lettre de motivation sur-mesure avec l'IA"
+              aria-label="Générer la lettre de motivation sur-mesure avec l'IA"
+              className="py-2.5 px-5 bg-gradient-to-r from-indigo-600 to-rose-600 hover:opacity-95 disabled:opacity-50 text-white text-xs font-bold rounded-xl transition flex items-center justify-center gap-2 shadow-md cursor-pointer"
             >
               {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
-              {loading ? "Synthèse CV + Offre en cours..." : "Générer avec l'IA (5 crédits)"}
+              {loading ? "Synthèse CV + Offre en cours..." : "Générer avec l'IA"}
             </button>
           </div>
 

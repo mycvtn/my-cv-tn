@@ -3,13 +3,12 @@
 import React, { useState, useEffect } from "react";
 import { ResumeData, TemplateId } from "@/types/resume";
 import { UserAccount } from "@/types/auth";
-import { getCurrentUser, getStoredUsers, fetchServerUser, updateUserProfile, consumeUserCredits } from "@/lib/auth/authStore";
+import { getCurrentUser, getStoredUsers, fetchServerUser, updateUserProfile, consumeUserCredits, getUserSubscriptionInfo } from "@/lib/auth/authStore";
 import { INITIAL_RESUME_DATA } from "@/lib/sampleData";
 import { ResumeForm } from "./ResumeForm";
 import { TemplateRenderer } from "../templates/TemplateRenderer";
 import { ATSScoreModal } from "./ATSScoreModal";
 import { CoverLetterModal } from "./CoverLetterModal";
-import { PricingModal } from "../pricing/PricingModal";
 import { ExportButton } from "../pdf/ExportButton";
 import { ResumeManagerModal } from "./ResumeManagerModal";
 import { AccountModal } from "../account/AccountModal";
@@ -18,7 +17,7 @@ import { CreditCalculatorModal } from "../modals/CreditCalculatorModal";
 import { 
   ZoomIn, ZoomOut, Maximize2, Ticket, Eye, 
   FolderOpen, Plus, Check, ChevronDown, Sparkles, Languages,
-  User, Shield, LogIn, FilePlus, FileText, PlusCircle
+  User, Shield, LogIn, FilePlus, FileText, PlusCircle, Crown, AlertTriangle, AlertCircle
 } from "lucide-react";
 
 export const BuilderSplitView: React.FC = () => {
@@ -30,7 +29,6 @@ export const BuilderSplitView: React.FC = () => {
   const [zoom, setZoom] = useState<number>(0.85);
   const [isATSOpen, setIsATSOpen] = useState<boolean>(false);
   const [isCoverLetterOpen, setIsCoverLetterOpen] = useState<boolean>(false);
-  const [isPricingOpen, setIsPricingOpen] = useState<boolean>(false);
   const [isCreditCalculatorOpen, setIsCreditCalculatorOpen] = useState<boolean>(false);
   const [isManagerOpen, setIsManagerOpen] = useState<boolean>(false);
   const [isAccountOpen, setIsAccountOpen] = useState<boolean>(false);
@@ -463,26 +461,52 @@ Formation: ${activeResume.education.map((ed) => `${ed.degree} (${ed.institution}
 
         {/* Right Action Bar */}
         <div className="flex items-center gap-2">
-          {/* Credit Wallet Button (my-cv.tn) */}
-          <button
-            onClick={() => setIsCreditCalculatorOpen(true)}
-            title="Calculateur et recharge de crédits IA par D17 / Flouci"
-            aria-label="Calculateur et recharge de crédits IA par D17 / Flouci"
-            className="flex items-center gap-1.5 bg-amber-50 hover:bg-amber-100 text-amber-950 px-2.5 sm:px-3 py-1.5 rounded-xl border border-amber-200 text-xs transition shadow-2xs"
-          >
-            <Ticket className="w-3.5 h-3.5 text-amber-600" />
-            <span className="font-bold text-amber-900">{userCredits}</span>
-            <span className="hidden sm:inline text-[11px] text-amber-800">Crédits</span>
-            <span className="text-[10px] bg-rose-600 text-white font-bold px-1.5 py-0.5 rounded shadow-xs ml-0.5">
-              + Recharger
-            </span>
-          </button>
+          {/* Subscription Status Button */}
+          {(() => {
+            const subInfo = getUserSubscriptionInfo(currentUser);
+            return (
+              <button
+                onClick={() => setIsCreditCalculatorOpen(true)}
+                title="Consulter ou modifier votre formule d'abonnement"
+                aria-label="Consulter ou modifier votre formule d'abonnement"
+                className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl border text-xs font-bold transition shadow-2xs cursor-pointer ${
+                  subInfo.isSubscribed
+                    ? subInfo.tier === "annual"
+                      ? "bg-amber-50 hover:bg-amber-100 text-amber-950 border-amber-300"
+                      : "bg-blue-50 hover:bg-blue-100 text-blue-950 border-blue-300"
+                    : "bg-slate-100 hover:bg-rose-50 text-slate-700 hover:text-rose-700 border-slate-200 hover:border-rose-300"
+                }`}
+              >
+                {subInfo.isSubscribed ? (
+                  <>
+                    {subInfo.tier === "annual" ? (
+                      <Crown className="w-3.5 h-3.5 text-amber-600" />
+                    ) : (
+                      <Sparkles className="w-3.5 h-3.5 text-blue-600" />
+                    )}
+                    <span>{subInfo.tier === "annual" ? "👑 Pass Annuel" : "✨ Pass Semestriel"}</span>
+                    <span className="text-[10px] bg-white/90 text-slate-800 px-1.5 py-0.2 rounded border border-slate-200 font-bold ml-0.5">
+                      {subInfo.remainingThisMonth}/3
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-3.5 h-3.5 text-rose-600" />
+                    <span>Pass Pro</span>
+                    <span className="text-[10px] bg-rose-600 text-white font-black px-1.5 py-0.2 rounded shadow-xs ml-0.5">
+                      S'abonner
+                    </span>
+                  </>
+                )}
+              </button>
+            );
+          })()}
 
           {/* User Account / Auth Avatar Button */}
           {currentUser ? (
             <button
               onClick={() => setIsAccountOpen(true)}
-              className="flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200/80 text-slate-800 px-2.5 py-1.5 rounded-xl border border-slate-200 text-xs transition"
+              className="flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200/80 text-slate-800 px-2.5 py-1.5 rounded-xl border border-slate-200 text-xs transition cursor-pointer"
               title="Gérer votre compte"
             >
               <div className="w-5 h-5 rounded-lg bg-rose-600 flex items-center justify-center font-bold text-[10px] text-white">
@@ -508,12 +532,62 @@ Formation: ${activeResume.education.map((ed) => `${ed.degree} (${ed.institution}
               elementId="resume-sheet-preview"
               resumeData={activeResume}
               candidateName={activeResume.personalInfo.fullName}
-              isUnlocked={userCredits >= 10}
+              isUnlocked={getUserSubscriptionInfo(currentUser).isSubscribed || currentUser?.role === "admin"}
               onRequireUnlock={() => setIsCreditCalculatorOpen(true)}
             />
           )}
         </div>
       </header>
+
+      {/* Subscription Expiration Alert Bar (if within 7 days or expired) */}
+      {(() => {
+        const subInfo = getUserSubscriptionInfo(currentUser);
+        const daysRemaining = subInfo.expiresAt
+          ? Math.ceil((new Date(subInfo.expiresAt).getTime() - Date.now()) / (1000 * 60 * 60 * 24))
+          : null;
+        const isExpiringSoon = subInfo.isSubscribed && daysRemaining !== null && daysRemaining <= 7 && daysRemaining >= 0;
+        const isExpired = subInfo.status === "expired" || (daysRemaining !== null && daysRemaining < 0);
+
+        if (isExpiringSoon) {
+          return (
+            <div className="bg-amber-500 text-slate-950 px-4 py-1.5 text-xs font-bold flex items-center justify-between shadow-xs border-b border-amber-600 flex-shrink-0">
+              <div className="flex items-center gap-2">
+                <AlertTriangle className="w-4 h-4 text-slate-950" />
+                <span>
+                  Rappel : Votre <strong>{subInfo.tier === "annual" ? "Pass Annuel" : "Pass Semestriel"}</strong> expire dans {daysRemaining === 0 ? "quelques heures" : daysRemaining === 1 ? "1 jour" : `${daysRemaining} jours`} (le {new Date(subInfo.expiresAt!).toLocaleDateString("fr-FR")}).
+                </span>
+              </div>
+              <button
+                onClick={() => setIsCreditCalculatorOpen(true)}
+                className="px-2.5 py-0.5 bg-slate-950 hover:bg-slate-800 text-amber-400 text-[11px] font-black rounded-lg transition"
+              >
+                Renouveler le Pass Pro
+              </button>
+            </div>
+          );
+        }
+
+        if (isExpired) {
+          return (
+            <div className="bg-rose-600 text-white px-4 py-1.5 text-xs font-bold flex items-center justify-between shadow-xs border-b border-rose-700 flex-shrink-0">
+              <div className="flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 text-white" />
+                <span>
+                  Votre abonnement Pro a expiré. Vous téléchargez actuellement avec filigrane.
+                </span>
+              </div>
+              <button
+                onClick={() => setIsCreditCalculatorOpen(true)}
+                className="px-2.5 py-0.5 bg-white text-rose-700 hover:bg-slate-100 text-[11px] font-black rounded-lg transition"
+              >
+                Réactiver mon Abonnement
+              </button>
+            </div>
+          );
+        }
+
+        return null;
+      })()}
 
       {/* Main Split Body OR Empty Account Onboarding State */}
       {resumesList.length === 0 || !activeResume ? (
@@ -712,7 +786,7 @@ Formation: ${activeResume.education.map((ed) => `${ed.degree} (${ed.institution}
         onClose={() => setIsAccountOpen(false)}
         currentUser={currentUser}
         onUserUpdated={(u) => setCurrentUser(u)}
-        onOpenPricing={() => setIsPricingOpen(true)}
+        onOpenPricing={() => setIsCreditCalculatorOpen(true)}
       />
 
       {activeResume && (
@@ -728,15 +802,10 @@ Formation: ${activeResume.education.map((ed) => `${ed.degree} (${ed.institution}
             isOpen={isCoverLetterOpen}
             onClose={() => setIsCoverLetterOpen(false)}
             resumeData={activeResume}
+            onOpenRecharge={() => setIsCreditCalculatorOpen(true)}
           />
         </>
       )}
-
-      <PricingModal
-        isOpen={isPricingOpen}
-        onClose={() => setIsPricingOpen(false)}
-        onSuccessCredit={handleCreditRecharge}
-      />
     </div>
   );
 };

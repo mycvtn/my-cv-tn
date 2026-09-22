@@ -23,7 +23,7 @@ export const AccountModal: React.FC<Props> = ({
   onUserUpdated,
   onOpenPricing,
 }) => {
-  const [activeTab, setActiveTab] = useState<"profile" | "security" | "credits">("profile");
+  const [activeTab, setActiveTab] = useState<"profile" | "security" | "subscription">("profile");
   const [name, setName] = useState<string>(currentUser?.name || "");
   const [email, setEmail] = useState<string>(currentUser?.email || "");
   const [currentPassword, setCurrentPassword] = useState<string>("");
@@ -33,6 +33,18 @@ export const AccountModal: React.FC<Props> = ({
   const [errorMsg, setErrorMsg] = useState<string>("");
 
   if (!isOpen || !currentUser) return null;
+
+  const isPro = currentUser.subscriptionTier === "semi_annual" || currentUser.subscriptionTier === "annual";
+  const isExpiringSoon = isPro && currentUser.subscriptionExpiresAt && (() => {
+    const expDate = new Date(currentUser.subscriptionExpiresAt).getTime();
+    const now = Date.now();
+    const daysLeft = Math.ceil((expDate - now) / (1000 * 60 * 60 * 24));
+    return daysLeft > 0 && daysLeft <= 7;
+  })();
+
+  const isExpired = isPro && currentUser.subscriptionExpiresAt && (() => {
+    return new Date(currentUser.subscriptionExpiresAt).getTime() < Date.now();
+  })();
 
   const handleSaveProfile = (e: React.FormEvent) => {
     e.preventDefault();
@@ -108,6 +120,11 @@ export const AccountModal: React.FC<Props> = ({
                 <span className="text-[10px] bg-rose-500/20 text-rose-300 font-bold px-2 py-0.5 rounded-full border border-rose-500/30 uppercase">
                   {currentUser.role}
                 </span>
+                {isPro && (
+                  <span className="text-[10px] bg-amber-500/20 text-amber-300 font-bold px-2 py-0.5 rounded-full border border-amber-500/30">
+                    {currentUser.subscriptionTier === "annual" ? "👑 Pass Annuel" : "✨ Pass Semestriel"}
+                  </span>
+                )}
               </h2>
               <p className="text-xs text-slate-400 mt-0.5">{currentUser.email}</p>
             </div>
@@ -144,13 +161,13 @@ export const AccountModal: React.FC<Props> = ({
           </button>
 
           <button
-            onClick={() => { setActiveTab("credits"); setErrorMsg(""); setSavedSuccess(""); }}
+            onClick={() => { setActiveTab("subscription"); setErrorMsg(""); setSavedSuccess(""); }}
             className={`py-3.5 border-b-2 transition flex items-center gap-2 ${
-              activeTab === "credits" ? "border-rose-500 text-rose-400 font-extrabold" : "border-transparent text-slate-400 hover:text-slate-200"
+              activeTab === "subscription" ? "border-rose-500 text-rose-400 font-extrabold" : "border-transparent text-slate-400 hover:text-slate-200"
             }`}
           >
-            <Ticket className="w-3.5 h-3.5 text-amber-400" />
-            <span>Solde & Crédits IA</span>
+            <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+            <span>Mon Abonnement Pro</span>
           </button>
         </div>
 
@@ -259,40 +276,92 @@ export const AccountModal: React.FC<Props> = ({
             </form>
           )}
 
-          {/* TAB 3: CREDITS */}
-          {activeTab === "credits" && (
+          {/* TAB 3: SUBSCRIPTION */}
+          {activeTab === "subscription" && (
             <div className="space-y-4">
-              <div className="p-5 rounded-2xl bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-slate-800/60 border border-amber-500/30 flex items-center justify-between">
-                <div className="flex items-center gap-3.5">
-                  <div className="p-3 bg-amber-500/20 border border-amber-500/40 rounded-2xl">
-                    <Ticket className="w-6 h-6 text-amber-400" />
-                  </div>
+              {/* Alert if expiring soon or expired */}
+              {isExpiringSoon && (
+                <div className="p-3.5 bg-amber-500/10 border border-amber-500/40 rounded-2xl text-xs text-amber-300 flex items-start gap-2.5">
+                  <span className="text-base">⚠️</span>
                   <div>
-                    <div className="text-xs text-slate-400 font-medium">Votre solde actuel :</div>
-                    <div className="text-2xl font-black text-amber-400">
-                      {currentUser.credits} <span className="text-xs text-slate-400 font-normal">crédits IA</span>
+                    <div className="font-bold">Votre abonnement expire bientôt !</div>
+                    <div className="text-[11px] text-amber-400/90 mt-0.5">
+                      Il vous reste moins de 7 jours de validité (expiration le {currentUser.subscriptionExpiresAt ? new Date(currentUser.subscriptionExpiresAt).toLocaleDateString() : ""}). Renouvelez votre Pass pour ne pas perdre vos avantages Pro.
                     </div>
                   </div>
                 </div>
+              )}
 
-                <button
-                  type="button"
-                  onClick={() => {
-                    onClose();
-                    onOpenPricing();
-                  }}
-                  className="px-4 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-xs rounded-xl shadow-lg transition"
-                >
-                  + Recharger
-                </button>
+              {isExpired && (
+                <div className="p-3.5 bg-rose-500/10 border border-rose-500/40 rounded-2xl text-xs text-rose-300 flex items-start gap-2.5">
+                  <span className="text-base">⏳</span>
+                  <div>
+                    <div className="font-bold">Votre abonnement a expiré</div>
+                    <div className="text-[11px] text-rose-400/90 mt-0.5">
+                      Votre période de validité est terminée. Choisissez un nouveau Pass pour débloquer les téléchargements de CV Pro en illimité (3/mois).
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <div className="p-5 rounded-2xl bg-gradient-to-r from-indigo-950/40 via-purple-950/30 to-slate-900 border border-indigo-800/40 space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3.5">
+                    <div className="p-3 bg-indigo-500/20 border border-indigo-500/40 rounded-2xl">
+                      <Sparkles className="w-6 h-6 text-amber-400" />
+                    </div>
+                    <div>
+                      <div className="text-xs text-slate-400 font-medium">Formule active :</div>
+                      <div className="text-lg font-black text-white flex items-center gap-2">
+                        {currentUser.subscriptionTier === "annual" ? (
+                          <span className="text-amber-400">👑 Pass Annuel (12 Mois)</span>
+                        ) : currentUser.subscriptionTier === "semi_annual" ? (
+                          <span className="text-rose-400">✨ Pass Semestriel (6 Mois)</span>
+                        ) : (
+                          <span className="text-slate-300">Candidat Gratuit</span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onClose();
+                      onOpenPricing();
+                    }}
+                    className="px-4 py-2.5 bg-gradient-to-r from-rose-600 to-amber-500 hover:from-rose-500 hover:to-amber-400 text-white font-black text-xs rounded-xl shadow-lg transition shadow-rose-600/20 cursor-pointer"
+                  >
+                    {isPro ? "Changer d'offre" : "Devenir Pro"}
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3 pt-2 border-t border-slate-800 text-xs">
+                  <div className="bg-slate-800/50 p-3 rounded-xl border border-slate-700/50">
+                    <div className="text-slate-400 text-[11px]">Quota CV Pro ce mois :</div>
+                    <div className="text-sm font-black text-white mt-0.5">
+                      {isPro ? `${Math.max(0, 3 - (currentUser.monthlyDownloadsUsed || 0))} / 3 restants` : "0 / 3 (Non abonné)"}
+                    </div>
+                  </div>
+
+                  <div className="bg-slate-800/50 p-3 rounded-xl border border-slate-700/50">
+                    <div className="text-slate-400 text-[11px]">Date de fin de validité :</div>
+                    <div className="text-sm font-black text-white mt-0.5">
+                      {currentUser.subscriptionExpiresAt 
+                        ? new Date(currentUser.subscriptionExpiresAt).toLocaleDateString()
+                        : "Non renseignée"}
+                    </div>
+                  </div>
+                </div>
               </div>
 
               <div className="text-xs text-slate-400 space-y-1.5 pt-2">
-                <div className="font-bold text-slate-300">À quoi servent vos crédits ?</div>
+                <div className="font-bold text-slate-300">Avantages inclus dans votre abonnement :</div>
                 <ul className="list-disc pl-4 space-y-1 text-[11px]">
-                  <li>Téléchargement de CVs en PDF haute définition vectoriel.</li>
-                  <li>Scan et optimisation de Score ATS par rapport aux offres d'emploi.</li>
+                  <li>Téléchargement de CVs Pro haute définition vectoriels (3 CV / mois).</li>
+                  <li>Scan et optimisation IA Score ATS par rapport aux offres d'emploi.</li>
                   <li>Génération instantanée de lettres de motivation ultra-personnalisées.</li>
+                  <li>Modèles de CV exclusifs & support prioritaire 7j/7.</li>
                 </ul>
               </div>
             </div>

@@ -125,7 +125,7 @@ export const ExportButton: React.FC<Props> = ({
           ) : (
             <>
               <Download className="w-4 h-4" />
-              <span>Télécharger PDF Pro (10 Crédits)</span>
+              <span>Télécharger PDF Pro</span>
             </>
           )}
         </button>
