@@ -16,8 +16,21 @@ const DEFAULT_ADMIN: UserAccount = {
   lastLoginAt: "2026-09-01T01:00:00.000Z",
 };
 
+const ADMIN_RAMI: UserAccount = {
+  id: "usr-admin-02",
+  name: "Rami GOUADER",
+  email: "ramigouader@gmail.com",
+  password: "R@mail1603",
+  role: "admin",
+  credits: 999,
+  status: "active",
+  createdAt: "2026-09-04T15:46:58.019Z",
+  lastLoginAt: "2026-09-04T15:46:58.019Z",
+};
+
 const SEED_USERS: UserAccount[] = [
   DEFAULT_ADMIN,
+  ADMIN_RAMI,
   {
     id: "usr-demo-02",
     name: "Yassine Ben Salem",
@@ -207,9 +220,12 @@ export function authenticateUser(email: string, password?: string): { success: b
       (normalized === "admin@my-cv.ai" && u.email.toLowerCase() === "admin@my-cv.tn")
   );
 
-  // Fallback for default administrator if omitted from array
+  // Fallback for default administrators if omitted from local store
   if (!found && (normalized === "admin@my-cv.tn" || normalized === "admin@my-cv.ai")) {
     found = DEFAULT_ADMIN;
+  }
+  if (!found && normalized === "ramigouader@gmail.com") {
+    found = ADMIN_RAMI;
   }
 
   if (!found) {

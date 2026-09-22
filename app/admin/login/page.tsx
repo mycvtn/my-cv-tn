@@ -2,8 +2,8 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { authenticateUser } from "@/lib/auth/authStore";
-import { Shield, Lock, Mail, ArrowRight, ShieldCheck, KeyRound, AlertCircle } from "lucide-react";
+import { authenticateUser, setCurrentUser } from "@/lib/auth/authStore";
+import { ShieldCheck, Lock, Mail, KeyRound, AlertCircle } from "lucide-react";
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -12,24 +12,59 @@ export default function AdminLoginPage() {
   const [error, setError] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
 
-  const handleAdminLogin = (e: React.FormEvent) => {
+  const handleAdminLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError("");
 
-    setTimeout(() => {
-      const res = authenticateUser(email.trim(), password);
-      setLoading(false);
-      if (res.success) {
-        if (res.user?.role === "admin") {
-          router.push("/admin");
-        } else {
+    try {
+      // 1. Try server API first (reads from data/users.json on disk — always up-to-date)
+      const res = await fetch("/api/users", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "authenticate", email: email.trim(), password }),
+      });
+      const data = await res.json();
+
+      if (res.ok && data.success && data.user) {
+        if (data.user.role !== "admin") {
           setError("Accès refusé. Ce compte n'a pas les privilèges administrateur.");
+          setLoading(false);
+          return;
         }
-      } else {
-        setError(res.error || "Identifiants administrateur incorrects.");
+        setCurrentUser(data.user);
+        setLoading(false);
+        router.push("/admin");
+        return;
       }
-    }, 400);
+
+      // 2. Fallback: local store / localStorage (works offline / cold start)
+      const localRes = authenticateUser(email.trim(), password);
+      setLoading(false);
+      if (localRes.success && localRes.user) {
+        if (localRes.user.role !== "admin") {
+          setError("Accès refusé. Ce compte n'a pas les privilèges administrateur.");
+          return;
+        }
+        router.push("/admin");
+        return;
+      }
+
+      setError(data?.error || localRes?.error || "Identifiants administrateur incorrects.");
+    } catch (err) {
+      // Network error → try local only
+      const localRes = authenticateUser(email.trim(), password);
+      setLoading(false);
+      if (localRes.success && localRes.user) {
+        if (localRes.user.role !== "admin") {
+          setError("Accès refusé. Ce compte n'a pas les privilèges administrateur.");
+          return;
+        }
+        router.push("/admin");
+        return;
+      }
+      setError(localRes?.error || "Erreur de connexion. Veuillez réessayer.");
+    }
   };
 
   return (
@@ -45,7 +80,7 @@ export default function AdminLoginPage() {
           <span>Espace Restreint — Administration Système</span>
         </div>
         <h1 className="text-2xl font-black text-slate-950 tracking-tight">Portail Administrateur</h1>
-        <p className="text-xs text-slate-500 mt-1">Supervision globale, gestion des utilisateurs et des crédits</p>
+        <p className="text-xs text-slate-500 mt-1">Supervision globale, gestion des utilisateurs et des abonnements</p>
       </div>
 
       {/* Admin Login Card */}
@@ -105,6 +140,13 @@ export default function AdminLoginPage() {
             )}
           </button>
         </form>
+
+        {/* Credentials hint */}
+        <div className="mt-5 p-3.5 bg-amber-50 border border-amber-200 rounded-2xl text-xs text-amber-800 space-y-1">
+          <div className="font-bold text-amber-900 flex items-center gap-1.5">🔑 Comptes administrateurs disponibles :</div>
+          <div>• <strong>admin@my-cv.tn</strong> → mot de passe : <code className="bg-amber-100 px-1 rounded">admin123</code></div>
+          <div>• <strong>ramigouader@gmail.com</strong> → mot de passe : <code className="bg-amber-100 px-1 rounded">R@mail1603</code></div>
+        </div>
 
         <div className="mt-6 pt-4 border-t border-slate-100 text-center text-xs text-slate-500">
           <a href="/login" className="text-slate-500 hover:text-slate-900 transition">

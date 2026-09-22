@@ -1,12 +1,30 @@
 [
   {
-    "id": "usr-1790063331620",
-    "name": "rami",
-    "email": "rami@gmail.com",
+    "id": "usr-1790073275296",
+    "name": "asma",
+    "email": "asma@gmail.com",
     "password": "Test@1234",
     "role": "user",
-    "credits": 41,
+    "credits": 23,
     "status": "active",
+    "createdAt": "2026-09-22T10:34:35.296Z",
+    "lastLoginAt": "2026-09-22T10:34:35.296Z",
+    "subscriptionTier": "semi_annual",
+    "subscriptionStatus": "active",
+    "subscriptionExpiresAt": "2027-03-22T10:35:21.388Z",
+    "monthlyDownloadsUsed": 0,
+    "downloadsResetDate": "2026-10-22T10:35:21.392Z"
+  },
+  {
+    "id": "usr-1790063331620",
+    "name": "Rami GOUADER",
+    "email": "rami@gmail.com",
+    "password": "Test@1234",
+    "role": "admin",
+    "credits": 999,
+    "status": "active",
+    "subscriptionTier": "annual",
+    "subscriptionStatus": "active",
     "createdAt": "2026-09-22T07:48:51.620Z",
     "lastLoginAt": "2026-09-22T07:48:51.620Z"
   },
@@ -18,6 +36,8 @@
     "role": "admin",
     "credits": 999,
     "status": "active",
+    "subscriptionTier": "annual",
+    "subscriptionStatus": "active",
     "createdAt": "2026-01-01T00:00:00.000Z",
     "lastLoginAt": "2026-09-01T01:00:00.000Z"
   },
@@ -29,6 +49,8 @@
     "role": "admin",
     "credits": 999,
     "status": "active",
+    "subscriptionTier": "annual",
+    "subscriptionStatus": "active",
     "createdAt": "2026-09-04T15:46:58.019Z",
     "lastLoginAt": "2026-09-04T15:46:58.019Z"
   }
