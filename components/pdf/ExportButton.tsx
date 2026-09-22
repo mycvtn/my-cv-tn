@@ -5,7 +5,7 @@ import { Download, Loader2, FileCode, ChevronDown, Sparkles, Printer } from "luc
 import { exportResumeToPDF } from "@/lib/pdf/pdfExporter";
 import { useLatexPdf } from "@/hooks/useLatexPdf";
 import { ResumeData } from "@/types/resume";
-import { getCurrentUser, consumeUserCredits } from "@/lib/auth/authStore";
+import { getCurrentUser, canDownloadProResume, consumeProDownload } from "@/lib/auth/authStore";
 import confetti from "canvas-confetti";
 
 interface Props {
@@ -20,7 +20,6 @@ export const ExportButton: React.FC<Props> = ({
   elementId = "resume-sheet-preview",
   resumeData,
   candidateName = "Candidat",
-  isUnlocked = true,
   onRequireUnlock,
 }) => {
   const [exporting, setExporting] = useState(false);
@@ -28,19 +27,24 @@ export const ExportButton: React.FC<Props> = ({
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const { downloadLatexPdf, downloadLatexSource, isGenerating } = useLatexPdf();
 
+  const user = typeof window !== "undefined" ? getCurrentUser() : null;
+  const proCheck = canDownloadProResume(user);
+
   // Direct 1-Click Instant PDF File Download
   const handleDirectDownload = async () => {
-    const user = getCurrentUser();
-    const currentCredits = user?.credits ?? 0;
-
-    if (user?.role !== "admin" && currentCredits < 10) {
-      if (onRequireUnlock) onRequireUnlock();
-      return;
+    if (!proCheck.allowed) {
+      if (!proCheck.info.isSubscribed) {
+        if (onRequireUnlock) onRequireUnlock();
+        return;
+      } else {
+        alert(proCheck.reason || "Quota mensuel atteint.");
+        return;
+      }
     }
 
-    // Deduct exactly 10 credits immediately on click
-    if (user?.role !== "admin" && (user?.id || user?.email)) {
-      consumeUserCredits(user.id || user.email, 10);
+    // Consume 1 from monthly quota
+    if (!proCheck.info.isAdmin && (user?.id || user?.email)) {
+      consumeProDownload(user.id || user.email);
     }
 
     setDropdownOpen(false);
@@ -67,17 +71,19 @@ export const ExportButton: React.FC<Props> = ({
   };
 
   const handleExportLatex = async () => {
-    const user = getCurrentUser();
-    const currentCredits = user?.credits ?? 0;
-
-    if (user?.role !== "admin" && currentCredits < 10) {
-      if (onRequireUnlock) onRequireUnlock();
-      return;
+    if (!proCheck.allowed) {
+      if (!proCheck.info.isSubscribed) {
+        if (onRequireUnlock) onRequireUnlock();
+        return;
+      } else {
+        alert(proCheck.reason || "Quota mensuel atteint.");
+        return;
+      }
     }
 
-    // Deduct exactly 10 credits immediately on click
-    if (user?.role !== "admin" && (user?.id || user?.email)) {
-      consumeUserCredits(user.id || user.email, 10);
+    // Consume 1 from monthly quota
+    if (!proCheck.info.isAdmin && (user?.id || user?.email)) {
+      consumeProDownload(user.id || user.email);
     }
 
     setDropdownOpen(false);

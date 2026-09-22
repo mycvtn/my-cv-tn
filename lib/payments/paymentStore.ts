@@ -1,9 +1,8 @@
-"use client";
-
-import { adminUpdateUserCredits } from "@/lib/auth/authStore";
+import { adminUpdateUserCredits, adminSetUserSubscription } from "@/lib/auth/authStore";
 
 export type PaymentMethod = "d17" | "flouci" | string;
 export type PaymentStatus = "pending" | "approved" | "rejected";
+export type SubscriptionPlanType = "semi_annual" | "annual";
 
 export interface CustomPaymentMethod {
   id: string;
@@ -21,6 +20,7 @@ export interface PaymentRequest {
   userName: string;
   userEmail: string;
   method: PaymentMethod;
+  planType?: SubscriptionPlanType;
   credits: number;
   amountTND: number;
   receiptImageUrl: string;
@@ -31,6 +31,9 @@ export interface PaymentRequest {
 }
 
 export interface PaymentSettings {
+  semiAnnualPriceTND?: number;
+  annualPriceTND?: number;
+  monthlyQuota?: number;
   d17PhoneNumber: string;
   d17AccountHolder: string;
   d17Instructions: string;
@@ -43,6 +46,9 @@ export interface PaymentSettings {
 }
 
 const DEFAULT_SETTINGS: PaymentSettings = {
+  semiAnnualPriceTND: 29.0,
+  annualPriceTND: 49.0,
+  monthlyQuota: 3,
   d17PhoneNumber: "98 123 456",
   d17AccountHolder: "my-cv.tn Administration",
   d17Instructions: "Effectuez le transfert vers ce numéro D17 puis téléversez la capture d'écran du reçu.",
@@ -177,7 +183,8 @@ export async function createPaymentRequest(
   method: PaymentMethod,
   credits: number,
   amountTND: number,
-  receiptImageUrl: string
+  receiptImageUrl: string,
+  planType: SubscriptionPlanType = "semi_annual"
 ): Promise<PaymentRequest> {
   const all = getPaymentRequests();
   const newReq: PaymentRequest = {
@@ -186,6 +193,7 @@ export async function createPaymentRequest(
     userName: userName || "Utilisateur",
     userEmail: userEmail || "candidat@my-cv.tn",
     method,
+    planType,
     credits,
     amountTND,
     receiptImageUrl,
@@ -220,10 +228,16 @@ export async function approvePaymentRequest(requestId: string): Promise<{ succes
     return { success: false, error: "Cette demande est déjà validée" };
   }
 
-  // 1. Credit the user account
-  adminUpdateUserCredits(target.userId, target.credits, false);
+  // 1. Activate subscription (6 months or 12 months)
+  const plan = target.planType || (target.amountTND >= 40 ? "annual" : "semi_annual");
+  adminSetUserSubscription(target.userId || target.userEmail, plan, plan === "annual" ? 12 : 6);
 
-  // 2. Mark request as approved
+  // 2. Also grant bonus credits if specified
+  if (target.credits > 0) {
+    adminUpdateUserCredits(target.userId || target.userEmail, target.credits, false);
+  }
+
+  // 3. Mark request as approved
   const updatedList = all.map((r) => {
     if (r.id === requestId) {
       return {

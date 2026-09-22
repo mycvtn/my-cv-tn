@@ -520,3 +520,220 @@ export function consumeUserCredits(
   };
 }
 
+/**
+ * Subscription Helpers & Monthly Pro Download Quota Management (3 CVs / month)
+ */
+export const MONTHLY_PRO_DOWNLOADS_LIMIT = 3;
+
+export interface UserSubscriptionInfo {
+  isSubscribed: boolean;
+  tier: "none" | "semi_annual" | "annual";
+  status: "inactive" | "active" | "expired";
+  expiresAt?: string;
+  monthlyUsed: number;
+  monthlyLimit: number;
+  remainingThisMonth: number;
+  resetDate?: string;
+  isAdmin: boolean;
+}
+
+export function getUserSubscriptionInfo(user: UserAccount | null): UserSubscriptionInfo {
+  if (!user) {
+    return {
+      isSubscribed: false,
+      tier: "none",
+      status: "inactive",
+      monthlyUsed: 0,
+      monthlyLimit: MONTHLY_PRO_DOWNLOADS_LIMIT,
+      remainingThisMonth: 0,
+      isAdmin: false,
+    };
+  }
+
+  if (user.role === "admin") {
+    return {
+      isSubscribed: true,
+      tier: "annual",
+      status: "active",
+      expiresAt: "2099-12-31T23:59:59.000Z",
+      monthlyUsed: 0,
+      monthlyLimit: 999,
+      remainingThisMonth: 999,
+      isAdmin: true,
+    };
+  }
+
+  const now = new Date();
+  const tier = user.subscriptionTier || "none";
+  let status = user.subscriptionStatus || "inactive";
+  const expiresAt = user.subscriptionExpiresAt;
+
+  let isSubscribed = false;
+  if (tier !== "none" && expiresAt) {
+    const expiryDate = new Date(expiresAt);
+    if (expiryDate > now) {
+      isSubscribed = true;
+      status = "active";
+    } else {
+      status = "expired";
+    }
+  }
+
+  // Handle Monthly Quota Cycle Reset (every 30 days / month)
+  let monthlyUsed = user.monthlyDownloadsUsed ?? 0;
+  let resetDate = user.downloadsResetDate;
+
+  if (!resetDate) {
+    const nextMonth = new Date();
+    nextMonth.setMonth(nextMonth.getMonth() + 1);
+    resetDate = nextMonth.toISOString();
+  } else {
+    const resetDateTime = new Date(resetDate);
+    if (now >= resetDateTime) {
+      monthlyUsed = 0;
+      const nextReset = new Date();
+      nextReset.setMonth(nextReset.getMonth() + 1);
+      resetDate = nextReset.toISOString();
+      // Persist reset
+      updateUserProfile(user.id, {
+        monthlyDownloadsUsed: 0,
+        downloadsResetDate: resetDate,
+      });
+    }
+  }
+
+  const remainingThisMonth = isSubscribed ? Math.max(0, MONTHLY_PRO_DOWNLOADS_LIMIT - monthlyUsed) : 0;
+
+  return {
+    isSubscribed,
+    tier,
+    status,
+    expiresAt,
+    monthlyUsed,
+    monthlyLimit: MONTHLY_PRO_DOWNLOADS_LIMIT,
+    remainingThisMonth,
+    resetDate,
+    isAdmin: false,
+  };
+}
+
+export function canDownloadProResume(user: UserAccount | null): {
+  allowed: boolean;
+  reason?: string;
+  remainingThisMonth: number;
+  info: UserSubscriptionInfo;
+} {
+  const info = getUserSubscriptionInfo(user);
+
+  if (info.isAdmin) {
+    return { allowed: true, remainingThisMonth: 999, info };
+  }
+
+  if (!info.isSubscribed) {
+    return {
+      allowed: false,
+      reason: "Un abonnement Semestriel ou Annuel est requis pour télécharger votre CV Pro sans filigrane.",
+      remainingThisMonth: 0,
+      info,
+    };
+  }
+
+  if (info.remainingThisMonth <= 0) {
+    const formattedDate = info.resetDate ? new Date(info.resetDate).toLocaleDateString("fr-FR") : "le mois prochain";
+    return {
+      allowed: false,
+      reason: `Vous avez atteint votre quota de 3 CV Pro pour ce mois. Votre quota sera renouvelé le ${formattedDate}. Vous pouvez toujours télécharger le CV Gratuit avec filigrane.`,
+      remainingThisMonth: 0,
+      info,
+    };
+  }
+
+  return {
+    allowed: true,
+    remainingThisMonth: info.remainingThisMonth,
+    info,
+  };
+}
+
+export function consumeProDownload(userIdOrEmail: string): {
+  success: boolean;
+  remainingThisMonth: number;
+  user?: UserAccount;
+  error?: string;
+} {
+  const active = getCurrentUser();
+  const lookup = (userIdOrEmail || "").trim().toLowerCase();
+  const users = getStoredUsers();
+  let target = users.find(
+    (u) => (u.id && u.id.toLowerCase() === lookup) || (u.email && u.email.toLowerCase() === lookup)
+  ) || active;
+
+  if (!target) {
+    return { success: false, remainingThisMonth: 0, error: "Utilisateur non trouvé." };
+  }
+
+  if (target.role === "admin") {
+    return { success: true, remainingThisMonth: 999, user: target };
+  }
+
+  const check = canDownloadProResume(target);
+  if (!check.allowed) {
+    return { success: false, remainingThisMonth: check.remainingThisMonth, error: check.reason };
+  }
+
+  const currentUsed = target.monthlyDownloadsUsed ?? 0;
+  const newUsed = currentUsed + 1;
+
+  const updated = updateUserProfile(target.id, {
+    monthlyDownloadsUsed: newUsed,
+  });
+
+  return {
+    success: true,
+    remainingThisMonth: Math.max(0, MONTHLY_PRO_DOWNLOADS_LIMIT - newUsed),
+    user: updated || undefined,
+  };
+}
+
+export function adminSetUserSubscription(
+  userIdOrEmail: string,
+  tier: "semi_annual" | "annual" | "none",
+  monthsDuration = 6
+): UserAccount | null {
+  const lookup = (userIdOrEmail || "").trim().toLowerCase();
+  const now = new Date();
+  
+  let expiresAt: string | undefined = undefined;
+  let status: "active" | "inactive" = "inactive";
+
+  if (tier !== "none") {
+    const duration = tier === "annual" ? 12 : monthsDuration;
+    const expiry = new Date();
+    expiry.setMonth(expiry.getMonth() + duration);
+    expiresAt = expiry.toISOString();
+    status = "active";
+  }
+
+  const nextReset = new Date();
+  nextReset.setMonth(nextReset.getMonth() + 1);
+
+  const updated = updateUserProfile(lookup, {
+    subscriptionTier: tier,
+    subscriptionStatus: status,
+    subscriptionExpiresAt: expiresAt,
+    monthlyDownloadsUsed: 0,
+    downloadsResetDate: nextReset.toISOString(),
+  });
+
+  return updated;
+}
+
+export function adminResetUserMonthlyQuota(userIdOrEmail: string): UserAccount | null {
+  const nextReset = new Date();
+  nextReset.setMonth(nextReset.getMonth() + 1);
+  return updateUserProfile(userIdOrEmail, {
+    monthlyDownloadsUsed: 0,
+    downloadsResetDate: nextReset.toISOString(),
+  });
+}
+

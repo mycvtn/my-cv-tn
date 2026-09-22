@@ -6,7 +6,7 @@ import { UserAccount, UserRole } from "@/types/auth";
 import { 
   getStoredUsers, getCurrentUser, adminUpdateUserCredits, 
   adminToggleUserStatus, adminDeleteUser, adminDeleteAllUsers, registerNewUser, logoutUser,
-  adminCreateUser, fetchServerUsers
+  adminCreateUser, fetchServerUsers, adminSetUserSubscription, adminResetUserMonthlyQuota, getUserSubscriptionInfo
 } from "@/lib/auth/authStore";
 import { 
   getPaymentSettings, savePaymentSettings,
@@ -17,7 +17,8 @@ import {
   Users, Ticket, DollarSign, Shield, ShieldCheck, Search, 
   Plus, PlusCircle, MinusCircle, Ban, CheckCircle2, Trash2, 
   ArrowLeft, RefreshCw, LogOut, FileText, Activity, AlertCircle, Edit3,
-  CreditCard, Clock, XCircle, Eye, Settings, Check, Phone, Landmark, MessageSquare, UserCheck, Zap
+  CreditCard, Clock, XCircle, Eye, Settings, Check, Phone, Landmark, MessageSquare, UserCheck, Zap,
+  Sparkles, Crown, Calendar
 } from "lucide-react";
 
 export default function AdminDashboardPage() {
@@ -49,6 +50,9 @@ export default function AdminDashboardPage() {
 
   // Payment Settings State
   const [settingsForm, setSettingsForm] = useState<PaymentSettings>({
+    semiAnnualPriceTND: 29.0,
+    annualPriceTND: 49.0,
+    monthlyQuota: 3,
     d17PhoneNumber: "",
     d17AccountHolder: "",
     d17Instructions: "",
@@ -201,13 +205,37 @@ export default function AdminDashboardPage() {
     }
   };
 
+  // Subscription Quick Management Actions
+  const handleSetSubscription = (userId: string, tier: "semi_annual" | "annual" | "none") => {
+    const updated = adminSetUserSubscription(userId, tier);
+    if (updated) {
+      setUsers(getStoredUsers());
+      showToast(
+        tier === "annual"
+          ? `👑 Pass Annuel (12 mois) activé pour ${updated.name}`
+          : tier === "semi_annual"
+          ? `✨ Pass Semestriel (6 mois) activé pour ${updated.name}`
+          : `Abonnement désactivé pour ${updated.name}`
+      );
+    }
+  };
+
+  const handleResetQuota = (userId: string) => {
+    const updated = adminResetUserMonthlyQuota(userId);
+    if (updated) {
+      setUsers(getStoredUsers());
+      showToast(`⚡ Quota mensuel réinitialisé (0/3 utilisé) pour ${updated.name}`);
+    }
+  };
+
   // Payment Actions
-  const handleApprovePayment = async (reqId: string, clientName: string, credits: number) => {
+  const handleApprovePayment = async (reqId: string, clientName: string, credits: number, planType?: string) => {
     // Instant UI update
     setPaymentRequests((prev) =>
       prev.map((p) => (p.id === reqId ? { ...p, status: "approved" } : p))
     );
-    showToast(`Paiement validé ! +${credits} crédits ajoutés à ${clientName}.`);
+    const planLabel = planType === "annual" ? "Pass Annuel (12 mois)" : planType === "semi_annual" ? "Pass Semestriel (6 mois)" : `+${credits} crédits`;
+    showToast(`Paiement validé ! ${planLabel} activé pour ${clientName}.`);
 
     const res = await approvePaymentRequest(reqId);
     if (res.success) {
@@ -566,120 +594,155 @@ export default function AdminDashboardPage() {
                     <th className="p-3.5">Utilisateur</th>
                     <th className="p-3.5">Email</th>
                     <th className="p-3.5">Rôle</th>
-                    <th className="p-3.5">Solde Crédits (Action Rapide ⚡)</th>
+                    <th className="p-3.5">Abonnement & Quota Mensuel</th>
+                    <th className="p-3.5">Gestion Abonnement (⚡)</th>
                     <th className="p-3.5">Statut</th>
-                    <th className="p-3.5 text-right">Actions rapides</th>
+                    <th className="p-3.5 text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
                   {filteredUsers.length === 0 ? (
                     <tr>
-                      <td colSpan={6} className="p-8 text-center text-slate-400">
+                      <td colSpan={7} className="p-8 text-center text-slate-400">
                         Aucun utilisateur trouvé.
                       </td>
                     </tr>
                   ) : (
-                    filteredUsers.map((u) => (
-                      <tr key={u.id} className="hover:bg-slate-50/80 transition">
-                        <td className="p-3.5 font-bold text-slate-950 flex items-center gap-2.5">
-                          <div className={`w-7 h-7 rounded-lg flex items-center justify-center font-bold text-xs ${
-                            u.role === "admin" 
-                              ? "bg-rose-100 text-rose-700 border border-rose-200" 
-                              : "bg-slate-100 text-slate-700 border border-slate-200"
-                          }`}>
-                            {u.role === "admin" ? "🛡️" : u.name.charAt(0).toUpperCase()}
-                          </div>
-                          <span>{u.name}</span>
-                        </td>
-                        <td className="p-3.5 text-slate-600">{u.email}</td>
-                        <td className="p-3.5">
-                          <span className={`px-2.5 py-1 rounded-md text-[10px] font-extrabold uppercase ${
-                            u.role === "admin"
-                              ? "bg-rose-50 text-rose-700 border border-rose-200 flex items-center gap-1 w-fit"
-                              : "bg-blue-50 text-blue-700 border border-blue-200"
-                          }`}>
-                            {u.role === "admin" ? "🛡️ ADMIN" : "👤 CANDIDAT"}
-                          </span>
-                        </td>
-                        <td className="p-3.5">
-                          <div className="flex items-center gap-1.5 flex-wrap">
-                            <div className="flex items-center gap-1 font-black text-amber-700 text-sm bg-amber-50/80 px-2 py-1 rounded-lg border border-amber-200/60 min-w-[55px]">
-                              <Ticket className="w-3.5 h-3.5 text-amber-600 flex-shrink-0" />
-                              <span>{u.credits ?? 0}</span>
+                    filteredUsers.map((u) => {
+                      const subInfo = getUserSubscriptionInfo(u);
+                      return (
+                        <tr key={u.id} className="hover:bg-slate-50/80 transition">
+                          <td className="p-3.5 font-bold text-slate-950 flex items-center gap-2.5">
+                            <div className={`w-7 h-7 rounded-lg flex items-center justify-center font-bold text-xs ${
+                              u.role === "admin" 
+                                ? "bg-rose-100 text-rose-700 border border-rose-200" 
+                                : "bg-slate-100 text-slate-700 border border-slate-200"
+                            }`}>
+                              {u.role === "admin" ? "🛡️" : u.name.charAt(0).toUpperCase()}
                             </div>
+                            <span>{u.name}</span>
+                          </td>
+                          <td className="p-3.5 text-slate-600">{u.email}</td>
+                          <td className="p-3.5">
+                            <span className={`px-2.5 py-1 rounded-md text-[10px] font-extrabold uppercase ${
+                              u.role === "admin"
+                                ? "bg-rose-50 text-rose-700 border border-rose-200 flex items-center gap-1 w-fit"
+                                : "bg-blue-50 text-blue-700 border border-blue-200"
+                            }`}>
+                              {u.role === "admin" ? "🛡️ ADMIN" : "👤 CANDIDAT"}
+                            </span>
+                          </td>
+                          <td className="p-3.5">
+                            {u.role === "admin" ? (
+                              <div className="flex items-center gap-1 text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200 text-[11px] font-bold w-fit">
+                                <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                                <span>Illimité (Accès Administrateur)</span>
+                              </div>
+                            ) : subInfo.isSubscribed ? (
+                              <div className="space-y-1">
+                                <div className="flex items-center gap-1.5 flex-wrap">
+                                  <span className={`px-2 py-0.5 rounded-md text-[10px] font-black uppercase flex items-center gap-1 ${
+                                    subInfo.tier === "annual"
+                                      ? "bg-amber-100 text-amber-900 border border-amber-300"
+                                      : "bg-blue-100 text-blue-900 border border-blue-300"
+                                  }`}>
+                                    {subInfo.tier === "annual" ? <Crown className="w-3 h-3 text-amber-600" /> : <Sparkles className="w-3 h-3 text-blue-600" />}
+                                    <span>{subInfo.tier === "annual" ? "Pass Annuel (12 Mois)" : "Pass Semestriel (6 Mois)"}</span>
+                                  </span>
 
-                            {/* Quick Instant Credit Action Buttons */}
+                                  <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold ${
+                                    subInfo.remainingThisMonth > 0
+                                      ? "bg-emerald-50 text-emerald-800 border border-emerald-200"
+                                      : "bg-rose-50 text-rose-800 border border-rose-200"
+                                  }`}>
+                                    📊 {subInfo.monthlyUsed} / {subInfo.monthlyLimit} CV Pro utilisés
+                                  </span>
+                                </div>
+                                {subInfo.expiresAt && (
+                                  <div className="text-[10px] text-slate-500 flex items-center gap-1">
+                                    <Calendar className="w-3 h-3 text-slate-400" />
+                                    <span>Expire le : {new Date(subInfo.expiresAt).toLocaleDateString("fr-FR")}</span>
+                                  </div>
+                                )}
+                              </div>
+                            ) : (
+                              <div className="text-[11px] text-slate-500 bg-slate-100 px-2.5 py-1 rounded-lg border border-slate-200 w-fit">
+                                <span>CV Gratuit (Filigrane) uniquement</span>
+                              </div>
+                            )}
+                          </td>
+                          <td className="p-3.5">
+                            {u.role !== "admin" && (
+                              <div className="flex items-center gap-1 flex-wrap">
+                                <button
+                                  type="button"
+                                  onClick={() => handleSetSubscription(u.id, "semi_annual")}
+                                  className="px-2 py-1 bg-blue-50 hover:bg-blue-100 text-blue-800 rounded-lg text-[10px] font-bold border border-blue-200 transition cursor-pointer"
+                                  title="Activer ou renouveler Pass Semestriel (6 mois)"
+                                >
+                                  +6M Semestriel
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => handleSetSubscription(u.id, "annual")}
+                                  className="px-2 py-1 bg-amber-50 hover:bg-amber-100 text-amber-900 rounded-lg text-[10px] font-bold border border-amber-200 transition cursor-pointer"
+                                  title="Activer ou renouveler Pass Annuel (12 mois)"
+                                >
+                                  +12M Annuel
+                                </button>
+                                {subInfo.isSubscribed && (
+                                  <>
+                                    <button
+                                      type="button"
+                                      onClick={() => handleResetQuota(u.id)}
+                                      className="px-1.5 py-1 bg-slate-100 hover:bg-emerald-50 hover:text-emerald-700 text-slate-600 rounded-lg text-[10px] font-bold border border-slate-200 transition cursor-pointer"
+                                      title="Réinitialiser le compteur mensuel à 0/3 CV Pro"
+                                    >
+                                      Reset 0/3
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => handleSetSubscription(u.id, "none")}
+                                      className="px-1.5 py-1 bg-slate-100 hover:bg-rose-50 hover:text-rose-700 text-slate-500 rounded-lg text-[10px] font-bold border border-slate-200 transition cursor-pointer"
+                                      title="Annuler l'abonnement"
+                                    >
+                                      Résilier
+                                    </button>
+                                  </>
+                                )}
+                              </div>
+                            )}
+                          </td>
+                          <td className="p-3.5">
+                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                              u.status === "active"
+                                ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                                : "bg-rose-50 text-rose-700 border border-rose-200"
+                            }`}>
+                              {u.status === "active" ? "Actif" : "Suspendu"}
+                            </span>
+                          </td>
+                          <td className="p-3.5 text-right space-x-1.5">
                             <button
-                              type="button"
-                              onClick={() => handleUpdateCredits(u.id, 1)}
-                              className="px-2 py-1 bg-slate-100 hover:bg-emerald-100 hover:text-emerald-700 text-slate-700 rounded-lg text-xs font-bold border border-slate-200 transition cursor-pointer"
-                              title="+1 Crédit Instantané"
+                              onClick={() => handleToggleStatus(u.id)}
+                              className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-500 hover:text-slate-800 transition cursor-pointer"
+                              title={u.status === "active" ? "Suspendre ce compte" : "Réactiver ce compte"}
                             >
-                              +1
+                              <Ban className="w-4 h-4" />
                             </button>
-                            <button
-                              type="button"
-                              onClick={() => handleUpdateCredits(u.id, 5)}
-                              className="px-2 py-1 bg-slate-100 hover:bg-emerald-100 hover:text-emerald-700 text-slate-700 rounded-lg text-xs font-bold border border-slate-200 transition cursor-pointer"
-                              title="+5 Crédits Instantanés"
-                            >
-                              +5
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => handleUpdateCredits(u.id, 20)}
-                              className="px-2 py-1 bg-slate-100 hover:bg-emerald-100 hover:text-emerald-700 text-slate-700 rounded-lg text-xs font-bold border border-slate-200 transition cursor-pointer"
-                              title="+20 Crédits Instantanés"
-                            >
-                              +20
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => handleUpdateCredits(u.id, -5)}
-                              className="px-2 py-1 bg-slate-100 hover:bg-rose-100 hover:text-rose-700 text-slate-600 rounded-lg text-xs font-bold border border-slate-200 transition cursor-pointer"
-                              title="-5 Crédits"
-                            >
-                              -5
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => handleOpenCreditEditor(u)}
-                              className="p-1 hover:bg-amber-100 hover:text-amber-800 text-slate-400 rounded-lg border border-transparent hover:border-amber-200 transition cursor-pointer"
-                              title="Définir un montant de crédits exact"
-                            >
-                              <Edit3 className="w-3.5 h-3.5" />
-                            </button>
-                          </div>
-                        </td>
-                        <td className="p-3.5">
-                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                            u.status === "active"
-                              ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                              : "bg-rose-50 text-rose-700 border border-rose-200"
-                          }`}>
-                            {u.status === "active" ? "Actif" : "Suspendu"}
-                          </span>
-                        </td>
-                        <td className="p-3.5 text-right space-x-1.5">
-                          <button
-                            onClick={() => handleToggleStatus(u.id)}
-                            className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-500 hover:text-slate-800 transition cursor-pointer"
-                            title={u.status === "active" ? "Suspendre ce compte" : "Réactiver ce compte"}
-                          >
-                            <Ban className="w-4 h-4" />
-                          </button>
-                          {u.role !== "admin" && (
-                            <button
-                              onClick={() => handleDeleteUser(u.id, u.name)}
-                              className="p-1.5 hover:bg-rose-50 rounded-lg text-slate-400 hover:text-rose-600 transition cursor-pointer"
-                              title="Supprimer définitivement"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
-                          )}
-                        </td>
-                      </tr>
-                    ))
+                            {u.role !== "admin" && (
+                              <button
+                                onClick={() => handleDeleteUser(u.id, u.name)}
+                                className="p-1.5 hover:bg-rose-50 rounded-lg text-slate-400 hover:text-rose-600 transition cursor-pointer"
+                                title="Supprimer définitivement"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })
                   )}
                 </tbody>
               </table>
@@ -747,8 +810,8 @@ export default function AdminDashboardPage() {
                   <tr>
                     <th className="p-3.5">Client</th>
                     <th className="p-3.5">Méthode</th>
+                    <th className="p-3.5">Offre & Formule</th>
                     <th className="p-3.5">Montant (TND)</th>
-                    <th className="p-3.5">Crédits</th>
                     <th className="p-3.5">Preuve / Reçu</th>
                     <th className="p-3.5">Statut</th>
                     <th className="p-3.5">Date</th>
@@ -772,11 +835,23 @@ export default function AdminDashboardPage() {
                         <td className="p-3.5">
                           {getMethodBadge(p.method)}
                         </td>
+                        <td className="p-3.5">
+                          {p.planType === "annual" ? (
+                            <span className="px-2.5 py-1 rounded-lg text-[10px] font-black bg-amber-50 text-amber-900 border border-amber-300 inline-flex items-center gap-1">
+                              👑 Pass Annuel (12 Mois)
+                            </span>
+                          ) : p.planType === "semi_annual" ? (
+                            <span className="px-2.5 py-1 rounded-lg text-[10px] font-black bg-blue-50 text-blue-900 border border-blue-300 inline-flex items-center gap-1">
+                              ✨ Pass Semestriel (6 Mois)
+                            </span>
+                          ) : (
+                            <span className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200 inline-flex items-center gap-1">
+                              🎫 +{p.credits} Crédits
+                            </span>
+                          )}
+                        </td>
                         <td className="p-3.5 font-bold text-slate-950">
                           {p.amountTND.toFixed(3)} DT
-                        </td>
-                        <td className="p-3.5 font-black text-amber-600">
-                          +{p.credits} Cr
                         </td>
                         <td className="p-3.5">
                           <button
@@ -811,10 +886,10 @@ export default function AdminDashboardPage() {
                           {p.status === "pending" ? (
                             <>
                               <button
-                                onClick={() => handleApprovePayment(p.id, p.userName, p.credits)}
+                                onClick={() => handleApprovePayment(p.id, p.userName, p.credits, p.planType)}
                                 className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-extrabold shadow-sm transition cursor-pointer"
                               >
-                                Valider & Créditer
+                                {p.planType ? "Valider & Activer Abonnement" : "Valider & Créditer"}
                               </button>
                               <button
                                 onClick={() => handleOpenReject(p.id)}
@@ -865,10 +940,97 @@ export default function AdminDashboardPage() {
             </div>
 
             <form onSubmit={handleSaveSettings} className="space-y-6">
+              {/* SECTION 0: TARIFICATION DES ABONNEMENTS PRO */}
+              <div className="space-y-3 p-5 bg-gradient-to-br from-amber-500/10 via-rose-500/5 to-indigo-500/10 border border-amber-300/60 rounded-3xl">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xl">👑</span>
+                    <div>
+                      <h4 className="text-sm font-black text-slate-950">
+                        Tarification des Abonnements & Quota Téléchargements Pro
+                      </h4>
+                      <p className="text-[11px] text-slate-600">
+                        Définissez les prix des formules Semestrielle et Annuelle ainsi que le quota mensuel de CV Pro sans filigrane.
+                      </p>
+                    </div>
+                  </div>
+                  <span className="bg-amber-100 text-amber-900 border border-amber-300 text-[10px] font-black px-2.5 py-1 rounded-full uppercase">
+                    Modifiable par l'Admin ⚙️
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
+                  {/* Prix Pass Semestriel */}
+                  <div className="p-3.5 bg-white border border-slate-200 rounded-2xl space-y-1.5 shadow-2xs">
+                    <label className="block text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                      <Sparkles className="w-3.5 h-3.5 text-blue-600" />
+                      <span>Prix Pass Semestriel (6 Mois) :</span>
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="number"
+                        step="0.5"
+                        min="1"
+                        max="999"
+                        value={settingsForm.semiAnnualPriceTND ?? 29.0}
+                        onChange={(e) => setSettingsForm({ ...settingsForm, semiAnnualPriceTND: parseFloat(e.target.value) || 0 })}
+                        className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-950 font-black focus:outline-none focus:border-blue-500 pr-12"
+                        required
+                      />
+                      <span className="absolute right-3 top-2 text-xs font-bold text-slate-500 pointer-events-none">DT</span>
+                    </div>
+                    <p className="text-[10px] text-slate-500">Par défaut : 29.000 DT (4.8 DT / mois)</p>
+                  </div>
+
+                  {/* Prix Pass Annuel */}
+                  <div className="p-3.5 bg-white border border-amber-200 rounded-2xl space-y-1.5 shadow-2xs">
+                    <label className="block text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                      <Crown className="w-3.5 h-3.5 text-amber-600" />
+                      <span>Prix Pass Annuel (12 Mois) :</span>
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="number"
+                        step="0.5"
+                        min="1"
+                        max="999"
+                        value={settingsForm.annualPriceTND ?? 49.0}
+                        onChange={(e) => setSettingsForm({ ...settingsForm, annualPriceTND: parseFloat(e.target.value) || 0 })}
+                        className="w-full px-3 py-2 bg-slate-50 border border-amber-300 rounded-xl text-xs text-slate-950 font-black focus:outline-none focus:border-amber-500 pr-12"
+                        required
+                      />
+                      <span className="absolute right-3 top-2 text-xs font-bold text-amber-700 pointer-events-none">DT</span>
+                    </div>
+                    <p className="text-[10px] text-slate-500">Par défaut : 49.000 DT (4.0 DT / mois)</p>
+                  </div>
+
+                  {/* Quota Mensuel */}
+                  <div className="p-3.5 bg-white border border-slate-200 rounded-2xl space-y-1.5 shadow-2xs">
+                    <label className="block text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                      <Activity className="w-3.5 h-3.5 text-emerald-600" />
+                      <span>Quota CV Pro par mois :</span>
+                    </label>
+                    <div className="relative">
+                      <input
+                        type="number"
+                        min="1"
+                        max="50"
+                        value={settingsForm.monthlyQuota ?? 3}
+                        onChange={(e) => setSettingsForm({ ...settingsForm, monthlyQuota: parseInt(e.target.value) || 3 })}
+                        className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-950 font-black focus:outline-none focus:border-emerald-500 pr-16"
+                        required
+                      />
+                      <span className="absolute right-3 top-2 text-xs font-bold text-slate-500 pointer-events-none">CV / mois</span>
+                    </div>
+                    <p className="text-[10px] text-slate-500">Par défaut : 3 CV / mois sans filigrane</p>
+                  </div>
+                </div>
+              </div>
+
               {/* SECTION 1: METHODES STANDARDS TUNISIENNES */}
               <div className="space-y-4">
                 <div className="text-xs font-extrabold uppercase tracking-wider text-slate-500">
-                  🇹🇳 Méthodes Standards Locales :
+                  🇹🇳 Coordonnées des Méthodes Standards Locales :
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

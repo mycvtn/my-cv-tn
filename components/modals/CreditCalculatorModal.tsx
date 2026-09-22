@@ -3,60 +3,43 @@
 import React, { useState, useEffect, useRef } from "react";
 import { 
   X, Sparkles, FileText, Bot, CreditCard, Shield, 
-  CheckCircle2, ArrowRight, ArrowLeft, Upload, Clock, AlertCircle, Copy, Check
+  CheckCircle2, ArrowRight, ArrowLeft, Upload, Clock, AlertCircle, Copy, Check, Star, Zap, Crown
 } from "lucide-react";
-import { getCurrentUser, fetchServerUser } from "@/lib/auth/authStore";
-import { getPaymentSettings, createPaymentRequest, PaymentMethod, PaymentSettings, CustomPaymentMethod } from "@/lib/payments/paymentStore";
+import { getCurrentUser, fetchServerUser, getUserSubscriptionInfo } from "@/lib/auth/authStore";
+import { getPaymentSettings, createPaymentRequest, PaymentMethod, PaymentSettings, SubscriptionPlanType } from "@/lib/payments/paymentStore";
 
 interface Props {
   isOpen: boolean;
   onClose: () => void;
-  currentBalance: number;
+  currentBalance?: number;
   onSelectPlan?: (credits: number, tndAmount: number) => void;
 }
 
 export const CreditCalculatorModal: React.FC<Props> = ({ 
   isOpen, 
   onClose, 
-  currentBalance,
   onSelectPlan
 }) => {
-  const [step, setStep] = useState<"calculate" | "payment_proof" | "success">("calculate");
-  const [credits, setCredits] = useState<number>(25);
+  const [step, setStep] = useState<"plans" | "payment_proof" | "success">("plans");
+  const [selectedPlan, setSelectedPlan] = useState<SubscriptionPlanType>("annual");
   const [selectedMethod, setSelectedMethod] = useState<string>("flouci");
   const [paymentSettings, setPaymentSettings] = useState<PaymentSettings | null>(null);
   const [receiptImage, setReceiptImage] = useState<string>("");
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-  const [displayBalance, setDisplayBalance] = useState<number>(currentBalance);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const PRICE_PER_CREDIT_TND = 0.8; // 1 Crédit = 0.800 TND
+  const currentUser = typeof window !== "undefined" ? getCurrentUser() : null;
+  const subInfo = getUserSubscriptionInfo(currentUser);
 
   useEffect(() => {
     if (isOpen) {
       const settings = getPaymentSettings();
       setPaymentSettings(settings);
-      setStep("calculate");
+      setStep("plans");
       setReceiptImage("");
 
-      // Read real-time balance
-      const local = getCurrentUser();
-      if (local && typeof local.credits === "number") {
-        setDisplayBalance(local.credits);
-      } else {
-        setDisplayBalance(currentBalance);
-      }
-
-      if (local?.email) {
-        fetchServerUser(local.email).then((serverUser) => {
-          if (serverUser && typeof serverUser.credits === "number") {
-            setDisplayBalance(serverUser.credits);
-          }
-        });
-      }
-
-      // Default to first active method
+      // Default to first active payment method
       if (settings.flouciEnabled !== false) {
         setSelectedMethod("flouci");
       } else if (settings.d17Enabled !== false) {
@@ -66,13 +49,16 @@ export const CreditCalculatorModal: React.FC<Props> = ({
         if (firstActive) setSelectedMethod(firstActive.id);
       }
     }
-  }, [isOpen, currentBalance]);
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
-  const totalTND = (credits * PRICE_PER_CREDIT_TND).toFixed(3);
-  const cleanPdfCount = Math.floor(credits / 10);
-  const aiActionsCount = Math.floor(credits / 5);
+  const semiAnnualPrice = paymentSettings?.semiAnnualPriceTND ?? 29.0;
+  const annualPrice = paymentSettings?.annualPriceTND ?? 49.0;
+  const monthlyQuota = paymentSettings?.monthlyQuota ?? 3;
+
+  const currentPrice = selectedPlan === "annual" ? annualPrice : semiAnnualPrice;
+  const currentPriceFormatted = currentPrice.toFixed(3);
 
   const handleCopy = (text: string, key: string) => {
     navigator.clipboard.writeText(text);
@@ -95,7 +81,7 @@ export const CreditCalculatorModal: React.FC<Props> = ({
     }
   };
 
-  const handleSubmitProof = () => {
+  const handleSubmitProof = async () => {
     if (!receiptImage) {
       alert("Veuillez téléverser la capture d'écran ou le reçu de votre virement.");
       return;
@@ -109,19 +95,20 @@ export const CreditCalculatorModal: React.FC<Props> = ({
     setIsSubmitting(true);
 
     try {
-      createPaymentRequest(
+      await createPaymentRequest(
         userId,
         userName,
         userEmail,
         selectedMethod,
-        credits,
-        Number(totalTND),
-        receiptImage
+        selectedPlan === "annual" ? 36 : 18,
+        Number(currentPrice),
+        receiptImage,
+        selectedPlan
       );
 
       setStep("success");
       if (onSelectPlan) {
-        onSelectPlan(credits, Number(totalTND));
+        onSelectPlan(selectedPlan === "annual" ? 36 : 18, Number(currentPrice));
       }
     } catch (e) {
       alert("Erreur lors de l'envoi de la demande.");
@@ -135,397 +122,426 @@ export const CreditCalculatorModal: React.FC<Props> = ({
   const isFlouciActive = paymentSettings?.flouciEnabled !== false;
   const isD17Active = paymentSettings?.d17Enabled !== false;
 
-  // Selected method details helper
   const getSelectedMethodDetails = () => {
     if (selectedMethod === "d17") {
       return {
-        title: "📱 Coordonnées D17",
-        icon: "📱",
-        name: "D17 (Poste Tunisienne)",
-        accountLabel: "Numéro D17 :",
+        title: "Paiement via D17 (La Poste Tunisienne)",
+        badge: "D17 Mobile",
+        recipientName: paymentSettings?.d17AccountHolder || "my-cv.tn Administration",
         accountNumber: paymentSettings?.d17PhoneNumber || "98 123 456",
-        accountHolder: paymentSettings?.d17AccountHolder || "my-cv.tn Administration",
-        instructions: paymentSettings?.d17Instructions || "Envoyez le montant exact sur D17 et joignez la capture du reçu.",
+        accountLabel: "Numéro de téléphone D17",
+        instructions: paymentSettings?.d17Instructions || "Transférez le montant exact via D17 puis téléversez la capture du reçu.",
       };
     }
     if (selectedMethod === "flouci") {
       return {
-        title: "🇹🇳 Coordonnées Flouci",
-        icon: "🇹🇳",
-        name: "Flouci / Virement Bancaire",
-        accountLabel: "Compte / RIB Flouci :",
+        title: "Paiement via Application Flouci",
+        badge: "Flouci App",
+        recipientName: paymentSettings?.flouciAccountHolder || "MY-CV TUNISIE",
         accountNumber: paymentSettings?.flouciAccount || "flouci.me/mycv_tn",
-        accountHolder: paymentSettings?.flouciAccountHolder || "MY-CV TUNISIE",
-        instructions: paymentSettings?.flouciInstructions || "Effectuez le virement sur Flouci et attachez la capture du reçu.",
+        accountLabel: "Compte / Tag Flouci",
+        instructions: paymentSettings?.flouciInstructions || "Envoyez le montant via Flouci puis joignez la capture d'écran de confirmation.",
       };
     }
     const custom = activeCustomMethods.find((m) => m.id === selectedMethod);
     if (custom) {
       return {
-        title: `${custom.icon || "💳"} Coordonnées ${custom.name}`,
-        icon: custom.icon || "💳",
-        name: custom.name,
-        accountLabel: "Numéro de Compte / RIB / Identifiant :",
+        title: custom.name,
+        badge: custom.name,
+        recipientName: custom.accountHolder,
         accountNumber: custom.accountNumber,
-        accountHolder: custom.accountHolder,
-        instructions: custom.instructions || "Effectuez le paiement vers ce compte puis téléversez votre justificatif.",
+        accountLabel: "Coordonnées Bancaires",
+        instructions: custom.instructions,
       };
     }
-    return {
-      title: "💳 Coordonnées de Paiement",
-      icon: "💳",
-      name: "Paiement Direct",
-      accountLabel: "Identifiant :",
-      accountNumber: "my-cv.tn",
-      accountHolder: "MY-CV TUNISIE",
-      instructions: "Effectuez votre virement puis attachez le reçu.",
-    };
+    return null;
   };
 
-  const currentMethodDetails = getSelectedMethodDetails();
+  const methodDetails = getSelectedMethodDetails();
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 backdrop-blur-sm p-4">
-      <div className="bg-white border border-slate-200 rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-5 animate-in zoom-in-95 duration-150">
+    <div className="fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
+      <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-2xl w-full max-h-[92vh] flex flex-col overflow-hidden shadow-2xl text-slate-100 animate-in fade-in zoom-in-95 duration-150">
         
         {/* Header */}
-        <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-          <div>
-            <h3 className="text-lg font-black text-slate-900 flex items-center gap-2" title="Calculateur de crédits IA et recharge par virement D17 / Flouci">
-              <Sparkles className="w-5 h-5 text-rose-600" />
-              Recharge & Calculateur my-cv.tn
-            </h3>
-            <p className="text-xs text-slate-500">1 Crédit = 0.800 TND • Paiements sécurisés vérifiés par l'Admin</p>
+        <div className="bg-gradient-to-r from-slate-900 via-rose-950/60 to-slate-900 p-5 sm:p-6 border-b border-slate-800 relative flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-rose-600 to-amber-500 flex items-center justify-center shadow-lg shadow-rose-600/20">
+              <Crown className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <h2 className="text-lg font-black text-white flex items-center gap-2">
+                <span>Formules d'Abonnement MY-CV Pro</span>
+              </h2>
+              <p className="text-xs text-slate-400">
+                Téléchargez vos CVs Pro sans filigrane avec un quota de {monthlyQuota} CVs / mois
+              </p>
+            </div>
           </div>
-          <button 
-            onClick={onClose} 
-            title="Fermer la fenêtre du Calculateur de Crédits"
-            aria-label="Fermer la fenêtre du Calculateur de Crédits"
-            className="p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-xl transition"
+          <button
+            type="button"
+            onClick={onClose}
+            className="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl transition"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        {/* STEP 1: CALCULATE & CHOOSE METHOD */}
-        {step === "calculate" && (
-          <div className="space-y-4">
-            {/* Solde actuel */}
-            <div className="bg-slate-50 p-3 rounded-2xl flex items-center justify-between border border-slate-200/80 text-xs">
-              <span className="text-slate-600 font-semibold">Votre solde actuel :</span>
-              <span className="font-extrabold text-slate-900 bg-white px-2.5 py-1 rounded-xl border border-slate-200 shadow-2xs">
-                {displayBalance} Crédits ({ (displayBalance * PRICE_PER_CREDIT_TND).toFixed(2) } DT)
-              </span>
-            </div>
+        {/* Modal Body */}
+        <div className="p-5 sm:p-6 overflow-y-auto space-y-6">
 
-            {/* Slider Interactif */}
-            <div className="space-y-3 bg-gradient-to-br from-rose-50/60 to-indigo-50/60 p-4 rounded-2xl border border-rose-100">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-slate-700">Sélectionnez vos crédits :</span>
-                <span className="text-2xl font-black text-rose-600">{credits} Crédits</span>
-              </div>
-
-              <input
-                type="range"
-                min={5}
-                max={100}
-                step={5}
-                value={credits}
-                onChange={(e) => setCredits(Number(e.target.value))}
-                className="w-full h-2 bg-rose-200 rounded-lg appearance-none cursor-pointer accent-rose-600"
-              />
-
-              <div className="flex justify-between text-[10px] text-slate-500 font-bold px-1">
-                <span>5 Cr (4 DT)</span>
-                <span>25 Cr (20 DT)</span>
-                <span>50 Cr (40 DT)</span>
-                <span>100 Cr (80 DT)</span>
-              </div>
-            </div>
-
-            {/* Équivalence Actions */}
-            <div className="grid grid-cols-2 gap-2 text-center">
-              <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200/80">
-                <div className="text-[10px] text-slate-500 font-bold flex items-center justify-center gap-1">
-                  <FileText className="w-3.5 h-3.5 text-rose-500" />
-                  <span>Exports PDF Sans Filigrane</span>
+          {/* STEP 1: Plan Selection */}
+          {step === "plans" && (
+            <div className="space-y-6">
+              
+              {/* Subscription Status Banner if already subscribed */}
+              {subInfo.isSubscribed && (
+                <div className="p-3.5 bg-emerald-950/50 border border-emerald-800/80 rounded-2xl flex items-center justify-between text-xs text-emerald-300">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                    <span>
+                      Abonnement actif : <strong>{subInfo.tier === "annual" ? "Annuel" : "Semestriel"}</strong> (Expire le {subInfo.expiresAt ? new Date(subInfo.expiresAt).toLocaleDateString("fr-FR") : "N/A"})
+                    </span>
+                  </div>
+                  <span className="font-extrabold bg-emerald-900/60 px-2.5 py-1 rounded-lg">
+                    {subInfo.remainingThisMonth}/{subInfo.monthlyLimit} CVs restants ce mois
+                  </span>
                 </div>
-                <div className="text-lg font-black text-rose-600">{cleanPdfCount} CVs</div>
-                <div className="text-[10px] text-slate-400">10 crédits / Export Pro HD</div>
-              </div>
+              )}
 
-              <div className="p-3 bg-slate-50 rounded-2xl border border-slate-200/80">
-                <div className="text-[10px] text-slate-500 font-bold flex items-center justify-center gap-1">
-                  <Bot className="w-3.5 h-3.5 text-indigo-500" />
-                  <span>Optimisations IA Gemini</span>
+              {/* Plans Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                
+                {/* Plan 1: Semestriel (6 mois) */}
+                <div 
+                  onClick={() => setSelectedPlan("semi_annual")}
+                  className={`p-5 rounded-2xl border-2 transition cursor-pointer relative flex flex-col justify-between ${
+                    selectedPlan === "semi_annual" 
+                      ? "border-rose-500 bg-rose-950/20 shadow-lg shadow-rose-950/40" 
+                      : "border-slate-800 bg-slate-800/40 hover:border-slate-700"
+                  }`}
+                >
+                  <div>
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-xs font-bold uppercase tracking-wider text-slate-400">Pass Semestriel</span>
+                      {selectedPlan === "semi_annual" && (
+                        <span className="w-5 h-5 rounded-full bg-rose-600 text-white flex items-center justify-center">
+                          <Check className="w-3 h-3" />
+                        </span>
+                      )}
+                    </div>
+                    <div className="text-2xl font-black text-white mb-1">
+                      {semiAnnualPrice.toFixed(3)} <span className="text-sm font-semibold text-slate-400">TND</span>
+                    </div>
+                    <p className="text-[11px] text-slate-400 mb-4">Validité 6 Mois complets</p>
+
+                    <ul className="space-y-2 text-xs text-slate-300">
+                      <li className="flex items-center gap-2">
+                        <Check className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
+                        <span><strong>{monthlyQuota} CVs Pro</strong> sans filigrane / mois</span>
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <Check className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
+                        <span>Total de <strong>18 téléchargements Pro</strong></span>
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <Check className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
+                        <span>Tous les modèles & styles débloqués</span>
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <Check className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
+                        <span>Exports LaTeX & PDF A4 Haute Définition</span>
+                      </li>
+                    </ul>
+                  </div>
+
+                  <div className="mt-5 pt-3 border-t border-slate-800/60 text-center">
+                    <span className="text-[11px] font-bold text-slate-400">
+                      ~{(semiAnnualPrice / 6).toFixed(2)} TND / mois
+                    </span>
+                  </div>
                 </div>
-                <div className="text-lg font-black text-indigo-600">{aiActionsCount} Actions</div>
-                <div className="text-[10px] text-slate-400">5 crédits / Lettre ou ATS Match</div>
-              </div>
-            </div>
 
-            {/* Choix Méthode de Paiement */}
-            <div className="space-y-2">
-              <span className="text-xs font-bold text-slate-700 block">Choisissez votre moyen de paiement :</span>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-48 overflow-y-auto pr-1">
-                {isFlouciActive && (
-                  <button
-                    type="button"
-                    onClick={() => setSelectedMethod("flouci")}
-                    className={`p-3 rounded-2xl border text-left transition flex items-center justify-between cursor-pointer ${
-                      selectedMethod === "flouci"
-                        ? "border-emerald-500 bg-emerald-50/50 ring-2 ring-emerald-500/20 shadow-xs"
-                        : "border-slate-200 bg-white hover:bg-slate-50"
-                    }`}
-                  >
-                    <div>
-                      <div className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
-                        <span>🇹🇳</span>
-                        <span>Flouci / Virement</span>
-                      </div>
-                      <div className="text-[10px] text-slate-500">App Flouci ou compte</div>
+                {/* Plan 2: Annuel (12 mois) - POPULAIRE */}
+                <div 
+                  onClick={() => setSelectedPlan("annual")}
+                  className={`p-5 rounded-2xl border-2 transition cursor-pointer relative flex flex-col justify-between ${
+                    selectedPlan === "annual" 
+                      ? "border-amber-500 bg-amber-950/20 shadow-lg shadow-amber-950/40" 
+                      : "border-slate-800 bg-slate-800/40 hover:border-slate-700"
+                  }`}
+                >
+                  <div className="absolute -top-3 right-4 bg-gradient-to-r from-amber-500 to-rose-500 text-slate-950 text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full shadow-md">
+                    Meilleure Offre (Économisez 30%)
+                  </div>
+
+                  <div>
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-xs font-bold uppercase tracking-wider text-amber-400 flex items-center gap-1">
+                        <Star className="w-3 h-3 fill-amber-400" /> Pass Annuel
+                      </span>
+                      {selectedPlan === "annual" && (
+                        <span className="w-5 h-5 rounded-full bg-amber-500 text-slate-950 flex items-center justify-center">
+                          <Check className="w-3 h-3" />
+                        </span>
+                      )}
                     </div>
-                    {selectedMethod === "flouci" && <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />}
-                  </button>
-                )}
-
-                {isD17Active && (
-                  <button
-                    type="button"
-                    onClick={() => setSelectedMethod("d17")}
-                    className={`p-3 rounded-2xl border text-left transition flex items-center justify-between cursor-pointer ${
-                      selectedMethod === "d17"
-                        ? "border-rose-500 bg-rose-50/50 ring-2 ring-rose-500/20 shadow-xs"
-                        : "border-slate-200 bg-white hover:bg-slate-50"
-                    }`}
-                  >
-                    <div>
-                      <div className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
-                        <span>📱</span>
-                        <span>D17 / e-Dinar</span>
-                      </div>
-                      <div className="text-[10px] text-slate-500">Poste Tunisienne</div>
+                    <div className="text-2xl font-black text-white mb-1">
+                      {annualPrice.toFixed(3)} <span className="text-sm font-semibold text-slate-400">TND</span>
                     </div>
-                    {selectedMethod === "d17" && <CheckCircle2 className="w-4 h-4 text-rose-600 flex-shrink-0" />}
-                  </button>
-                )}
+                    <p className="text-[11px] text-amber-300/80 mb-4">Validité 12 Mois (1 an)</p>
 
-                {/* Custom Methods configured by admin */}
-                {activeCustomMethods.map((method) => (
-                  <button
-                    key={method.id}
-                    type="button"
-                    onClick={() => setSelectedMethod(method.id)}
-                    className={`p-3 rounded-2xl border text-left transition flex items-center justify-between cursor-pointer ${
-                      selectedMethod === method.id
-                        ? "border-indigo-500 bg-indigo-50/50 ring-2 ring-indigo-500/20 shadow-xs"
-                        : "border-slate-200 bg-white hover:bg-slate-50"
-                    }`}
-                  >
-                    <div className="truncate pr-1">
-                      <div className="text-xs font-bold text-slate-900 flex items-center gap-1.5 truncate">
-                        <span>{method.icon || "💳"}</span>
-                        <span className="truncate">{method.name}</span>
-                      </div>
-                      <div className="text-[10px] text-slate-500 truncate">{method.accountHolder}</div>
-                    </div>
-                    {selectedMethod === method.id && <CheckCircle2 className="w-4 h-4 text-indigo-600 flex-shrink-0" />}
-                  </button>
-                ))}
-              </div>
-            </div>
+                    <ul className="space-y-2 text-xs text-slate-200">
+                      <li className="flex items-center gap-2">
+                        <Check className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
+                        <span><strong>{monthlyQuota} CVs Pro</strong> sans filigrane / mois</span>
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <Check className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
+                        <span>Total de <strong>36 téléchargements Pro</strong></span>
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <Check className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
+                        <span>Génération Lettre de motivation IA incluse</span>
+                      </li>
+                      <li className="flex items-center gap-2">
+                        <Check className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
+                        <span>Accès prioritaire aux nouveaux templates</span>
+                      </li>
+                    </ul>
+                  </div>
 
-            {/* Total & Bouton Suivant */}
-            <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
-              <div>
-                <div className="text-[10px] text-slate-400 font-bold">TOTAL À PAYER :</div>
-                <div className="text-2xl font-black text-slate-900">
-                  {totalTND} <span className="text-sm font-bold text-rose-600">TND</span>
+                  <div className="mt-5 pt-3 border-t border-slate-800/60 text-center">
+                    <span className="text-[11px] font-bold text-amber-400">
+                      ~{(annualPrice / 12).toFixed(2)} TND / mois
+                    </span>
+                  </div>
                 </div>
+
               </div>
 
+              {/* Free Plan Reminder */}
+              <div className="p-3 bg-slate-800/30 border border-slate-800 rounded-xl flex items-center justify-between text-xs text-slate-400">
+                <span>Vous préférez rester sur la version gratuite ?</span>
+                <span className="text-slate-300 font-bold">Téléchargements avec filigrane illimités</span>
+              </div>
+
+              {/* Action Button */}
               <button
                 type="button"
                 onClick={() => setStep("payment_proof")}
-                className="flex items-center gap-2 px-5 py-3 bg-slate-900 hover:bg-slate-800 text-white font-extrabold text-xs rounded-2xl shadow-lg transition cursor-pointer"
+                className="w-full py-3.5 bg-gradient-to-r from-rose-600 via-rose-500 to-amber-500 hover:from-rose-500 hover:to-amber-400 text-white text-sm font-black rounded-2xl shadow-xl shadow-rose-900/30 transition flex items-center justify-center gap-2"
               >
-                <span>Suivant : Coordonnées & Preuve</span>
-                <ArrowRight className="w-4 h-4 text-rose-400" />
+                <span>Souscrire au Pass {selectedPlan === "annual" ? "Annuel (12 Mois)" : "Semestriel (6 Mois)"} - {currentPriceFormatted} TND</span>
+                <ArrowRight className="w-4 h-4" />
               </button>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* STEP 2: DISPLAY ADMIN COORDINATES & UPLOAD RECEIPT */}
-        {step === "payment_proof" && (
-          <div className="space-y-4 animate-in fade-in duration-150">
-            <div className="flex items-center justify-between">
+          {/* STEP 2: Payment Details & Proof Upload */}
+          {step === "payment_proof" && (
+            <div className="space-y-5">
+              
               <button
                 type="button"
-                onClick={() => setStep("calculate")}
-                className="flex items-center gap-1 text-xs text-slate-500 hover:text-slate-800 font-semibold cursor-pointer"
+                onClick={() => setStep("plans")}
+                className="text-xs text-slate-400 hover:text-white flex items-center gap-1 transition"
               >
                 <ArrowLeft className="w-3.5 h-3.5" />
-                <span>Modifier le montant</span>
+                <span>Changer de formule</span>
               </button>
-              <span className="text-xs font-black text-rose-600">
-                Montant exact : {totalTND} TND ({credits} Crédits)
-              </span>
-            </div>
 
-            {/* Dynamic Coordinates Box based on chosen method */}
-            <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-slate-900 uppercase flex items-center gap-1.5">
-                  <span>{currentMethodDetails.icon}</span>
-                  <span>{currentMethodDetails.title}</span>
-                </span>
-                <span className="text-[10px] bg-slate-200 text-slate-700 px-2 py-0.5 rounded-full font-bold">
-                  Compte Officiel Vérifié
-                </span>
+              {/* Summary Header */}
+              <div className="p-4 bg-slate-800/50 border border-slate-700/60 rounded-2xl flex items-center justify-between">
+                <div>
+                  <div className="text-xs text-slate-400">Formule sélectionnée :</div>
+                  <div className="text-sm font-extrabold text-white">
+                    Pass {selectedPlan === "annual" ? "Annuel (12 Mois)" : "Semestriel (6 Mois)"}
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="text-xs text-slate-400">Montant total :</div>
+                  <div className="text-base font-black text-rose-400">{currentPriceFormatted} TND</div>
+                </div>
               </div>
 
-              <div className="space-y-2 text-xs">
-                <div className="flex items-center justify-between p-2.5 bg-white rounded-xl border border-slate-200">
-                  <div className="truncate mr-2">
-                    <div className="text-[10px] text-slate-400 font-semibold">{currentMethodDetails.accountLabel}</div>
-                    <div className="font-mono font-bold text-slate-900 text-xs sm:text-sm truncate">
-                      {currentMethodDetails.accountNumber}
+              {/* Payment Methods Selection */}
+              <div>
+                <label className="block text-xs font-bold text-slate-300 mb-2">
+                  Choisissez votre méthode de transfert en Tunisie :
+                </label>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+                  {isFlouciActive && (
+                    <button
+                      type="button"
+                      onClick={() => setSelectedMethod("flouci")}
+                      className={`p-3 rounded-xl border text-left transition ${
+                        selectedMethod === "flouci"
+                          ? "border-rose-500 bg-rose-950/30 text-white"
+                          : "border-slate-800 bg-slate-800/40 text-slate-400 hover:border-slate-700"
+                      }`}
+                    >
+                      <div className="text-xs font-bold">📲 Flouci</div>
+                      <div className="text-[10px] text-slate-400">Transfert instantané</div>
+                    </button>
+                  )}
+
+                  {isD17Active && (
+                    <button
+                      type="button"
+                      onClick={() => setSelectedMethod("d17")}
+                      className={`p-3 rounded-xl border text-left transition ${
+                        selectedMethod === "d17"
+                          ? "border-rose-500 bg-rose-950/30 text-white"
+                          : "border-slate-800 bg-slate-800/40 text-slate-400 hover:border-slate-700"
+                      }`}
+                    >
+                      <div className="text-xs font-bold">💳 D17 Poste</div>
+                      <div className="text-[10px] text-slate-400">Mobile ou Guichet</div>
+                    </button>
+                  )}
+
+                  {activeCustomMethods.map((m) => (
+                    <button
+                      key={m.id}
+                      type="button"
+                      onClick={() => setSelectedMethod(m.id)}
+                      className={`p-3 rounded-xl border text-left transition ${
+                        selectedMethod === m.id
+                          ? "border-rose-500 bg-rose-950/30 text-white"
+                          : "border-slate-800 bg-slate-800/40 text-slate-400 hover:border-slate-700"
+                      }`}
+                    >
+                      <div className="text-xs font-bold">{m.icon || "🏦"} {m.name}</div>
+                      <div className="text-[10px] text-slate-400">Virement bancaire</div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Instructions Box */}
+              {methodDetails && (
+                <div className="p-4 bg-slate-950/80 border border-slate-800 rounded-2xl space-y-3">
+                  <div className="text-xs font-bold text-rose-400 uppercase tracking-wider flex items-center gap-1.5">
+                    <Clock className="w-3.5 h-3.5" />
+                    <span>Instructions de Virement</span>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                    <div>
+                      <span className="text-slate-400 block text-[11px]">Bénéficiaire :</span>
+                      <strong className="text-slate-200">{methodDetails.recipientName}</strong>
+                    </div>
+                    <div>
+                      <span className="text-slate-400 block text-[11px]">{methodDetails.accountLabel} :</span>
+                      <div className="flex items-center gap-2">
+                        <strong className="text-amber-400 font-mono">{methodDetails.accountNumber}</strong>
+                        <button
+                          type="button"
+                          onClick={() => handleCopy(methodDetails.accountNumber, "acc")}
+                          className="p-1 hover:bg-slate-800 rounded text-slate-400 hover:text-white transition"
+                        >
+                          {copiedKey === "acc" ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                        </button>
+                      </div>
                     </div>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => handleCopy(currentMethodDetails.accountNumber, "active_method")}
-                    className="p-1.5 text-slate-500 hover:text-slate-800 bg-slate-100 rounded-lg flex-shrink-0 cursor-pointer"
-                    title="Copier les coordonnées"
-                  >
-                    {copiedKey === "active_method" ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
-                  </button>
+
+                  <p className="text-[11px] text-slate-400 leading-relaxed pt-1 border-t border-slate-900">
+                    {methodDetails.instructions}
+                  </p>
                 </div>
+              )}
 
-                <div className="text-[11px] text-slate-600">
-                  <strong>Bénéficiaire :</strong> {currentMethodDetails.accountHolder}
-                </div>
+              {/* Upload Proof */}
+              <div className="space-y-2">
+                <label className="block text-xs font-bold text-slate-300">
+                  Téléversez votre capture d'écran ou reçu de paiement :
+                </label>
+                
+                <input 
+                  type="file" 
+                  ref={fileInputRef} 
+                  onChange={handleFileChange} 
+                  accept="image/*" 
+                  className="hidden" 
+                />
 
-                <p className="text-[11px] text-slate-500 italic bg-white/60 p-2 rounded-lg border border-slate-200/60">
-                  💡 {currentMethodDetails.instructions}
-                </p>
-              </div>
-            </div>
-
-            {/* Upload Capture d'écran / Reçu */}
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-800 block">
-                Téléverser la capture d'écran / reçu de votre paiement :
-              </label>
-
-              <input
-                type="file"
-                ref={fileInputRef}
-                onChange={handleFileChange}
-                accept="image/*"
-                className="hidden"
-              />
-
-              {receiptImage ? (
-                <div className="p-3 border-2 border-emerald-500/50 bg-emerald-50/20 rounded-2xl space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-emerald-700 flex items-center gap-1.5">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                      Justificatif chargé avec succès
-                    </span>
+                {receiptImage ? (
+                  <div className="relative p-3 bg-slate-950 border border-emerald-500/50 rounded-2xl flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <img src={receiptImage} alt="Reçu" className="w-12 h-12 object-cover rounded-xl border border-slate-800" />
+                      <div>
+                        <div className="text-xs font-bold text-emerald-400 flex items-center gap-1">
+                          <CheckCircle2 className="w-3.5 h-3.5" /> Reçu attaché
+                        </div>
+                        <div className="text-[10px] text-slate-400">Prêt pour validation administrateur</div>
+                      </div>
+                    </div>
                     <button
                       type="button"
                       onClick={() => fileInputRef.current?.click()}
-                      className="text-xs text-slate-600 font-semibold underline hover:text-slate-900 cursor-pointer"
+                      className="text-xs text-slate-400 hover:text-white underline px-2 py-1"
                     >
-                      Changer
+                      Remplacer
                     </button>
                   </div>
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={receiptImage}
-                    alt="Capture de paiement"
-                    className="max-h-36 w-auto mx-auto rounded-xl border border-slate-200 object-contain shadow-xs"
-                  />
-                </div>
-              ) : (
-                <div
-                  onClick={() => fileInputRef.current?.click()}
-                  className="p-6 border-2 border-dashed border-slate-300 hover:border-rose-500 bg-slate-50/50 hover:bg-rose-50/20 rounded-2xl cursor-pointer text-center space-y-2 transition group"
-                >
-                  <div className="w-10 h-10 rounded-full bg-rose-50 text-rose-600 flex items-center justify-center mx-auto group-hover:scale-110 transition">
-                    <Upload className="w-5 h-5" />
+                ) : (
+                  <div 
+                    onClick={() => fileInputRef.current?.click()}
+                    className="p-6 border-2 border-dashed border-slate-700 hover:border-rose-500 bg-slate-950/40 rounded-2xl text-center cursor-pointer transition group"
+                  >
+                    <Upload className="w-8 h-8 text-slate-500 group-hover:text-rose-400 mx-auto mb-2 transition" />
+                    <div className="text-xs font-bold text-slate-300 group-hover:text-white">
+                      Cliquez pour sélectionner votre image ou capture d'écran
+                    </div>
+                    <div className="text-[10px] text-slate-500 mt-1">Formats acceptés : JPG, PNG (Max 5 Mo)</div>
                   </div>
-                  <div className="text-xs font-bold text-slate-700">
-                    Cliquez pour joindre la capture d'écran ou photo du reçu
-                  </div>
-                  <div className="text-[10px] text-slate-400">
-                    Formats acceptés : PNG, JPG, JPEG (Max 5 Mo)
-                  </div>
-                </div>
-              )}
-            </div>
+                )}
+              </div>
 
-            {/* Boutons d'action */}
-            <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-3">
+              {/* Submit Button */}
               <button
                 type="button"
-                onClick={() => setStep("calculate")}
-                className="px-4 py-2.5 text-xs font-bold text-slate-600 hover:text-slate-900 cursor-pointer"
-              >
-                Retour
-              </button>
-
-              <button
-                type="button"
-                disabled={!receiptImage || isSubmitting}
                 onClick={handleSubmitProof}
-                className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-500 text-white font-extrabold text-xs rounded-2xl shadow-lg transition cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={!receiptImage || isSubmitting}
+                className="w-full py-3.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-bold rounded-xl shadow-lg transition flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isSubmitting ? (
                   <span>Envoi en cours...</span>
                 ) : (
                   <>
-                    <span>Envoyer la Demande de Validation</span>
-                    <ArrowRight className="w-4 h-4" />
+                    <CheckCircle2 className="w-4 h-4" />
+                    <span>Confirmer et Transmettre mon Reçu</span>
                   </>
                 )}
               </button>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* STEP 3: SUCCESS & CONFIRMATION */}
-        {step === "success" && (
-          <div className="py-6 text-center space-y-4 animate-in zoom-in-95 duration-150">
-            <div className="w-14 h-14 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto shadow-inner">
-              <CheckCircle2 className="w-8 h-8" />
-            </div>
-
-            <div className="space-y-1">
-              <h4 className="text-base font-black text-slate-900">
-                Demande de recharge envoyée avec succès !
-              </h4>
-              <p className="text-xs text-slate-500 max-w-sm mx-auto">
-                Votre capture a été transmise à notre équipe administrative. Dès confirmation du virement, vos <strong>{credits} crédits</strong> seront crédités sur votre compte.
+          {/* STEP 3: Success Confirmation */}
+          {step === "success" && (
+            <div className="py-6 text-center space-y-4">
+              <div className="w-16 h-16 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center mx-auto shadow-xl">
+                <CheckCircle2 className="w-8 h-8" />
+              </div>
+              <h3 className="text-lg font-black text-white">Demande d'abonnement transmise !</h3>
+              <p className="text-xs text-slate-300 max-w-md mx-auto leading-relaxed">
+                Votre reçu pour le <strong>Pass {selectedPlan === "annual" ? "Annuel (12 Mois)" : "Semestriel (6 Mois)"}</strong> a été transmis à notre équipe d'administration. Dès confirmation du virement, votre accès Pro avec vos <strong>{monthlyQuota} CVs / mois</strong> sera activé immédiatement.
               </p>
+              <div className="pt-2">
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="px-6 py-2.5 bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold rounded-xl transition"
+                >
+                  Fermer
+                </button>
+              </div>
             </div>
+          )}
 
-            <div className="p-3 bg-amber-50 border border-amber-200 rounded-2xl text-xs text-amber-800 flex items-center justify-center gap-2 max-w-sm mx-auto">
-              <Clock className="w-4 h-4 text-amber-600 flex-shrink-0" />
-              <span>Délai moyen de validation : <strong>5 à 15 minutes</strong></span>
-            </div>
-
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-6 py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl shadow-sm transition cursor-pointer"
-            >
-              Compris, continuer
-            </button>
-          </div>
-        )}
+        </div>
 
       </div>
     </div>

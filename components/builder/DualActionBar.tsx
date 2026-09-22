@@ -1,14 +1,14 @@
 "use client";
 
 import React, { useState } from "react";
-import { Download, Sparkles, Loader2, Coins } from "lucide-react";
+import { Download, Sparkles, Loader2, Crown, Lock, CheckCircle2 } from "lucide-react";
 import { ResumeData } from "@/types/resume";
 import { exportResumeToPDF } from "@/lib/pdf/pdfExporter";
-import { getCurrentUser, consumeUserCredits } from "@/lib/auth/authStore";
+import { getCurrentUser, canDownloadProResume, consumeProDownload } from "@/lib/auth/authStore";
 
 interface Props {
   resumeData: ResumeData;
-  userCredits: number;
+  userCredits?: number;
   userId?: string;
   onOpenCreditCalculator: () => void;
   onDeductCredits?: (amount: number, updatedUser?: any) => void;
@@ -16,29 +16,33 @@ interface Props {
 
 export const DualActionBar: React.FC<Props> = ({
   resumeData,
-  userCredits,
-  userId,
   onOpenCreditCalculator,
   onDeductCredits,
 }) => {
   const [downloadingType, setDownloadingType] = useState<"free" | "pro" | null>(null);
 
+  const currentUser = typeof window !== "undefined" ? getCurrentUser() : null;
+  const proCheck = canDownloadProResume(currentUser);
+
   const handleDownload = async (outputType: "free_watermark" | "clean") => {
     const isClean = outputType === "clean";
-    const current = getCurrentUser();
 
     if (isClean) {
-      const activeBalance = current?.credits ?? userCredits;
-      if (current?.role !== "admin" && activeBalance < 10) {
-        onOpenCreditCalculator();
-        return;
+      if (!proCheck.allowed) {
+        if (!proCheck.info.isSubscribed) {
+          onOpenCreditCalculator();
+          return;
+        } else {
+          alert(proCheck.reason || "Quota mensuel atteint.");
+          return;
+        }
       }
 
-      // Deduct exactly 10 credits immediately on click (instant 0ms response)
-      if (current?.role !== "admin" && (current?.id || current?.email)) {
-        const result = consumeUserCredits(current.id || current.email, 10);
+      // Consume 1 download from the monthly quota of 3
+      if (!proCheck.info.isAdmin && currentUser?.id) {
+        const result = consumeProDownload(currentUser.id);
         if (onDeductCredits) {
-          onDeductCredits(10, result.user);
+          onDeductCredits(1, result.user);
         }
       }
     }
@@ -68,7 +72,7 @@ export const DualActionBar: React.FC<Props> = ({
 
   return (
     <div className="bg-slate-900 border border-slate-800 p-3 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-3 shadow-xl">
-      {/* Option Gratuite */}
+      {/* Option Gratuite avec Filigrane */}
       <button
         type="button"
         onClick={() => handleDownload("free_watermark")}
@@ -83,27 +87,44 @@ export const DualActionBar: React.FC<Props> = ({
         <span>Télécharger avec filigrane my-cv.tn (Gratuit)</span>
       </button>
 
-      {/* Option Pro 10 Crédits */}
+      {/* Option Pro (Réservé aux Abonnés - Quota 3 CVs / mois) */}
       <button
         type="button"
         onClick={() => handleDownload("clean")}
         disabled={downloadingType !== null}
-        className="w-full sm:flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-gradient-to-r from-rose-600 to-indigo-600 hover:from-rose-500 hover:to-indigo-500 text-white text-xs font-extrabold rounded-xl shadow-md transition"
+        className={`w-full sm:flex-1 flex items-center justify-center gap-2 px-4 py-2.5 text-white text-xs font-extrabold rounded-xl shadow-md transition ${
+          !proCheck.info.isSubscribed && !proCheck.info.isAdmin
+            ? "bg-slate-800/90 hover:bg-slate-800 border border-amber-500/50 text-slate-200"
+            : proCheck.remainingThisMonth <= 0 && !proCheck.info.isAdmin
+            ? "bg-slate-800 text-slate-400 border border-slate-700 cursor-not-allowed"
+            : "bg-gradient-to-r from-rose-600 via-rose-500 to-indigo-600 hover:from-rose-500 hover:to-indigo-500"
+        }`}
       >
         {downloadingType === "pro" ? (
           <Loader2 className="w-4 h-4 animate-spin text-white" />
+        ) : !proCheck.info.isSubscribed && !proCheck.info.isAdmin ? (
+          <Lock className="w-4 h-4 text-amber-400" />
         ) : (
-          <Sparkles className="w-4 h-4 text-yellow-300" />
+          <Crown className="w-4 h-4 text-amber-300" />
         )}
-        <span>Télécharger PDF Pro (10 Crédits)</span>
-        {userCredits < 10 ? (
-          <span className="bg-white/20 text-[10px] px-2 py-0.5 rounded-md ml-1">
-            Recharge requise
+
+        <span>Télécharger PDF Pro (Sans filigrane)</span>
+
+        {!proCheck.info.isSubscribed && !proCheck.info.isAdmin ? (
+          <span className="bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[10px] px-2 py-0.5 rounded-md ml-1 font-bold">
+            Abonnement requis
+          </span>
+        ) : proCheck.info.isAdmin ? (
+          <span className="bg-white/20 text-[10px] px-1.5 py-0.5 rounded-md ml-1">
+            Admin Illimité
+          </span>
+        ) : proCheck.remainingThisMonth > 0 ? (
+          <span className="bg-white/20 text-[10px] px-1.5 py-0.5 rounded-md ml-1 font-bold">
+            {proCheck.remainingThisMonth}/3 ce mois
           </span>
         ) : (
-          <span className="bg-white/20 text-[10px] px-1.5 py-0.5 rounded-md ml-1 flex items-center gap-1">
-            <Coins className="w-3 h-3 text-amber-300" />
-            <span>-10 Cr</span>
+          <span className="bg-rose-500/30 text-rose-300 text-[10px] px-1.5 py-0.5 rounded-md ml-1 font-bold">
+            Quota 3/3 atteint
           </span>
         )}
       </button>

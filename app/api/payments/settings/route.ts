@@ -6,6 +6,9 @@ const DATA_DIR = path.join(process.cwd(), "data");
 const SETTINGS_FILE = path.join(DATA_DIR, "payment_settings.json");
 
 const DEFAULT_SETTINGS = {
+  semiAnnualPriceTND: 29.0,
+  annualPriceTND: 49.0,
+  monthlyQuota: 3,
   d17PhoneNumber: "98 123 456",
   d17AccountHolder: "my-cv.tn Administration",
   d17Instructions: "Effectuez le transfert vers ce numéro D17 puis téléversez la capture d'écran du reçu.",

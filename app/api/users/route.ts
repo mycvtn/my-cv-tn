@@ -14,6 +14,11 @@ export interface ServerUserAccount {
   role: "user" | "admin";
   credits: number;
   status: "active" | "suspended";
+  subscriptionTier?: "none" | "semi_annual" | "annual";
+  subscriptionStatus?: "inactive" | "active" | "expired";
+  subscriptionExpiresAt?: string;
+  monthlyDownloadsUsed?: number;
+  downloadsResetDate?: string;
   createdAt: string;
   lastLoginAt: string;
 }
@@ -26,6 +31,9 @@ const DEFAULT_ADMIN: ServerUserAccount = {
   role: "admin",
   credits: 999,
   status: "active",
+  subscriptionTier: "annual",
+  subscriptionStatus: "active",
+  monthlyDownloadsUsed: 0,
   createdAt: "2026-01-01T00:00:00.000Z",
   lastLoginAt: "2026-09-01T01:00:00.000Z",
 };
@@ -266,11 +274,56 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: true, users: updatedList });
     }
 
-    if (action === "delete-all-users") {
-      // Retain only administrator accounts
-      const updatedList = users.filter((u) => u.role === "admin");
+    if (action === "set-subscription") {
+      const { userId, tier, monthsDuration } = body;
+      const lookup = (userId || "").toString().trim().toLowerCase();
+      const duration = tier === "annual" ? 12 : (monthsDuration || 6);
+      const expiry = new Date();
+      expiry.setMonth(expiry.getMonth() + duration);
+      const nextReset = new Date();
+      nextReset.setMonth(nextReset.getMonth() + 1);
+
+      let updatedTarget: ServerUserAccount | null = null;
+      const updatedList = users.map((u) => {
+        if (u.id.toLowerCase() === lookup || u.email.toLowerCase() === lookup) {
+          updatedTarget = {
+            ...u,
+            subscriptionTier: tier,
+            subscriptionStatus: tier === "none" ? "inactive" : "active",
+            subscriptionExpiresAt: tier === "none" ? undefined : expiry.toISOString(),
+            monthlyDownloadsUsed: 0,
+            downloadsResetDate: nextReset.toISOString(),
+          };
+          return updatedTarget;
+        }
+        return u;
+      });
+
       writeUsers(updatedList);
-      return NextResponse.json({ success: true, users: updatedList });
+      return NextResponse.json({ success: true, user: updatedTarget, users: updatedList });
+    }
+
+    if (action === "reset-monthly-quota") {
+      const { userId } = body;
+      const lookup = (userId || "").toString().trim().toLowerCase();
+      const nextReset = new Date();
+      nextReset.setMonth(nextReset.getMonth() + 1);
+
+      let updatedTarget: ServerUserAccount | null = null;
+      const updatedList = users.map((u) => {
+        if (u.id.toLowerCase() === lookup || u.email.toLowerCase() === lookup) {
+          updatedTarget = {
+            ...u,
+            monthlyDownloadsUsed: 0,
+            downloadsResetDate: nextReset.toISOString(),
+          };
+          return updatedTarget;
+        }
+        return u;
+      });
+
+      writeUsers(updatedList);
+      return NextResponse.json({ success: true, user: updatedTarget, users: updatedList });
     }
 
     return NextResponse.json({ error: "Action inconnue" }, { status: 400 });
