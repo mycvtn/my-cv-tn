@@ -1,4 +1,7 @@
 {
+  "semiAnnualPriceTND": 15,
+  "annualPriceTND": 25,
+  "monthlyQuota": 3,
   "d17PhoneNumber": "98 123 456",
   "d17AccountHolder": "my-cv.tn Administration",
   "d17Instructions": "Effectuez le transfert vers ce numéro D17 puis téléversez la capture d'écran du reçu.",
@@ -15,7 +18,7 @@
       "accountNumber": "RIB: 08 014 000123456789 54 (Attijari Bank)",
       "accountHolder": "MY-CV TUNISIE SARL",
       "instructions": "Effectuez un virement bancaire vers notre RIB, puis téléversez l'avis d'opération ou le reçu.",
-      "enabled": true
+      "enabled": false
     }
   ]
 }

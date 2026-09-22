@@ -110,15 +110,36 @@ export function getPaymentSettings(): PaymentSettings {
   return DEFAULT_SETTINGS;
 }
 
-export function savePaymentSettings(settings: PaymentSettings): void {
-  if (typeof window === "undefined") return;
-  localStorage.setItem(PAYMENT_SETTINGS_KEY, JSON.stringify(settings));
+export async function fetchServerPaymentSettings(): Promise<PaymentSettings> {
   try {
-    fetch("/api/payments/settings", {
+    const res = await fetch("/api/payments/settings", { cache: "no-store" });
+    if (res.ok) {
+      const data = await res.json();
+      if (data.settings) {
+        if (typeof window !== "undefined") {
+          localStorage.setItem(PAYMENT_SETTINGS_KEY, JSON.stringify(data.settings));
+          window.dispatchEvent(new CustomEvent("payment_settings_updated", { detail: data.settings }));
+          window.dispatchEvent(new Event("storage"));
+        }
+        return data.settings;
+      }
+    }
+  } catch (e) {}
+  return getPaymentSettings();
+}
+
+export async function savePaymentSettings(settings: PaymentSettings): Promise<void> {
+  if (typeof window !== "undefined") {
+    localStorage.setItem(PAYMENT_SETTINGS_KEY, JSON.stringify(settings));
+    window.dispatchEvent(new CustomEvent("payment_settings_updated", { detail: settings }));
+    window.dispatchEvent(new Event("storage"));
+  }
+  try {
+    await fetch("/api/payments/settings", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(settings),
-    }).catch(() => {});
+    });
   } catch (e) {}
 }
 

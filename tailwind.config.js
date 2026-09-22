@@ -1,4 +1,4 @@
-﻿/** @type {import('tailwindcss').Config} */
+/** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
@@ -33,8 +33,8 @@ module.exports = {
         }
       },
       fontFamily: {
-        sans: ['var(--font-inter)', 'system-ui', 'sans-serif'],
-        arabic: ['var(--font-cairo)', 'Tahoma', 'Arial', 'sans-serif'],
+        sans: ['Arial', 'Helvetica Neue', 'Helvetica', 'sans-serif'],
+        arabic: ['Cairo', 'Arial', 'Tahoma', 'sans-serif'],
       },
       boxShadow: {
         'sheet': '0 20px 40px -15px rgba(0, 0, 0, 0.15), 0 0 10px rgba(0,0,0,0.05)',

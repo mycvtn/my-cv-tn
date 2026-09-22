@@ -6,7 +6,7 @@ import {
   CheckCircle2, ArrowRight, ArrowLeft, Upload, Clock, AlertCircle, Copy, Check, Star, Zap, Crown
 } from "lucide-react";
 import { getCurrentUser, fetchServerUser, getUserSubscriptionInfo } from "@/lib/auth/authStore";
-import { getPaymentSettings, createPaymentRequest, PaymentMethod, PaymentSettings, SubscriptionPlanType } from "@/lib/payments/paymentStore";
+import { getPaymentSettings, fetchServerPaymentSettings, createPaymentRequest, PaymentMethod, PaymentSettings, SubscriptionPlanType } from "@/lib/payments/paymentStore";
 
 interface Props {
   isOpen: boolean;
@@ -32,20 +32,53 @@ export const CreditCalculatorModal: React.FC<Props> = ({
   const currentUser = typeof window !== "undefined" ? getCurrentUser() : null;
   const subInfo = getUserSubscriptionInfo(currentUser);
 
+  const syncSettings = async () => {
+    // 1. Instant local read
+    const local = getPaymentSettings();
+    setPaymentSettings(local);
+
+    // 2. Fresh server fetch
+    try {
+      const fresh = await fetchServerPaymentSettings();
+      if (fresh) {
+        setPaymentSettings(fresh);
+      }
+    } catch (e) {}
+  };
+
+  useEffect(() => {
+    syncSettings();
+
+    const handleSettingsUpdated = (e: any) => {
+      if (e.detail) {
+        setPaymentSettings(e.detail);
+      } else {
+        syncSettings();
+      }
+    };
+
+    window.addEventListener("payment_settings_updated", handleSettingsUpdated);
+    window.addEventListener("storage", syncSettings);
+
+    return () => {
+      window.removeEventListener("payment_settings_updated", handleSettingsUpdated);
+      window.removeEventListener("storage", syncSettings);
+    };
+  }, []);
+
   useEffect(() => {
     if (isOpen) {
-      const settings = getPaymentSettings();
-      setPaymentSettings(settings);
+      syncSettings();
       setStep("plans");
       setReceiptImage("");
 
-      // Default to first active payment method
-      if (settings.flouciEnabled !== false) {
+      const current = paymentSettings || getPaymentSettings();
+      if (current.flouciEnabled !== false) {
         setSelectedMethod("flouci");
-      } else if (settings.d17Enabled !== false) {
+      } else if (current.d17Enabled !== false) {
         setSelectedMethod("d17");
-      } else if (settings.customMethods && settings.customMethods.length > 0) {
-        const firstActive = settings.customMethods.find((m) => m.enabled);
+      } else if (current.customMethods && current.customMethods.length > 0) {
+        const firstActive = current.customMethods.find((m) => m.enabled);
         if (firstActive) setSelectedMethod(firstActive.id);
       }
     }
@@ -242,7 +275,7 @@ export const CreditCalculatorModal: React.FC<Props> = ({
                       </li>
                       <li className="flex items-center gap-2">
                         <Check className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
-                        <span>Total de <strong>18 téléchargements Pro</strong></span>
+                        <span>Total de <strong>{monthlyQuota * 6} téléchargements Pro</strong></span>
                       </li>
                       <li className="flex items-center gap-2">
                         <Check className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
@@ -298,7 +331,7 @@ export const CreditCalculatorModal: React.FC<Props> = ({
                       </li>
                       <li className="flex items-center gap-2">
                         <Check className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
-                        <span>Total de <strong>36 téléchargements Pro</strong></span>
+                        <span>Total de <strong>{monthlyQuota * 12} téléchargements Pro</strong></span>
                       </li>
                       <li className="flex items-center gap-2">
                         <Check className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
