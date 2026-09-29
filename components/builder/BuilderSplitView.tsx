@@ -126,11 +126,18 @@ export const BuilderSplitView: React.FC = () => {
     if (!activeResume) return;
     const { listKey, activeIdKey } = getUserStorageKeys(currentUser);
 
+    // Keep email fixed to account email so it never changes
+    const fixedEmail = currentUser?.email || activeResume.personalInfo.email || updated.personalInfo.email;
+
     const updatedWithMeta = {
       ...updated,
       id: activeResumeId,
       title: activeResume.title || updated.title || "Mon CV",
       updatedAt: new Date().toISOString(),
+      personalInfo: {
+        ...updated.personalInfo,
+        email: fixedEmail,
+      },
     };
 
     const newList = resumesList.map((r) => (r.id === activeResumeId ? updatedWithMeta : r));
@@ -486,7 +493,7 @@ Formation: ${activeResume.education.map((ed) => `${ed.degree} (${ed.institution}
                     )}
                     <span>{subInfo.tier === "annual" ? "👑 Pass Annuel" : "✨ Pass Semestriel"}</span>
                     <span className="text-[10px] bg-white/90 text-slate-800 px-1.5 py-0.2 rounded border border-slate-200 font-bold ml-0.5">
-                      {subInfo.remainingThisMonth}/3
+                      ✨ Illimité
                     </span>
                   </>
                 ) : (

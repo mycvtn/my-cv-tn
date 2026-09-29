@@ -37,7 +37,7 @@ export const ExportButton: React.FC<Props> = ({
         if (onRequireUnlock) onRequireUnlock();
         return;
       } else {
-        alert(proCheck.reason || "Quota mensuel atteint.");
+        alert(proCheck.reason || "Abonnement Pro requis.");
         return;
       }
     }
@@ -76,7 +76,7 @@ export const ExportButton: React.FC<Props> = ({
         if (onRequireUnlock) onRequireUnlock();
         return;
       } else {
-        alert(proCheck.reason || "Quota mensuel atteint.");
+        alert(proCheck.reason || "Abonnement Pro requis.");
         return;
       }
     }

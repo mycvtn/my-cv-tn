@@ -207,7 +207,7 @@ export const CreditCalculatorModal: React.FC<Props> = ({
                 <span>Formules d'Abonnement MY-CV Pro</span>
               </h2>
               <p className="text-xs text-slate-400">
-                Téléchargez vos CVs Pro sans filigrane avec un quota de {monthlyQuota} CVs / mois
+                Téléchargez vos CVs Pro sans filigrane en illimité
               </p>
             </div>
           </div>
@@ -271,11 +271,11 @@ export const CreditCalculatorModal: React.FC<Props> = ({
                     <ul className="space-y-2 text-xs text-slate-300">
                       <li className="flex items-center gap-2">
                         <Check className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
-                        <span><strong>{monthlyQuota} CVs Pro</strong> sans filigrane / mois</span>
+                        <span><strong>Téléchargements CV Pro Illimités</strong> sans filigrane</span>
                       </li>
                       <li className="flex items-center gap-2">
                         <Check className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
-                        <span>Total de <strong>{monthlyQuota * 6} téléchargements Pro</strong></span>
+                        <span>Générateur de CVs & Formats A4 illimités</span>
                       </li>
                       <li className="flex items-center gap-2">
                         <Check className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
@@ -327,11 +327,11 @@ export const CreditCalculatorModal: React.FC<Props> = ({
                     <ul className="space-y-2 text-xs text-slate-200">
                       <li className="flex items-center gap-2">
                         <Check className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
-                        <span><strong>{monthlyQuota} CVs Pro</strong> sans filigrane / mois</span>
+                        <span><strong>Téléchargements CV Pro Illimités</strong> sans filigrane</span>
                       </li>
                       <li className="flex items-center gap-2">
                         <Check className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
-                        <span>Total de <strong>{monthlyQuota * 12} téléchargements Pro</strong></span>
+                        <span>Validité 12 mois sans aucune restriction</span>
                       </li>
                       <li className="flex items-center gap-2">
                         <Check className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
@@ -560,7 +560,7 @@ export const CreditCalculatorModal: React.FC<Props> = ({
               </div>
               <h3 className="text-lg font-black text-white">Demande d'abonnement transmise !</h3>
               <p className="text-xs text-slate-300 max-w-md mx-auto leading-relaxed">
-                Votre reçu pour le <strong>Pass {selectedPlan === "annual" ? "Annuel (12 Mois)" : "Semestriel (6 Mois)"}</strong> a été transmis à notre équipe d'administration. Dès confirmation du virement, votre accès Pro avec vos <strong>{monthlyQuota} CVs / mois</strong> sera activé immédiatement.
+                Votre reçu pour le <strong>Pass {selectedPlan === "annual" ? "Annuel (12 Mois)" : "Semestriel (6 Mois)"}</strong> a été transmis à notre équipe d'administration. Dès confirmation du virement, votre accès Pro avec vos <strong>téléchargements illimités</strong> sera activé immédiatement.
               </p>
               <div className="pt-2">
                 <button

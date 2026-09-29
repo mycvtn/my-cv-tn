@@ -338,9 +338,9 @@ export const AccountModal: React.FC<Props> = ({
 
                 <div className="grid grid-cols-2 gap-3 pt-2 border-t border-slate-800 text-xs">
                   <div className="bg-slate-800/50 p-3 rounded-xl border border-slate-700/50">
-                    <div className="text-slate-400 text-[11px]">Quota CV Pro ce mois :</div>
+                    <div className="text-slate-400 text-[11px]">Téléchargements CV Pro :</div>
                     <div className="text-sm font-black text-white mt-0.5">
-                      {isPro ? `${Math.max(0, 3 - (currentUser.monthlyDownloadsUsed || 0))} / 3 restants` : "0 / 3 (Non abonné)"}
+                      {isPro ? "Illimités ✨" : "Filigrane Gratuit"}
                     </div>
                   </div>
 
@@ -358,7 +358,7 @@ export const AccountModal: React.FC<Props> = ({
               <div className="text-xs text-slate-400 space-y-1.5 pt-2">
                 <div className="font-bold text-slate-300">Avantages inclus dans votre abonnement :</div>
                 <ul className="list-disc pl-4 space-y-1 text-[11px]">
-                  <li>Téléchargement de CVs Pro haute définition vectoriels (3 CV / mois).</li>
+                  <li>Téléchargement de CVs Pro haute définition vectoriels en illimité (sans filigrane).</li>
                   <li>Scan et optimisation IA Score ATS par rapport aux offres d'emploi.</li>
                   <li>Génération instantanée de lettres de motivation ultra-personnalisées.</li>
                   <li>Modèles de CV exclusifs & support prioritaire 7j/7.</li>

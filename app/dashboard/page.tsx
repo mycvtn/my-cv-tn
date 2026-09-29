@@ -297,8 +297,8 @@ export default function DashboardPage() {
                       <Sparkles className="w-3.5 h-3.5 text-blue-600" />
                     )}
                     <span>{subInfo.tier === "annual" ? "👑 Pass Annuel" : "✨ Pass Semestriel"}</span>
-                    <span className="text-[10px] bg-white/80 px-1.5 py-0.5 rounded border border-slate-200 font-bold ml-0.5">
-                      {subInfo.remainingThisMonth}/3 ce mois
+                    <span className="text-[10px] bg-white/80 text-emerald-800 px-2 py-0.5 rounded border border-slate-200 font-bold ml-0.5">
+                      ✨ Illimité
                     </span>
                   </>
                 ) : (
@@ -464,12 +464,12 @@ export default function DashboardPage() {
                   <Download className="w-6 h-6 text-emerald-600" />
                 </div>
                 <div>
-                  <div className="text-xs text-slate-500 font-medium">Quota CV Pro (ce mois)</div>
+                  <div className="text-xs text-slate-500 font-medium">Téléchargements CV Pro</div>
                   <div className="text-2xl font-black text-emerald-600">
-                    {subInfo.isSubscribed ? `${subInfo.remainingThisMonth} / ${subInfo.monthlyLimit}` : "0 / 3"}
+                    {subInfo.isSubscribed ? "Illimités ✨" : "Filigrane Gratuit"}
                   </div>
                   <div className="text-[10px] text-slate-400">
-                    {subInfo.isSubscribed ? "Téléchargements restants" : "Abonnement requis pour le Pro"}
+                    {subInfo.isSubscribed ? "Téléchargements sans filigrane à volonté" : "Abonnement requis pour le sans filigrane"}
                   </div>
                 </div>
               </div>

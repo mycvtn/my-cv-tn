@@ -33,7 +33,7 @@ export const DualActionBar: React.FC<Props> = ({
           onOpenCreditCalculator();
           return;
         } else {
-          alert(proCheck.reason || "Quota mensuel atteint.");
+          alert(proCheck.reason || "Abonnement Pro requis.");
           return;
         }
       }
@@ -87,7 +87,7 @@ export const DualActionBar: React.FC<Props> = ({
         <span>Télécharger avec filigrane my-cv.tn (Gratuit)</span>
       </button>
 
-      {/* Option Pro (Réservé aux Abonnés - Quota 3 CVs / mois) */}
+      {/* Option Pro (Réservé aux Abonnés - Téléchargement Illimité) */}
       <button
         type="button"
         onClick={() => handleDownload("clean")}
@@ -95,9 +95,7 @@ export const DualActionBar: React.FC<Props> = ({
         className={`w-full sm:flex-1 flex items-center justify-center gap-2 px-4 py-2.5 text-white text-xs font-extrabold rounded-xl shadow-md transition ${
           !proCheck.info.isSubscribed && !proCheck.info.isAdmin
             ? "bg-slate-800/90 hover:bg-slate-800 border border-amber-500/50 text-slate-200"
-            : proCheck.remainingThisMonth <= 0 && !proCheck.info.isAdmin
-            ? "bg-slate-800 text-slate-400 border border-slate-700 cursor-not-allowed"
-            : "bg-gradient-to-r from-rose-600 via-rose-500 to-indigo-600 hover:from-rose-500 hover:to-indigo-500"
+            : "bg-gradient-to-r from-rose-600 via-rose-500 to-indigo-600 hover:from-rose-500 hover:to-indigo-500 cursor-pointer"
         }`}
       >
         {downloadingType === "pro" ? (
@@ -114,17 +112,9 @@ export const DualActionBar: React.FC<Props> = ({
           <span className="bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[10px] px-2 py-0.5 rounded-md ml-1 font-bold">
             Abonnement requis
           </span>
-        ) : proCheck.info.isAdmin ? (
-          <span className="bg-white/20 text-[10px] px-1.5 py-0.5 rounded-md ml-1">
-            Admin Illimité
-          </span>
-        ) : proCheck.remainingThisMonth > 0 ? (
-          <span className="bg-white/20 text-[10px] px-1.5 py-0.5 rounded-md ml-1 font-bold">
-            {proCheck.remainingThisMonth}/3 ce mois
-          </span>
         ) : (
-          <span className="bg-rose-500/30 text-rose-300 text-[10px] px-1.5 py-0.5 rounded-md ml-1 font-bold">
-            Quota 3/3 atteint
+          <span className="bg-white/20 text-white text-[10px] px-2 py-0.5 rounded-md ml-1 font-bold shadow-xs">
+            ✨ Illimité
           </span>
         )}
       </button>

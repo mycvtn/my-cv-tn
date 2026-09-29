@@ -224,7 +224,7 @@ export default function AdminDashboardPage() {
     const updated = adminResetUserMonthlyQuota(userId);
     if (updated) {
       setUsers(getStoredUsers());
-      showToast(`⚡ Quota mensuel réinitialisé (0/3 utilisé) pour ${updated.name}`);
+      showToast(`⚡ Compteur réinitialisé pour ${updated.name}`);
     }
   };
 
@@ -696,9 +696,9 @@ export default function AdminDashboardPage() {
                                       type="button"
                                       onClick={() => handleResetQuota(u.id)}
                                       className="px-1.5 py-1 bg-slate-100 hover:bg-emerald-50 hover:text-emerald-700 text-slate-600 rounded-lg text-[10px] font-bold border border-slate-200 transition cursor-pointer"
-                                      title="Réinitialiser le compteur mensuel à 0/3 CV Pro"
+                                      title="Réinitialiser le compteur mensuel"
                                     >
-                                      Reset 0/3
+                                      Reset Quota
                                     </button>
                                     <button
                                       type="button"
@@ -1022,7 +1022,7 @@ export default function AdminDashboardPage() {
                       />
                       <span className="absolute right-3 top-2 text-xs font-bold text-slate-500 pointer-events-none">CV / mois</span>
                     </div>
-                    <p className="text-[10px] text-slate-500">Par défaut : 3 CV / mois sans filigrane</p>
+                    <p className="text-[10px] text-slate-500">Abonnement Pro : Téléchargements sans filigrane illimités</p>
                   </div>
                 </div>
               </div>

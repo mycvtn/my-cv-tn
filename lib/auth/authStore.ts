@@ -537,9 +537,9 @@ export function consumeUserCredits(
 }
 
 /**
- * Subscription Helpers & Monthly Pro Download Quota Management (3 CVs / month)
+ * Subscription Helpers & Pro Download Management (Unlimited Pro downloads for subscribers)
  */
-export const MONTHLY_PRO_DOWNLOADS_LIMIT = 3;
+export const MONTHLY_PRO_DOWNLOADS_LIMIT = 999;
 
 export interface UserSubscriptionInfo {
   isSubscribed: boolean;
@@ -551,6 +551,7 @@ export interface UserSubscriptionInfo {
   remainingThisMonth: number;
   resetDate?: string;
   isAdmin: boolean;
+  isUnlimited?: boolean;
 }
 
 export function getUserSubscriptionInfo(user: UserAccount | null): UserSubscriptionInfo {
@@ -560,9 +561,10 @@ export function getUserSubscriptionInfo(user: UserAccount | null): UserSubscript
       tier: "none",
       status: "inactive",
       monthlyUsed: 0,
-      monthlyLimit: MONTHLY_PRO_DOWNLOADS_LIMIT,
+      monthlyLimit: 0,
       remainingThisMonth: 0,
       isAdmin: false,
+      isUnlimited: false,
     };
   }
 
@@ -576,6 +578,7 @@ export function getUserSubscriptionInfo(user: UserAccount | null): UserSubscript
       monthlyLimit: 999,
       remainingThisMonth: 999,
       isAdmin: true,
+      isUnlimited: true,
     };
   }
 
@@ -595,41 +598,17 @@ export function getUserSubscriptionInfo(user: UserAccount | null): UserSubscript
     }
   }
 
-  // Handle Monthly Quota Cycle Reset (every 30 days / month)
-  let monthlyUsed = user.monthlyDownloadsUsed ?? 0;
-  let resetDate = user.downloadsResetDate;
-
-  if (!resetDate) {
-    const nextMonth = new Date();
-    nextMonth.setMonth(nextMonth.getMonth() + 1);
-    resetDate = nextMonth.toISOString();
-  } else {
-    const resetDateTime = new Date(resetDate);
-    if (now >= resetDateTime) {
-      monthlyUsed = 0;
-      const nextReset = new Date();
-      nextReset.setMonth(nextReset.getMonth() + 1);
-      resetDate = nextReset.toISOString();
-      // Persist reset
-      updateUserProfile(user.id, {
-        monthlyDownloadsUsed: 0,
-        downloadsResetDate: resetDate,
-      });
-    }
-  }
-
-  const remainingThisMonth = isSubscribed ? Math.max(0, MONTHLY_PRO_DOWNLOADS_LIMIT - monthlyUsed) : 0;
-
   return {
     isSubscribed,
     tier,
     status,
     expiresAt,
-    monthlyUsed,
-    monthlyLimit: MONTHLY_PRO_DOWNLOADS_LIMIT,
-    remainingThisMonth,
-    resetDate,
+    monthlyUsed: user.monthlyDownloadsUsed ?? 0,
+    monthlyLimit: isSubscribed ? 999 : 0,
+    remainingThisMonth: isSubscribed ? 999 : 0,
+    resetDate: user.downloadsResetDate,
     isAdmin: false,
+    isUnlimited: isSubscribed,
   };
 }
 
@@ -641,32 +620,14 @@ export function canDownloadProResume(user: UserAccount | null): {
 } {
   const info = getUserSubscriptionInfo(user);
 
-  if (info.isAdmin) {
+  if (info.isAdmin || info.isSubscribed) {
     return { allowed: true, remainingThisMonth: 999, info };
   }
 
-  if (!info.isSubscribed) {
-    return {
-      allowed: false,
-      reason: "Un abonnement Semestriel ou Annuel est requis pour télécharger votre CV Pro sans filigrane.",
-      remainingThisMonth: 0,
-      info,
-    };
-  }
-
-  if (info.remainingThisMonth <= 0) {
-    const formattedDate = info.resetDate ? new Date(info.resetDate).toLocaleDateString("fr-FR") : "le mois prochain";
-    return {
-      allowed: false,
-      reason: `Vous avez atteint votre quota de 3 CV Pro pour ce mois. Votre quota sera renouvelé le ${formattedDate}. Vous pouvez toujours télécharger le CV Gratuit avec filigrane.`,
-      remainingThisMonth: 0,
-      info,
-    };
-  }
-
   return {
-    allowed: true,
-    remainingThisMonth: info.remainingThisMonth,
+    allowed: false,
+    reason: "Un abonnement Semestriel ou Annuel est requis pour télécharger votre CV Pro sans filigrane.",
+    remainingThisMonth: 0,
     info,
   };
 }
@@ -688,15 +649,6 @@ export function consumeProDownload(userIdOrEmail: string): {
     return { success: false, remainingThisMonth: 0, error: "Utilisateur non trouvé." };
   }
 
-  if (target.role === "admin") {
-    return { success: true, remainingThisMonth: 999, user: target };
-  }
-
-  const check = canDownloadProResume(target);
-  if (!check.allowed) {
-    return { success: false, remainingThisMonth: check.remainingThisMonth, error: check.reason };
-  }
-
   const currentUsed = target.monthlyDownloadsUsed ?? 0;
   const newUsed = currentUsed + 1;
 
@@ -706,8 +658,8 @@ export function consumeProDownload(userIdOrEmail: string): {
 
   return {
     success: true,
-    remainingThisMonth: Math.max(0, MONTHLY_PRO_DOWNLOADS_LIMIT - newUsed),
-    user: updated || undefined,
+    remainingThisMonth: 999,
+    user: updated || target,
   };
 }
 

@@ -4,9 +4,10 @@ import React, { useState, useRef } from "react";
 import { ResumeData, ExperienceItem, EducationItem, SkillItem, LanguageItem, LanguageLevel } from "@/types/resume";
 import { 
   User, Briefcase, GraduationCap, Wrench, Globe,
-  Sparkles, Plus, Trash2, Palette, Loader2, Upload, Camera, Target, Calendar
+  Sparkles, Plus, Trash2, Palette, Loader2, Upload, Camera, Target, Calendar, Lock
 } from "lucide-react";
 import { getEditorLabels, SupportedLanguage } from "@/lib/i18n/resumeTranslations";
+import { getCurrentUser } from "@/lib/auth/authStore";
 
 interface Props {
   data: ResumeData;
@@ -24,7 +25,11 @@ export const ResumeForm: React.FC<Props> = ({ data, onChange, onOpenATS, onOpenC
   const isRTL = currentLang === "ar";
   const t = getEditorLabels(currentLang);
 
+  const currentUser = typeof window !== "undefined" ? getCurrentUser() : null;
+  const fixedEmail = currentUser?.email || data.personalInfo.email;
+
   const updatePersonalInfo = (field: string, value: any) => {
+    if (field === "email") return; // L'adresse email est fixe et ne peut pas être changée
     onChange({ ...data, personalInfo: { ...data.personalInfo, [field]: value } });
   };
 
@@ -404,14 +409,24 @@ export const ResumeForm: React.FC<Props> = ({ data, onChange, onOpenATS, onOpenC
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">{t.email}</label>
-                <input
-                  type="email"
-                  value={data.personalInfo.email}
-                  onChange={(e) => updatePersonalInfo("email", e.target.value)}
-                  className="w-full text-xs px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50/50 focus:bg-white focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition"
-                  placeholder="Adresse Email (ex: contact@exemple.com)"
-                />
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-xs font-bold text-slate-700">{t.email}</label>
+                  <span className="text-[10px] bg-slate-100 text-slate-500 font-semibold px-2 py-0.5 rounded-full border border-slate-200 flex items-center gap-1">
+                    <Lock className="w-2.5 h-2.5 text-slate-400" /> Non modifiable
+                  </span>
+                </div>
+                <div className="relative">
+                  <input
+                    type="email"
+                    value={fixedEmail}
+                    readOnly
+                    disabled
+                    className="w-full text-xs px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-100/90 text-slate-600 cursor-not-allowed select-none font-medium pr-8"
+                    placeholder="Adresse Email du compte"
+                    title="L'adresse email est fixe et liée à votre compte."
+                  />
+                  <Lock className="w-3.5 h-3.5 text-slate-400 absolute right-3 top-3 pointer-events-none" />
+                </div>
               </div>
 
               <div>
