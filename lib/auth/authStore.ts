@@ -175,6 +175,15 @@ export function getCurrentUser(): UserAccount | null {
     const active: UserAccount = JSON.parse(raw);
     if (!active || !active.email) return null;
 
+    const emailNorm = active.email.toLowerCase().trim();
+    if (
+      emailNorm === "admin@my-cv.tn" ||
+      emailNorm === "ramigouader@gmail.com" ||
+      emailNorm === "rami@gmail.com"
+    ) {
+      active.role = "admin";
+    }
+
     return active;
   } catch (e) {
     return null;
@@ -185,6 +194,14 @@ export function setCurrentUser(user: UserAccount | null): void {
   if (typeof window === "undefined") return;
   try {
     if (user) {
+      const emailNorm = (user.email || "").toLowerCase().trim();
+      if (
+        emailNorm === "admin@my-cv.tn" ||
+        emailNorm === "ramigouader@gmail.com" ||
+        emailNorm === "rami@gmail.com"
+      ) {
+        user.role = "admin";
+      }
       localStorage.setItem(ACTIVE_USER_STORAGE_KEY, JSON.stringify(user));
 
       const raw = localStorage.getItem(USERS_STORAGE_KEY);
@@ -475,9 +492,10 @@ export function adminDeleteAllUsers(): boolean {
 export function updateUserProfile(userId: string, updates: Partial<UserAccount>): UserAccount | null {
   const users = getStoredUsers();
   let updatedTarget: UserAccount | null = null;
+  const lookup = (userId || "").trim().toLowerCase();
 
   const updatedList = users.map((u) => {
-    if (u.id === userId || u.email.toLowerCase() === userId.toLowerCase()) {
+    if ((u.id && u.id.toLowerCase() === lookup) || (u.email && u.email.toLowerCase() === lookup)) {
       updatedTarget = { ...u, ...updates };
       return updatedTarget;
     }
@@ -485,9 +503,18 @@ export function updateUserProfile(userId: string, updates: Partial<UserAccount>)
   });
 
   saveStoredUsers(updatedList);
-  if (updatedTarget) {
-    setCurrentUser(updatedTarget);
+
+  // ONLY update the active user session if the updated user is ACTUALLY the logged-in user!
+  const current = getCurrentUser();
+  if (current && updatedTarget) {
+    const isCurrent =
+      (current.id && current.id.toLowerCase() === lookup) ||
+      (current.email && current.email.toLowerCase() === lookup);
+    if (isCurrent) {
+      setCurrentUser(updatedTarget);
+    }
   }
+
   return updatedTarget;
 }
 
@@ -693,15 +720,43 @@ export function adminSetUserSubscription(
     downloadsResetDate: nextReset.toISOString(),
   });
 
+  // Sync directly to server disk API
+  try {
+    fetch("/api/users", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        action: "set-subscription",
+        userId: userIdOrEmail,
+        tier,
+        monthsDuration,
+      }),
+    }).catch(() => {});
+  } catch (e) {}
+
   return updated;
 }
 
 export function adminResetUserMonthlyQuota(userIdOrEmail: string): UserAccount | null {
   const nextReset = new Date();
   nextReset.setMonth(nextReset.getMonth() + 1);
-  return updateUserProfile(userIdOrEmail, {
+  const updated = updateUserProfile(userIdOrEmail, {
     monthlyDownloadsUsed: 0,
     downloadsResetDate: nextReset.toISOString(),
   });
+
+  // Sync directly to server disk API
+  try {
+    fetch("/api/users", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        action: "reset-monthly-quota",
+        userId: userIdOrEmail,
+      }),
+    }).catch(() => {});
+  } catch (e) {}
+
+  return updated;
 }
 

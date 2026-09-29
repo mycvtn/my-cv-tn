@@ -10,7 +10,7 @@ import {
 } from "@/lib/auth/authStore";
 import { 
   getPaymentSettings, savePaymentSettings,
-  approvePaymentRequest, rejectPaymentRequest, fetchServerPaymentRequests,
+  approvePaymentRequest, rejectPaymentRequest, fetchServerPaymentRequests, fetchServerPaymentSettings,
   PaymentRequest, PaymentSettings, CustomPaymentMethod
 } from "@/lib/payments/paymentStore";
 import { 
@@ -80,7 +80,8 @@ export default function AdminDashboardPage() {
       if (sUsers && sUsers.length > 0) setUsers(sUsers);
       const reqs = await fetchServerPaymentRequests();
       if (reqs) setPaymentRequests(reqs);
-      setSettingsForm(getPaymentSettings());
+      const sSettings = await fetchServerPaymentSettings();
+      if (sSettings) setSettingsForm(sSettings);
     } catch (e) {}
   };
 
@@ -206,7 +207,7 @@ export default function AdminDashboardPage() {
   };
 
   // Subscription Quick Management Actions
-  const handleSetSubscription = (userId: string, tier: "semi_annual" | "annual" | "none") => {
+  const handleSetSubscription = async (userId: string, tier: "semi_annual" | "annual" | "none") => {
     const updated = adminSetUserSubscription(userId, tier);
     if (updated) {
       setUsers(getStoredUsers());
@@ -217,14 +218,22 @@ export default function AdminDashboardPage() {
           ? `✨ Pass Semestriel (6 mois) activé pour ${updated.name}`
           : `Abonnement désactivé pour ${updated.name}`
       );
+      setTimeout(async () => {
+        const refreshed = await fetchServerUsers();
+        if (refreshed && refreshed.length > 0) setUsers(refreshed);
+      }, 300);
     }
   };
 
-  const handleResetQuota = (userId: string) => {
+  const handleResetQuota = async (userId: string) => {
     const updated = adminResetUserMonthlyQuota(userId);
     if (updated) {
       setUsers(getStoredUsers());
       showToast(`⚡ Compteur réinitialisé pour ${updated.name}`);
+      setTimeout(async () => {
+        const refreshed = await fetchServerUsers();
+        if (refreshed && refreshed.length > 0) setUsers(refreshed);
+      }, 300);
     }
   };
 
@@ -239,7 +248,8 @@ export default function AdminDashboardPage() {
 
     const res = await approvePaymentRequest(reqId);
     if (res.success) {
-      setUsers(getStoredUsers());
+      const refreshed = await fetchServerUsers();
+      if (refreshed && refreshed.length > 0) setUsers(refreshed);
     } else {
       alert(res.error || "Erreur lors de la validation.");
     }
@@ -263,14 +273,14 @@ export default function AdminDashboardPage() {
   };
 
   // Settings Actions
-  const handleSaveSettings = (e: React.FormEvent) => {
+  const handleSaveSettings = async (e: React.FormEvent) => {
     e.preventDefault();
-    savePaymentSettings(settingsForm);
+    await savePaymentSettings(settingsForm);
     showToast("Coordonnées de paiement enregistrées avec succès !");
   };
 
   // Custom Method Management
-  const handleCreateCustomMethod = (e: React.FormEvent) => {
+  const handleCreateCustomMethod = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newMethodName.trim() || !newMethodAccountNumber.trim()) {
       alert("Veuillez renseigner au minimum le nom et le numéro / RIB.");
@@ -290,7 +300,7 @@ export default function AdminDashboardPage() {
     const updatedMethods = [...(settingsForm.customMethods || []), newMethod];
     const updatedSettings = { ...settingsForm, customMethods: updatedMethods };
     setSettingsForm(updatedSettings);
-    savePaymentSettings(updatedSettings);
+    await savePaymentSettings(updatedSettings);
 
     // Reset Form & Close Modal
     setNewMethodName("");
@@ -303,17 +313,17 @@ export default function AdminDashboardPage() {
     showToast(`Nouvelle méthode « ${newMethod.name} » ajoutée avec succès !`);
   };
 
-  const handleDeleteCustomMethod = (id: string, name: string) => {
+  const handleDeleteCustomMethod = async (id: string, name: string) => {
     if (confirm(`Voulez-vous supprimer définitivement la méthode de paiement « ${name} » ?`)) {
       const updatedMethods = (settingsForm.customMethods || []).filter((m) => m.id !== id);
       const updatedSettings = { ...settingsForm, customMethods: updatedMethods };
       setSettingsForm(updatedSettings);
-      savePaymentSettings(updatedSettings);
+      await savePaymentSettings(updatedSettings);
       showToast(`Méthode « ${name} » supprimée.`);
     }
   };
 
-  const handleToggleCustomMethod = (id: string) => {
+  const handleToggleCustomMethod = async (id: string) => {
     const updatedMethods = (settingsForm.customMethods || []).map((m) => {
       if (m.id === id) {
         return { ...m, enabled: !m.enabled };
@@ -322,7 +332,7 @@ export default function AdminDashboardPage() {
     });
     const updatedSettings = { ...settingsForm, customMethods: updatedMethods };
     setSettingsForm(updatedSettings);
-    savePaymentSettings(updatedSettings);
+    await savePaymentSettings(updatedSettings);
     showToast("Statut de la méthode mis à jour.");
   };
 

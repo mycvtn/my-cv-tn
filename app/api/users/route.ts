@@ -107,7 +107,7 @@ export async function GET(req: NextRequest) {
           id: p.id,
           name: p.full_name || p.email?.split("@")[0] || "Utilisateur",
           email: p.email,
-          role: (p.email === "ramigouader@gmail.com" || p.email === "admin@my-cv.tn" || p.role === "admin") ? "admin" : "user",
+          role: (p.email === "ramigouader@gmail.com" || p.email === "admin@my-cv.tn" || p.email === "rami@gmail.com" || p.role === "admin") ? "admin" : "user",
           credits: p.credit_balance !== undefined ? p.credit_balance : 10,
           status: p.status || "active",
           createdAt: p.created_at || new Date().toISOString(),
