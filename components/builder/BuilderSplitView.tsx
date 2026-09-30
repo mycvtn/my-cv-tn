@@ -350,7 +350,7 @@ Formation: ${activeResume.education.map((ed) => `${ed.degree} (${ed.institution}
   return (
     <div className="flex flex-col h-screen bg-slate-100/80 overflow-hidden font-sans selection:bg-rose-500 selection:text-white">
       {/* Top Main Navigation Header (Clean Windows 11 Fluent Design) */}
-      <header className="bg-white/95 backdrop-blur-xl text-slate-900 px-3 sm:px-5 py-2.5 flex items-center justify-between border-b border-slate-200/80 flex-shrink-0 z-20 shadow-2xs">
+      <header className="bg-white/95 backdrop-blur-xl text-slate-900 px-3 sm:px-5 py-2.5 flex items-center justify-between border-b border-slate-200/80 flex-shrink-0 z-20 shadow-2xs no-print">
         <div className="flex items-center gap-3">
           <a href="/" className="flex items-center gap-2.5 group">
             <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-rose-600 via-rose-500 to-amber-500 flex items-center justify-center font-black text-white text-base shadow-sm shadow-rose-600/25 group-hover:scale-105 transition-transform duration-200">
@@ -663,7 +663,7 @@ Formation: ${activeResume.education.map((ed) => `${ed.degree} (${ed.institution}
         /* Regular Split Editor when at least 1 CV exists */
         <>
           {/* Mobile Tab Switcher */}
-          <div className="md:hidden flex bg-white border-b border-slate-200">
+          <div className="md:hidden flex bg-white border-b border-slate-200 no-print">
             <button
               onClick={() => setActiveTabMobile("editor")}
               className={`flex-1 py-2 text-xs font-bold border-b-2 text-center ${
@@ -685,7 +685,7 @@ Formation: ${activeResume.education.map((ed) => `${ed.degree} (${ed.institution}
           <div className="flex-grow flex flex-row overflow-hidden relative">
             {/* Left Pane: Form Editor (50% on desktop) */}
             <div
-              className={`w-full md:w-1/2 p-3 sm:p-4 overflow-y-auto flex-shrink-0 ${
+              className={`w-full md:w-1/2 p-3 sm:p-4 overflow-y-auto flex-shrink-0 no-print ${
                 activeTabMobile === "editor" ? "block" : "hidden md:block"
               }`}
             >
@@ -708,7 +708,7 @@ Formation: ${activeResume.education.map((ed) => `${ed.degree} (${ed.institution}
               <div className="absolute bottom-1/4 -left-20 w-80 h-80 bg-rose-500/10 rounded-full blur-3xl pointer-events-none animate-float-delayed" />
 
               {/* Preview Toolbar */}
-              <div className="win11-acrylic px-4 py-2 border-b border-slate-200/80 flex items-center justify-between z-10 flex-shrink-0 shadow-2xs">
+              <div className="win11-acrylic px-4 py-2 border-b border-slate-200/80 flex items-center justify-between z-10 flex-shrink-0 shadow-2xs no-print">
                 <div className="flex items-center gap-2 text-xs font-bold text-slate-800">
                   <Eye className="w-3.5 h-3.5 text-indigo-600" />
                   <span>Aperçu Document A4</span>
@@ -754,7 +754,7 @@ Formation: ${activeResume.education.map((ed) => `${ed.degree} (${ed.institution}
               </div>
 
               {/* Dual Action Bar (my-cv.tn: Gratuit avec filigrane vs Pro) */}
-              <div className="p-3.5 bg-white/95 backdrop-blur-xl border-t border-slate-200/90 z-10 flex-shrink-0 shadow-lg">
+              <div className="p-3.5 bg-white/95 backdrop-blur-xl border-t border-slate-200/90 z-10 flex-shrink-0 shadow-lg no-print">
                 <DualActionBar
                   resumeData={activeResume}
                   userCredits={userCredits}

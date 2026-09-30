@@ -1,6 +1,30 @@
 import { NextRequest, NextResponse } from "next/server";
 import puppeteer from "puppeteer";
 import fs from "fs";
+import path from "path";
+
+/**
+ * Read all compiled Tailwind and Next.js CSS files directly from disk (.next/static/css)
+ * This guarantees 100% offline styling parity on Linux/Ubuntu without any network/CORS issues.
+ */
+function getLocalCompiledCss(): string {
+  try {
+    const cssPath = path.join(process.cwd(), ".next", "static", "css");
+    if (!fs.existsSync(cssPath)) return "";
+    let accumulated = "";
+    const walk = (dir: string) => {
+      for (const item of fs.readdirSync(dir, { withFileTypes: true })) {
+        const full = path.join(dir, item.name);
+        if (item.isDirectory()) walk(full);
+        else if (item.name.endsWith(".css")) accumulated += fs.readFileSync(full, "utf8") + "\n";
+      }
+    };
+    walk(cssPath);
+    return accumulated;
+  } catch (e) {
+    return "";
+  }
+}
 
 export async function POST(req: NextRequest) {
   let browser: any = null;
@@ -13,25 +37,34 @@ export async function POST(req: NextRequest) {
     }
 
     const host = req.headers.get("host") || "localhost:1500";
-    const protocol = host.startsWith("localhost") ? "http" : "https";
+    const forwardedProto = req.headers.get("x-forwarded-proto");
+    const protocol = forwardedProto || (host.startsWith("localhost") || host.startsWith("127.0.0.1") ? "http" : "https");
     const baseUrl = `${protocol}://${host}/`;
+
+    // 1. Gather all compiled styles directly from disk
+    const diskCss = getLocalCompiledCss();
 
     const fullHtml = `
       <!DOCTYPE html>
       <html lang="fr">
         <head>
           <meta charset="utf-8" />
-          <meta name="viewport" content="width=device-width, initial-scale=1" />
+          <meta name="viewport" content="width=794, initial-scale=1" />
           <base href="${baseUrl}" />
-          <!-- Google Fonts Inter for identical cross-platform rendering (Windows, Ubuntu, macOS) -->
+          <!-- Google Fonts Inter for identical cross-platform rendering -->
           <link rel="preconnect" href="https://fonts.googleapis.com">
           <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
           <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+          <!-- Fallback Tailwind CDN in case disk CSS is not built -->
+          <script src="https://cdn.tailwindcss.com"></script>
           ${styles}
           <style>
+            ${diskCss}
+          </style>
+          <style>
             @page {
-              size: A4 portrait;
-              margin: ${margin};
+              size: 210mm 297mm;
+              margin: 0;
             }
             *, *::before, *::after {
               box-sizing: border-box !important;
@@ -44,7 +77,8 @@ export async function POST(req: NextRequest) {
               padding: 0 !important;
               background: #ffffff !important;
               font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif !important;
-              width: 100% !important;
+              width: 210mm !important;
+              max-width: 210mm !important;
               -webkit-font-smoothing: antialiased;
               text-rendering: geometricPrecision;
             }
@@ -56,12 +90,15 @@ export async function POST(req: NextRequest) {
               box-shadow: none !important;
               border: none !important;
               margin: 0 auto !important;
-              padding: 0 !important;
-              width: 100% !important;
-              max-width: 100% !important;
-              min-height: auto !important;
+              padding: 3mm !important;
+              width: 794px !important;
+              max-width: 794px !important;
+              min-height: 1123px !important;
               transform: none !important;
               position: relative !important;
+              background: #ffffff !important;
+              color: #0f172a !important;
+              box-sizing: border-box !important;
             }
             .break-inside-avoid {
               break-inside: avoid !important;
@@ -86,7 +123,7 @@ export async function POST(req: NextRequest) {
             }
           </style>
         </head>
-        <body>
+        <body class="bg-white text-slate-900 m-0 p-0">
           <div id="resume-sheet-preview">
             ${html}
             ${isWatermarked ? `<div class="full-page-watermark"></div>` : ""}
@@ -135,8 +172,8 @@ export async function POST(req: NextRequest) {
     const page = await browser.newPage();
     await page.setViewport({ width: 794, height: 1123, deviceScaleFactor: 2 });
     
-    // Load content and wait for full load and fonts
-    await page.setContent(fullHtml, { waitUntil: ["load", "domcontentloaded"], timeout: 15000 }).catch(() => {});
+    // Load content and wait for network and fonts
+    await page.setContent(fullHtml, { waitUntil: ["domcontentloaded", "load"], timeout: 15000 }).catch(() => {});
 
     await page.evaluate(async () => {
       // Ensure all images are loaded
@@ -158,11 +195,13 @@ export async function POST(req: NextRequest) {
 
     const pdfUint8 = await page.pdf({
       format: "A4",
+      width: "210mm",
+      height: "297mm",
       margin: {
-        top: margin,
-        right: margin,
-        bottom: margin,
-        left: margin,
+        top: "0mm",
+        right: "0mm",
+        bottom: "0mm",
+        left: "0mm",
       },
       printBackground: true,
       preferCSSPageSize: true,
