@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Download, Sparkles, Loader2, Crown, Lock, CheckCircle2 } from "lucide-react";
+import { Download, Sparkles, Loader2, Crown, Lock } from "lucide-react";
 import { ResumeData } from "@/types/resume";
 import { exportResumeToPDF } from "@/lib/pdf/pdfExporter";
 import { getCurrentUser, canDownloadProResume, consumeProDownload } from "@/lib/auth/authStore";
@@ -71,55 +71,81 @@ export const DualActionBar: React.FC<Props> = ({
   };
 
   return (
-    <div className="win11-acrylic-card win11-window-shadow border border-white/20 p-3 sm:p-3.5 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-3 shadow-xl backdrop-blur-xl relative overflow-hidden">
-      {/* Top Accent Glow */}
-      <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-rose-500 via-amber-400 to-indigo-500 opacity-80" />
-
-      {/* Option Gratuite avec Filigrane */}
+    <div className="w-full flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 font-sans">
+      {/* Option 1: Télécharger Gratuit (avec filigrane) - Clair, lisible et rassurant */}
       <button
         type="button"
         onClick={() => handleDownload("free_watermark")}
         disabled={downloadingType !== null}
-        className="w-full sm:flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-white/10 hover:bg-white/15 text-slate-200 text-xs font-bold rounded-xl border border-white/10 transition-all duration-200 win11-btn-interactive shadow-2xs"
+        className="group relative flex-1 flex items-center justify-between p-3 sm:px-4 sm:py-3 bg-white hover:bg-slate-50 border-2 border-slate-200 hover:border-emerald-500/80 rounded-2xl transition-all duration-200 shadow-sm hover:shadow-md win11-btn-interactive text-left cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
       >
-        {downloadingType === "free" ? (
-          <Loader2 className="w-4 h-4 animate-spin text-slate-300" />
-        ) : (
-          <Download className="w-4 h-4 text-slate-300" />
-        )}
-        <span>Télécharger avec filigrane my-cv.tn (Gratuit)</span>
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="w-10 h-10 rounded-xl bg-emerald-50 group-hover:bg-emerald-100/80 text-emerald-600 flex items-center justify-center transition-colors flex-shrink-0 border border-emerald-200/80 shadow-2xs">
+            {downloadingType === "free" ? (
+              <Loader2 className="w-5 h-5 animate-spin text-emerald-600" />
+            ) : (
+              <Download className="w-5 h-5" />
+            )}
+          </div>
+          <div className="flex flex-col min-w-0">
+            <div className="flex items-center gap-2">
+              <span className="text-xs sm:text-sm font-black text-slate-900 group-hover:text-emerald-700 transition-colors truncate">
+                Télécharger Gratuitement
+              </span>
+            </div>
+            <span className="text-[11px] text-slate-500 font-medium truncate">
+              Format PDF standard • avec filigrane discret
+            </span>
+          </div>
+        </div>
+
+        <span className="flex-shrink-0 ml-2 inline-flex items-center text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full bg-emerald-100/70 text-emerald-800 border border-emerald-300/80 shadow-2xs">
+          100% Gratuit
+        </span>
       </button>
 
-      {/* Option Pro (Réservé aux Abonnés - Téléchargement Illimité) */}
+      {/* Option 2: Télécharger PDF Pro (Sans Filigrane) */}
       <button
         type="button"
         onClick={() => handleDownload("clean")}
         disabled={downloadingType !== null}
-        className={`w-full sm:flex-1 flex items-center justify-center gap-2 px-4 py-2.5 text-white text-xs font-extrabold rounded-xl shadow-lg transition-all duration-200 win11-btn-interactive ${
+        className={`group relative flex-1 flex items-center justify-between p-3 sm:px-4 sm:py-3 rounded-2xl transition-all duration-200 shadow-md hover:shadow-lg win11-btn-interactive text-left cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed ${
           !proCheck.info.isSubscribed && !proCheck.info.isAdmin
-            ? "bg-slate-800/90 hover:bg-slate-800 border border-amber-500/50 text-slate-200 hover:border-amber-400"
-            : "bg-gradient-to-r from-rose-600 via-rose-500 to-indigo-600 hover:from-rose-500 hover:to-indigo-500 shadow-rose-600/30 cursor-pointer"
+            ? "bg-slate-900 hover:bg-slate-800 text-white border border-slate-700 hover:border-amber-400/60 shadow-slate-900/20"
+            : "bg-gradient-to-r from-rose-600 via-rose-500 to-amber-500 hover:from-rose-500 hover:to-amber-400 text-white border border-rose-400/40 shadow-rose-600/25"
         }`}
       >
-        {downloadingType === "pro" ? (
-          <Loader2 className="w-4 h-4 animate-spin text-white" />
-        ) : !proCheck.info.isSubscribed && !proCheck.info.isAdmin ? (
-          <Lock className="w-4 h-4 text-amber-400" />
-        ) : (
-          <Crown className="w-4 h-4 text-amber-300" />
-        )}
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="w-10 h-10 rounded-xl bg-white/15 text-white flex items-center justify-center transition-colors flex-shrink-0 border border-white/20 shadow-2xs">
+            {downloadingType === "pro" ? (
+              <Loader2 className="w-5 h-5 animate-spin text-white" />
+            ) : !proCheck.info.isSubscribed && !proCheck.info.isAdmin ? (
+              <Lock className="w-5 h-5 text-amber-300" />
+            ) : (
+              <Crown className="w-5 h-5 text-amber-300" />
+            )}
+          </div>
+          <div className="flex flex-col min-w-0">
+            <span className="text-xs sm:text-sm font-black text-white flex items-center gap-1.5 truncate">
+              <span>Télécharger PDF Pro</span>
+            </span>
+            <span className="text-[11px] text-white/85 font-medium truncate">
+              Haute Définition • Zéro filigrane
+            </span>
+          </div>
+        </div>
 
-        <span>Télécharger PDF Pro (Sans filigrane)</span>
-
-        {!proCheck.info.isSubscribed && !proCheck.info.isAdmin ? (
-          <span className="bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[10px] px-2 py-0.5 rounded-md ml-1 font-bold">
-            Abonnement requis
-          </span>
-        ) : (
-          <span className="bg-white/20 text-white text-[10px] px-2 py-0.5 rounded-md ml-1 font-bold shadow-xs">
-            ✨ Illimité
-          </span>
-        )}
+        <div className="flex-shrink-0 ml-2">
+          {!proCheck.info.isSubscribed && !proCheck.info.isAdmin ? (
+            <span className="inline-flex items-center text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full bg-amber-400/20 text-amber-300 border border-amber-400/40 shadow-2xs">
+              Pass Pro
+            </span>
+          ) : (
+            <span className="inline-flex items-center text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-full bg-white/25 text-white border border-white/30 shadow-2xs">
+              ✨ Illimité
+            </span>
+          )}
+        </div>
       </button>
     </div>
   );

@@ -753,8 +753,8 @@ Formation: ${activeResume.education.map((ed) => `${ed.degree} (${ed.institution}
                 </div>
               </div>
 
-              {/* Dual Action Bar (my-cv.tn: Gratuit avec filigrane vs Pro 10 Crédits) */}
-              <div className="p-3 bg-slate-950 border-t border-slate-800 z-10 flex-shrink-0">
+              {/* Dual Action Bar (my-cv.tn: Gratuit avec filigrane vs Pro) */}
+              <div className="p-3.5 bg-white/95 backdrop-blur-xl border-t border-slate-200/90 z-10 flex-shrink-0 shadow-lg">
                 <DualActionBar
                   resumeData={activeResume}
                   userCredits={userCredits}
