@@ -9,11 +9,10 @@
     "status": "active",
     "createdAt": "2026-09-22T10:34:35.296Z",
     "lastLoginAt": "2026-09-22T10:34:35.296Z",
-    "subscriptionTier": "annual",
-    "subscriptionStatus": "active",
+    "subscriptionTier": "none",
+    "subscriptionStatus": "inactive",
     "monthlyDownloadsUsed": 0,
-    "downloadsResetDate": "2026-10-30T11:13:07.791Z",
-    "subscriptionExpiresAt": "2027-09-30T11:13:07.791Z"
+    "downloadsResetDate": "2026-10-30T22:26:20.085Z"
   },
   {
     "id": "usr-1790063331620",

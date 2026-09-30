@@ -84,38 +84,38 @@ export default function AdminLoginPage() {
           <span>Espace Restreint — Administration Système</span>
         </div>
         <h1 className="text-3xl font-black text-white tracking-tight drop-shadow-sm">Portail Administrateur</h1>
-        <p className="text-xs text-slate-400 mt-1">Supervision globale, gestion des utilisateurs et des abonnements</p>
+        <p className="text-xs text-slate-200 mt-1 font-semibold">Supervision globale, gestion des utilisateurs et des abonnements</p>
       </div>
 
       {/* Admin Login Card */}
-      <div className="w-full max-w-md win11-acrylic-card win11-window-shadow border border-white/80 rounded-3xl p-7 sm:p-9 z-10 relative overflow-hidden transition-all duration-300">
+      <div className="w-full max-w-md bg-white border-2 border-slate-200 rounded-3xl p-7 sm:p-9 z-10 relative overflow-hidden shadow-2xl">
         {/* Top Window Accent Glow */}
-        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-500 via-rose-500 to-amber-400 opacity-90" />
+        <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-amber-500 via-rose-500 to-amber-400" />
         
         {/* Simulated Window Control Bar */}
-        <div className="flex items-center justify-between pb-4 mb-5 border-b border-slate-200/60">
+        <div className="flex items-center justify-between pb-4 mb-5 border-b-2 border-slate-100">
           <div className="flex items-center gap-1.5">
-            <div className="w-3 h-3 rounded-full bg-rose-400/90 shadow-2xs hover:scale-110 transition cursor-pointer" />
-            <div className="w-3 h-3 rounded-full bg-amber-400/90 shadow-2xs hover:scale-110 transition cursor-pointer" />
-            <div className="w-3 h-3 rounded-full bg-emerald-400/90 shadow-2xs hover:scale-110 transition cursor-pointer" />
+            <div className="w-3 h-3 rounded-full bg-rose-500 shadow-2xs hover:scale-110 transition cursor-pointer" />
+            <div className="w-3 h-3 rounded-full bg-amber-500 shadow-2xs hover:scale-110 transition cursor-pointer" />
+            <div className="w-3 h-3 rounded-full bg-emerald-500 shadow-2xs hover:scale-110 transition cursor-pointer" />
           </div>
-          <span className="text-[10px] font-mono tracking-wider font-semibold text-slate-400 uppercase">
+          <span className="text-xs font-mono tracking-wider font-black text-slate-700 uppercase">
             MY-CV // Admin-Auth.exe
           </span>
         </div>
 
         {error && (
-          <div className="mb-5 p-3.5 bg-rose-50/90 border border-rose-200/90 rounded-2xl text-xs text-rose-700 flex items-center gap-2.5 backdrop-blur-sm animate-in fade-in slide-in-from-top-1">
+          <div className="mb-5 p-3.5 bg-rose-50 border-2 border-rose-200 rounded-2xl text-xs text-rose-800 flex items-center gap-2.5">
             <AlertCircle className="w-4 h-4 text-rose-600 flex-shrink-0" />
-            <span className="font-medium">{error}</span>
+            <span className="font-bold">{error}</span>
           </div>
         )}
 
         <form onSubmit={handleAdminLogin} className="space-y-4">
           <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1.5">Email Administrateur</label>
+            <label className="block text-xs font-black text-slate-950 mb-1.5">Email Administrateur</label>
             <div className="relative">
-              <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+              <Mail className="w-4 h-4 text-slate-500 absolute left-3.5 top-3.5" />
               <input
                 type="email"
                 value={email}
@@ -123,15 +123,15 @@ export default function AdminLoginPage() {
                 placeholder="admin@domaine.com"
                 autoComplete="email"
                 required
-                className="w-full text-xs bg-white/70 border border-slate-200/90 rounded-xl pl-10 pr-4 py-2.5 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 transition-all"
+                className="w-full text-xs font-bold bg-white border-2 border-slate-300 rounded-xl pl-10 pr-4 py-2.5 text-slate-950 placeholder:text-slate-500 focus:outline-none focus:border-amber-500 shadow-xs"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1.5">Mot de passe</label>
+            <label className="block text-xs font-black text-slate-950 mb-1.5">Mot de passe</label>
             <div className="relative">
-              <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+              <Lock className="w-4 h-4 text-slate-500 absolute left-3.5 top-3.5" />
               <input
                 type="password"
                 value={password}
@@ -139,7 +139,7 @@ export default function AdminLoginPage() {
                 placeholder="••••••••••••"
                 autoComplete="current-password"
                 required
-                className="w-full text-xs bg-white/70 border border-slate-200/90 rounded-xl pl-10 pr-4 py-2.5 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 transition-all"
+                className="w-full text-xs font-bold bg-white border-2 border-slate-300 rounded-xl pl-10 pr-4 py-2.5 text-slate-950 placeholder:text-slate-500 focus:outline-none focus:border-amber-500 shadow-xs"
               />
             </div>
           </div>
@@ -160,8 +160,8 @@ export default function AdminLoginPage() {
           </button>
         </form>
 
-        <div className="mt-6 pt-4 border-t border-slate-200/60 text-center text-xs text-slate-500">
-          <a href="/login" className="text-slate-500 hover:text-slate-900 transition flex items-center justify-center gap-1">
+        <div className="mt-6 pt-4 border-t-2 border-slate-100 text-center text-xs">
+          <a href="/login" className="text-slate-700 hover:text-slate-950 font-black transition flex items-center justify-center gap-1">
             <span>←</span>
             <span>Retour à l'espace candidat</span>
           </a>
