@@ -216,15 +216,19 @@ ${data.candidateName}`;
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const [exportProgress, setExportProgress] = useState(0);
+
   const handleDownloadPDF = async () => {
     setExportingPdf(true);
+    setExportProgress(20);
     try {
       const fileName = `Lettre_Motivation_${(data.candidateName || "Candidat").replace(/\s+/g, "_")}.pdf`;
-      await exportCoverLetterToPDF("cover-letter-sheet", fileName);
+      await exportCoverLetterToPDF("cover-letter-sheet", fileName, (p) => setExportProgress(p));
     } catch (e) {
       console.error("PDF export error:", e);
     } finally {
       setExportingPdf(false);
+      setExportProgress(0);
     }
   };
 
@@ -262,8 +266,17 @@ ${data.candidateName}`;
               disabled={exportingPdf}
               className="win11-btn-interactive flex items-center gap-1.5 px-4 py-1.5 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 disabled:opacity-50 text-white text-xs font-bold rounded-xl shadow-md shadow-indigo-600/20 border border-indigo-400/30"
             >
-              {exportingPdf ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Download className="w-3.5 h-3.5" />}
-              {exportingPdf ? "Exportation..." : "Télécharger PDF"}
+              {exportingPdf ? (
+                <>
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  <span>Téléchargement ({exportProgress}%)...</span>
+                </>
+              ) : (
+                <>
+                  <Download className="w-3.5 h-3.5" />
+                  <span>Télécharger PDF</span>
+                </>
+              )}
             </button>
           </div>
         </header>

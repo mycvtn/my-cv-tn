@@ -57,10 +57,14 @@ export async function exportResumeToPDF(
 
     if (onProgress) onProgress(45);
 
-    // 2. Call Native Chromium Vector PDF Backend
+    // 2. Call Native Chromium Vector PDF Backend with 5s timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000);
+
     const response = await fetch("/api/export-pdf", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
+      signal: controller.signal,
       body: JSON.stringify({
         html: clone.innerHTML,
         styles: allStyles,
@@ -69,6 +73,7 @@ export async function exportResumeToPDF(
         margin: "0mm",
       }),
     });
+    clearTimeout(timeoutId);
 
     if (onProgress) onProgress(80);
 
@@ -196,10 +201,14 @@ export async function exportCoverLetterToPDF(
 
     if (onProgress) onProgress(45);
 
-    // Try server-side vector PDF
+    // 2. Call Native Chromium Vector PDF Backend with 5s timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000);
+
     const response = await fetch("/api/export-pdf", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
+      signal: controller.signal,
       body: JSON.stringify({
         html: clone.innerHTML,
         styles: allStyles,
@@ -209,6 +218,7 @@ export async function exportCoverLetterToPDF(
         margin: "18mm",
       }),
     });
+    clearTimeout(timeoutId);
 
     if (onProgress) onProgress(80);
 
@@ -230,42 +240,44 @@ export async function exportCoverLetterToPDF(
     const errData = await response.json().catch(() => ({}));
     throw new Error(errData?.error || `Server PDF export returned status ${response.status}`);
   } catch (error) {
-    console.warn("Server PDF export failed, using client-side html2pdf / canvas fallback:", error);
+    console.warn("Server PDF export fallback to instant high-DPI client canvas:", error);
 
     try {
       if (onProgress) onProgress(60);
 
-      // Try dynamic html2pdf bundle if available
-      // @ts-ignore
-      const html2pdf = (await import("html2pdf.js")).default;
-      if (html2pdf) {
-        const opt = {
-          margin: 18,
-          filename: fileName.endsWith(".pdf") ? fileName : `${fileName}.pdf`,
-          image: { type: "jpeg", quality: 0.98 },
-          html2canvas: { scale: 3, useCORS: true, logging: false },
-          jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
-        };
-        // @ts-ignore
-        await html2pdf().set(opt).from(element).save();
-        if (onProgress) onProgress(100);
-        return true;
-      }
-    } catch (h2pErr) {
-      console.warn("html2pdf dynamic import fallback failed, using jsPDF canvas:", h2pErr);
-    }
+      // Instant offscreen client fallback using html2canvas + jsPDF (sub-second)
+      const offscreenWrapper = document.createElement("div");
+      offscreenWrapper.style.position = "fixed";
+      offscreenWrapper.style.top = "-99999px";
+      offscreenWrapper.style.left = "-99999px";
+      offscreenWrapper.style.width = "794px";
+      offscreenWrapper.style.zIndex = "-9999";
+      offscreenWrapper.style.transform = "none";
 
-    try {
-      const canvas = await html2canvas(element, {
-        scale: 3,
+      const unscaledClone = element.cloneNode(true) as HTMLElement;
+      unscaledClone.style.transform = "none";
+      unscaledClone.style.width = "794px";
+      unscaledClone.style.margin = "0";
+      unscaledClone.querySelectorAll(".export-ignore").forEach((n) => n.remove());
+
+      offscreenWrapper.appendChild(unscaledClone);
+      document.body.appendChild(offscreenWrapper);
+
+      const canvas = await html2canvas(unscaledClone, {
+        scale: 2,
         useCORS: true,
         allowTaint: true,
         backgroundColor: "#ffffff",
         logging: false,
+        width: 794,
         windowWidth: 794,
       });
 
-      const imgData = canvas.toDataURL("image/png", 1.0);
+      document.body.removeChild(offscreenWrapper);
+
+      if (onProgress) onProgress(85);
+
+      const imgData = canvas.toDataURL("image/jpeg", 0.95);
       const pdf = new jsPDF({
         orientation: "portrait",
         unit: "mm",
@@ -273,14 +285,14 @@ export async function exportCoverLetterToPDF(
         compress: true,
       });
 
-      const margin = 18; // Exact 18mm professional margin around the page
+      const margin = 18; // Exact 18mm administrative margin
       const printableWidth = 210 - margin * 2;
       const printableHeight = 297 - margin * 2;
       const imgHeight = (canvas.height * printableWidth) / canvas.width;
 
       pdf.addImage(
         imgData,
-        "PNG",
+        "JPEG",
         margin,
         margin,
         printableWidth,
@@ -288,6 +300,7 @@ export async function exportCoverLetterToPDF(
         undefined,
         "FAST"
       );
+
       const cleanFileName = fileName.endsWith(".pdf") ? fileName : `${fileName}.pdf`;
       pdf.save(cleanFileName);
 

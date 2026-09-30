@@ -7,7 +7,13 @@ import path from "path";
  * Read all compiled Tailwind and Next.js CSS files directly from disk (.next/static/css)
  * This guarantees 100% offline styling parity on Linux/Ubuntu without any network/CORS issues.
  */
+let cachedDiskCss: string | null = null;
+let lastCssReadTime = 0;
+
 function getLocalCompiledCss(): string {
+  if (cachedDiskCss && Date.now() - lastCssReadTime < 60000) {
+    return cachedDiskCss;
+  }
   try {
     const cssPath = path.join(process.cwd(), ".next", "static", "css");
     if (!fs.existsSync(cssPath)) return "";
@@ -20,14 +26,66 @@ function getLocalCompiledCss(): string {
       }
     };
     walk(cssPath);
+    cachedDiskCss = accumulated;
+    lastCssReadTime = Date.now();
     return accumulated;
   } catch (e) {
     return "";
   }
 }
 
+// Persistent singleton browser instance to eliminate 2-3s launch delay
+let sharedBrowser: any = null;
+
+async function getBrowserInstance() {
+  if (sharedBrowser && sharedBrowser.connected) {
+    return sharedBrowser;
+  }
+
+  let executablePath: string | undefined = process.env.PUPPETEER_EXECUTABLE_PATH;
+  if (!executablePath && process.platform === "linux") {
+    const possiblePaths = [
+      "/usr/bin/chromium-browser",
+      "/usr/bin/chromium",
+      "/usr/bin/google-chrome-stable",
+      "/usr/bin/google-chrome",
+      "/snap/bin/chromium",
+    ];
+    for (const p of possiblePaths) {
+      try {
+        if (fs.existsSync(p)) {
+          executablePath = p;
+          break;
+        }
+      } catch (e) {}
+    }
+  }
+
+  const launchConfig: any = {
+    headless: true,
+    args: [
+      "--no-sandbox",
+      "--disable-setuid-sandbox",
+      "--disable-dev-shm-usage",
+      "--disable-gpu",
+      "--no-first-run",
+      "--no-zygote",
+      "--font-render-hinting=none",
+      "--disable-extensions",
+      "--disable-background-networking",
+    ],
+  };
+
+  if (executablePath) {
+    launchConfig.executablePath = executablePath;
+  }
+
+  sharedBrowser = await puppeteer.launch(launchConfig);
+  return sharedBrowser;
+}
+
 export async function POST(req: NextRequest) {
-  let browser: any = null;
+  let page: any = null;
   try {
     const body = await req.json();
     const { html, styles = "", fileName = "Mon_CV_A4.pdf", isWatermarked = false, margin = "0mm", documentType } = body;
@@ -57,12 +115,6 @@ export async function POST(req: NextRequest) {
           <meta charset="utf-8" />
           <meta name="viewport" content="width=794, initial-scale=1" />
           <base href="${baseUrl}" />
-          <!-- Google Fonts Inter for identical cross-platform rendering -->
-          <link rel="preconnect" href="https://fonts.googleapis.com">
-          <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-          <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-          <!-- Fallback Tailwind CDN in case disk CSS is not built -->
-          <script src="https://cdn.tailwindcss.com"></script>
           ${styles}
           <style>
             ${diskCss}
@@ -82,7 +134,7 @@ export async function POST(req: NextRequest) {
               margin: 0 !important;
               padding: 0 !important;
               background: #ffffff !important;
-              font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif !important;
+              font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, 'Helvetica Neue', Arial, sans-serif !important;
               width: 210mm !important;
               max-width: 210mm !important;
               -webkit-font-smoothing: antialiased;
@@ -160,65 +212,47 @@ export async function POST(req: NextRequest) {
       </html>
     `;
 
-    // Detect Linux system Chromium/Chrome path automatically
-    let executablePath: string | undefined = process.env.PUPPETEER_EXECUTABLE_PATH;
-    if (!executablePath && process.platform === "linux") {
-      const possiblePaths = [
-        "/usr/bin/chromium-browser",
-        "/usr/bin/chromium",
-        "/usr/bin/google-chrome-stable",
-        "/usr/bin/google-chrome",
-        "/snap/bin/chromium",
-      ];
-      for (const p of possiblePaths) {
-        try {
-          if (fs.existsSync(p)) {
-            executablePath = p;
-            break;
-          }
-        } catch (e) {}
-      }
-    }
-
-    const launchConfig: any = {
-      headless: true,
-      args: [
-        "--no-sandbox",
-        "--disable-setuid-sandbox",
-        "--disable-dev-shm-usage",
-        "--disable-gpu",
-        "--font-render-hinting=none",
-      ],
-    };
-
-    if (executablePath) {
-      launchConfig.executablePath = executablePath;
-    }
-
-    browser = await puppeteer.launch(launchConfig);
-
-    const page = await browser.newPage();
+    const browser = await getBrowserInstance();
+    page = await browser.newPage();
     await page.setViewport({ width: 794, height: 1123, deviceScaleFactor: 2 });
     
-    // Load content and wait for network and fonts
-    await page.setContent(fullHtml, { waitUntil: ["domcontentloaded", "load"], timeout: 15000 }).catch(() => {});
+    // Set fast navigation timeout (max 4.5 seconds)
+    page.setDefaultNavigationTimeout(4500);
 
+    // Filter out heavy unneeded external resources
+    await page.setRequestInterception(true);
+    page.on("request", (req: any) => {
+      const type = req.resourceType();
+      const url = req.url();
+      if (
+        type === "media" || 
+        type === "websocket" || 
+        url.includes("cdn.tailwindcss.com") ||
+        url.includes("analytics") ||
+        url.includes("facebook") ||
+        url.includes("google-analytics")
+      ) {
+        req.abort();
+      } else {
+        req.continue();
+      }
+    });
+
+    // Load content with domcontentloaded (instant!)
+    await page.setContent(fullHtml, { waitUntil: "domcontentloaded", timeout: 4000 });
+
+    // Quick font check with max 500ms safety timeout
     await page.evaluate(async () => {
-      // Ensure all images are loaded
-      const imgs = Array.from(document.querySelectorAll("img"));
-      await Promise.all(
-        imgs.map((img) => {
-          if (img.complete) return Promise.resolve();
-          return new Promise((resolve) => {
-            img.onload = resolve;
-            img.onerror = resolve;
-          });
-        })
-      );
-
-      // Ensure fonts are ready
-      // @ts-ignore
-      if (document.fonts) await document.fonts.ready;
+      try {
+        // @ts-ignore
+        if (document.fonts && document.fonts.ready) {
+          await Promise.race([
+            // @ts-ignore
+            document.fonts.ready,
+            new Promise((r) => setTimeout(r, 500))
+          ]);
+        }
+      } catch (e) {}
     });
 
     const pdfUint8 = await page.pdf({
@@ -235,8 +269,8 @@ export async function POST(req: NextRequest) {
       preferCSSPageSize: true,
     });
 
-    await browser.close();
-    browser = null;
+    await page.close();
+    page = null;
 
     const cleanBaseName = fileName.replace(/\.pdf$/i, "");
     const safeFileName = `${encodeURIComponent(cleanBaseName)}_A4.pdf`;
@@ -251,9 +285,9 @@ export async function POST(req: NextRequest) {
     });
   } catch (error: any) {
     console.error("Puppeteer PDF Export Error:", error);
-    if (browser) {
+    if (page) {
       try {
-        await browser.close();
+        await page.close();
       } catch (e) {}
     }
     return NextResponse.json({ error: error.message || "Échec génération PDF" }, { status: 500 });

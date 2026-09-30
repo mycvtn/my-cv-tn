@@ -189,15 +189,19 @@ ${resumeData.personalInfo.fullName}`;
     setTimeout(() => setCopied(false), 2500);
   };
 
+  const [exportProgress, setExportProgress] = useState(0);
+
   const handleDownloadPDF = async () => {
     setExportingPdf(true);
+    setExportProgress(20);
     try {
       const fileName = `Lettre_Motivation_${(resumeData.personalInfo.fullName || "Candidat").replace(/\s+/g, "_")}.pdf`;
-      await exportCoverLetterToPDF("modal-cover-letter-sheet", fileName);
+      await exportCoverLetterToPDF("modal-cover-letter-sheet", fileName, (p) => setExportProgress(p));
     } catch (e) {
       console.error("PDF export error:", e);
     } finally {
       setExportingPdf(false);
+      setExportProgress(0);
     }
   };
 
@@ -418,8 +422,17 @@ ${resumeData.personalInfo.fullName}`;
                     aria-label="Télécharger la lettre de motivation en format PDF"
                     className="text-xs text-white bg-indigo-600 hover:bg-indigo-700 font-bold flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl shadow-sm transition disabled:opacity-50"
                   >
-                    {exportingPdf ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Download className="w-3.5 h-3.5" />}
-                    {exportingPdf ? "Exportation..." : "Télécharger PDF"}
+                    {exportingPdf ? (
+                      <>
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        <span>Téléchargement ({exportProgress}%)...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Download className="w-3.5 h-3.5" />
+                        <span>Télécharger PDF</span>
+                      </>
+                    )}
                   </button>
                 </div>
               </div>
