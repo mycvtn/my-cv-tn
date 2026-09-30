@@ -11,6 +11,7 @@ export interface CustomPaymentMethod {
   accountNumber: string;
   accountHolder: string;
   instructions: string;
+  qrCodeUrl?: string; // QR code image URL or base64 schema
   enabled: boolean;
 }
 
@@ -37,10 +38,12 @@ export interface PaymentSettings {
   d17PhoneNumber: string;
   d17AccountHolder: string;
   d17Instructions: string;
+  d17QrCodeUrl?: string;
   d17Enabled?: boolean;
   flouciAccount: string;
   flouciAccountHolder: string;
   flouciInstructions: string;
+  flouciQrCodeUrl?: string;
   flouciEnabled?: boolean;
   customMethods?: CustomPaymentMethod[];
 }

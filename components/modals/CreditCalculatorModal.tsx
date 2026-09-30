@@ -3,7 +3,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import { 
   X, Sparkles, FileText, Bot, CreditCard, Shield, 
-  CheckCircle2, ArrowRight, ArrowLeft, Upload, Clock, AlertCircle, Copy, Check, Star, Zap, Crown
+  CheckCircle2, ArrowRight, ArrowLeft, Upload, Clock, AlertCircle, Copy, Check, Star, Zap, Crown,
+  QrCode, Maximize2
 } from "lucide-react";
 import { getCurrentUser, fetchServerUser, getUserSubscriptionInfo } from "@/lib/auth/authStore";
 import { getPaymentSettings, fetchServerPaymentSettings, createPaymentRequest, PaymentMethod, PaymentSettings, SubscriptionPlanType } from "@/lib/payments/paymentStore";
@@ -27,6 +28,7 @@ export const CreditCalculatorModal: React.FC<Props> = ({
   const [receiptImage, setReceiptImage] = useState<string>("");
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [zoomQrModal, setZoomQrModal] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const currentUser = typeof window !== "undefined" ? getCurrentUser() : null;
@@ -164,9 +166,10 @@ export const CreditCalculatorModal: React.FC<Props> = ({
         title: "Paiement via D17 (La Poste Tunisienne)",
         badge: "D17 Mobile",
         recipientName: paymentSettings?.d17AccountHolder || "my-cv.tn Administration",
-        accountNumber: paymentSettings?.d17PhoneNumber || "98 123 456",
+        accountNumber: paymentSettings?.d17PhoneNumber || "52 897 726",
         accountLabel: "Numéro de téléphone D17",
         instructions: paymentSettings?.d17Instructions || "Transférez le montant exact via D17 puis téléversez la capture du reçu.",
+        qrCodeUrl: paymentSettings?.d17QrCodeUrl,
       };
     }
     if (selectedMethod === "flouci") {
@@ -177,6 +180,7 @@ export const CreditCalculatorModal: React.FC<Props> = ({
         accountNumber: paymentSettings?.flouciAccount || "flouci.me/mycv_tn",
         accountLabel: "Compte / Tag Flouci",
         instructions: paymentSettings?.flouciInstructions || "Envoyez le montant via Flouci puis joignez la capture d'écran de confirmation.",
+        qrCodeUrl: paymentSettings?.flouciQrCodeUrl,
       };
     }
     const custom = activeCustomMethods.find((m) => m.id === selectedMethod);
@@ -188,6 +192,7 @@ export const CreditCalculatorModal: React.FC<Props> = ({
         accountNumber: custom.accountNumber,
         accountLabel: "Coordonnées Bancaires",
         instructions: custom.instructions,
+        qrCodeUrl: custom.qrCodeUrl,
       };
     }
     return null;
@@ -460,10 +465,47 @@ export const CreditCalculatorModal: React.FC<Props> = ({
               {/* Instructions Box */}
               {methodDetails && (
                 <div className="p-4 bg-slate-50 border border-slate-200/90 rounded-2xl space-y-3">
-                  <div className="text-xs font-bold text-rose-700 uppercase tracking-wider flex items-center gap-1.5">
-                    <Clock className="w-3.5 h-3.5 text-rose-600" />
-                    <span>Instructions de Virement</span>
+                  <div className="text-xs font-bold text-rose-700 uppercase tracking-wider flex items-center justify-between">
+                    <div className="flex items-center gap-1.5">
+                      <Clock className="w-3.5 h-3.5 text-rose-600" />
+                      <span>Instructions de Virement</span>
+                    </div>
+                    {methodDetails.qrCodeUrl && (
+                      <span className="text-[10px] font-black bg-indigo-100 text-indigo-800 px-2 py-0.5 rounded-full border border-indigo-200 flex items-center gap-1">
+                        <QrCode className="w-3 h-3 text-indigo-600" /> Code QR Disponible
+                      </span>
+                    )}
                   </div>
+
+                  {/* QR Code Schema / Scan Section */}
+                  {methodDetails.qrCodeUrl && (
+                    <div className="p-3 bg-gradient-to-r from-indigo-50/90 via-purple-50/60 to-pink-50/70 border border-indigo-200 rounded-xl flex flex-col sm:flex-row items-center gap-3.5 shadow-2xs">
+                      <div
+                        className="p-1.5 bg-white rounded-xl border border-indigo-200 shadow-xs flex-shrink-0 cursor-pointer hover:scale-105 transition-all duration-200"
+                        onClick={() => setZoomQrModal(methodDetails.qrCodeUrl || null)}
+                        title="Cliquer pour agrandir"
+                      >
+                        <img
+                          src={methodDetails.qrCodeUrl}
+                          alt="Code QR de paiement"
+                          className="w-24 h-24 object-contain rounded-lg"
+                        />
+                        <div className="text-[9px] text-center font-bold text-indigo-700 mt-1 flex items-center justify-center gap-1">
+                          <Maximize2 className="w-2.5 h-2.5" /> Agrandir
+                        </div>
+                      </div>
+
+                      <div className="space-y-1 text-center sm:text-left">
+                        <div className="text-xs font-black text-slate-900 flex items-center gap-1 justify-center sm:justify-start">
+                          <QrCode className="w-3.5 h-3.5 text-indigo-600" />
+                          <span>Paiement Direct par Code QR</span>
+                        </div>
+                        <p className="text-[11px] text-slate-600 leading-relaxed">
+                          Scannez ce QR Code directement depuis votre application ({methodDetails.badge}) pour transférer le montant exact sans devoir saisir manuellement les numéros.
+                        </p>
+                      </div>
+                    </div>
+                  )}
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                     <div>
@@ -583,6 +625,46 @@ export const CreditCalculatorModal: React.FC<Props> = ({
         </div>
 
       </div>
+
+      {/* QR Code Zoom Modal */}
+      {zoomQrModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-md p-4 animate-in fade-in duration-150">
+          <div className="bg-white border border-slate-200 rounded-3xl max-w-sm w-full p-6 space-y-4 shadow-2xl text-center">
+            <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+              <h4 className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                <QrCode className="w-4 h-4 text-indigo-600" />
+                Code QR de Paiement
+              </h4>
+              <button
+                onClick={() => setZoomQrModal(null)}
+                className="p-1 text-slate-400 hover:text-slate-700 rounded-lg cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="p-4 bg-slate-50 border border-slate-200 rounded-2xl flex items-center justify-center">
+              <img
+                src={zoomQrModal}
+                alt="Code QR Plein Écran"
+                className="max-h-72 max-w-full object-contain rounded-xl shadow-md bg-white p-2"
+              />
+            </div>
+
+            <p className="text-[11px] text-slate-500">
+              Scannez ce QR Code avec l'appareil photo de votre téléphone ou votre application bancaire / D17.
+            </p>
+
+            <button
+              type="button"
+              onClick={() => setZoomQrModal(null)}
+              className="w-full py-2 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl shadow-sm cursor-pointer"
+            >
+              Fermer
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

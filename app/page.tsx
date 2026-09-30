@@ -19,16 +19,20 @@ export default function LandingPage() {
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null);
   const [paymentTab, setPaymentTab] = useState<"d17" | "flouci">("d17");
   const [d17Phone, setD17Phone] = useState("52 897 726");
+  const [paymentSettings, setPaymentSettings] = useState<any>(null);
 
   useEffect(() => {
     setCurrentUser(getCurrentUser());
     fetch("/api/payments/settings")
       .then((res) => res.json())
       .then((data) => {
-        if (data?.settings?.d17PhoneNumber) {
-          const raw = String(data.settings.d17PhoneNumber).replace(/\s+/g, "");
-          const formatted = raw.length === 8 ? raw.replace(/(\d{2})(\d{3})(\d{3})/, "$1 $2 $3") : data.settings.d17PhoneNumber;
-          setD17Phone(formatted);
+        if (data?.settings) {
+          setPaymentSettings(data.settings);
+          if (data.settings.d17PhoneNumber) {
+            const raw = String(data.settings.d17PhoneNumber).replace(/\s+/g, "");
+            const formatted = raw.length === 8 ? raw.replace(/(\d{2})(\d{3})(\d{3})/, "$1 $2 $3") : data.settings.d17PhoneNumber;
+            setD17Phone(formatted);
+          }
         }
       })
       .catch(() => {});
@@ -594,21 +598,43 @@ export default function LandingPage() {
               </div>
 
               {paymentTab === "d17" ? (
-                <div className="text-left space-y-2 text-xs">
+                <div className="text-left space-y-2.5 text-xs">
                   <div className="p-3 bg-rose-50/70 border border-rose-100 rounded-xl space-y-1">
                     <div className="text-[10px] text-rose-600 font-bold uppercase">Numéro D17 Officiel</div>
                     <div className="text-base font-black text-rose-900 tracking-wider">{d17Phone}</div>
-                    <div className="text-[10px] text-slate-500">Titulaire : my-cv.tn Administration</div>
+                    <div className="text-[10px] text-slate-500">Titulaire : {paymentSettings?.d17AccountHolder || "my-cv.tn Administration"}</div>
                   </div>
+
+                  {paymentSettings?.d17QrCodeUrl && (
+                    <div className="p-2.5 bg-white rounded-xl border border-rose-200 flex items-center gap-3 shadow-2xs">
+                      <img src={paymentSettings.d17QrCodeUrl} alt="QR Code D17" className="w-16 h-16 object-contain rounded-lg border border-slate-100 p-0.5" />
+                      <div>
+                        <div className="text-[11px] font-black text-rose-700">📱 Scan QR Code D17</div>
+                        <div className="text-[10px] text-slate-500">Scannez ce code depuis l'app D17 pour payer directement.</div>
+                      </div>
+                    </div>
+                  )}
+
                   <p className="text-[11px] text-slate-500">Envoyez le montant souhaité via l'application D17 puis téléversez votre reçu.</p>
                 </div>
               ) : (
-                <div className="text-left space-y-2 text-xs">
+                <div className="text-left space-y-2.5 text-xs">
                   <div className="p-3 bg-indigo-50/70 border border-indigo-100 rounded-xl space-y-1">
                     <div className="text-[10px] text-indigo-600 font-bold uppercase">Compte Flouci / RIB</div>
-                    <div className="text-sm font-black text-indigo-900">flouci.me/mycv_tn</div>
-                    <div className="text-[10px] text-slate-500">Destinataire : MY-CV TUNISIE</div>
+                    <div className="text-sm font-black text-indigo-900">{paymentSettings?.flouciAccount || "flouci.me/mycv_tn"}</div>
+                    <div className="text-[10px] text-slate-500">Destinataire : {paymentSettings?.flouciAccountHolder || "MY-CV TUNISIE"}</div>
                   </div>
+
+                  {paymentSettings?.flouciQrCodeUrl && (
+                    <div className="p-2.5 bg-white rounded-xl border border-indigo-200 flex items-center gap-3 shadow-2xs">
+                      <img src={paymentSettings.flouciQrCodeUrl} alt="QR Code Flouci" className="w-16 h-16 object-contain rounded-lg border border-slate-100 p-0.5" />
+                      <div>
+                        <div className="text-[11px] font-black text-indigo-700">⚡ Scan QR Code Flouci</div>
+                        <div className="text-[10px] text-slate-500">Scannez directement depuis votre compte Flouci.</div>
+                      </div>
+                    </div>
+                  )}
+
                   <p className="text-[11px] text-slate-500">Transfert instantané depuis votre compte Flouci sans aucune commission.</p>
                 </div>
               )}
