@@ -348,16 +348,16 @@ Formation: ${activeResume.education.map((ed) => `${ed.degree} (${ed.institution}
   }
 
   return (
-    <div className="flex flex-col h-screen bg-slate-100 overflow-hidden font-sans">
-      {/* Top Main Navigation Header (Clean Light Theme) */}
-      <header className="bg-white/95 backdrop-blur-md text-slate-900 px-3 sm:px-4 py-2.5 flex items-center justify-between border-b border-slate-200/90 flex-shrink-0 z-20 shadow-2xs">
+    <div className="flex flex-col h-screen bg-[#f1f5f9] overflow-hidden font-sans selection:bg-indigo-500 selection:text-white">
+      {/* Top Main Navigation Header (Windows 11 Mica Acrylic Theme) */}
+      <header className="bg-white/80 backdrop-blur-2xl text-slate-900 px-3 sm:px-5 py-2.5 flex items-center justify-between border-b border-slate-200/70 flex-shrink-0 z-20 shadow-[0_2px_15px_rgba(0,0,0,0.02)]">
         <div className="flex items-center gap-2.5 sm:gap-3">
-          <a href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-rose-600 to-amber-500 flex items-center justify-center font-black text-white text-base shadow-sm">
+          <a href="/" className="flex items-center gap-2 group">
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-indigo-600 to-blue-500 flex items-center justify-center font-black text-white text-base shadow-sm shadow-indigo-500/20 group-hover:scale-105 transition-transform duration-200">
               ⚡
             </div>
             <div className="hidden sm:block">
-              <span className="font-extrabold text-sm tracking-tight text-slate-950">MY-CV<span className="text-rose-600">.TN</span></span>
+              <span className="font-extrabold text-sm tracking-tight text-slate-950">MY-CV<span className="bg-gradient-to-r from-indigo-600 to-blue-600 bg-clip-text text-transparent">.TN</span></span>
               <span className="text-[10px] text-slate-500 block -mt-1 font-medium">Plateforme Trilingue Pro</span>
             </div>
           </a>
@@ -366,18 +366,18 @@ Formation: ${activeResume.education.map((ed) => `${ed.degree} (${ed.institution}
           <div className="flex items-center gap-1.5 ml-1 sm:ml-2">
             <button
               onClick={() => setIsManagerOpen(true)}
-              className="flex items-center gap-1.5 sm:gap-2 bg-slate-100 hover:bg-slate-200/80 text-slate-800 px-2.5 sm:px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-semibold transition group shadow-2xs"
+              className="win11-btn-interactive flex items-center gap-1.5 sm:gap-2 bg-white/80 hover:bg-white text-slate-800 px-2.5 sm:px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-semibold shadow-2xs backdrop-blur-md"
               title="Gérer, dupliquer ou créer une nouvelle version de vos CVs"
               aria-label="Gérer, dupliquer ou créer une nouvelle version de vos CVs"
             >
-              <FolderOpen className="w-3.5 h-3.5 text-rose-600 group-hover:scale-110 transition" />
+              <FolderOpen className="w-3.5 h-3.5 text-indigo-600" />
               <span className="max-w-[100px] sm:max-w-[160px] truncate font-bold text-slate-900">
                 {activeResume ? (activeResume.title || "Mon CV") : "Aucun CV"}
               </span>
-              <span className="text-[10px] bg-white text-slate-700 border border-slate-200 px-1.5 py-0.2 rounded-full font-bold">
+              <span className="text-[10px] bg-slate-100 text-slate-700 border border-slate-200 px-1.5 py-0.2 rounded-full font-bold">
                 {resumesList.length}
               </span>
-              <ChevronDown className="w-3 h-3 text-slate-500" />
+              <ChevronDown className="w-3 h-3 text-slate-400" />
             </button>
           </div>
 

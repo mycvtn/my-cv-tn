@@ -249,10 +249,10 @@ export const ResumeForm: React.FC<Props> = ({ data, onChange, onOpenATS, onOpenC
   return (
     <div
       dir={isRTL ? "rtl" : "ltr"}
-      className="bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden flex flex-col h-full text-slate-800 font-sans"
+      className="bg-white/90 backdrop-blur-xl rounded-2xl shadow-fluent border border-slate-200/90 overflow-hidden flex flex-col h-full text-slate-800 font-sans"
     >
       {/* Top AI Action Bar */}
-      <div className="p-4 bg-gradient-to-r from-slate-900 via-slate-900 to-indigo-950 border-b border-slate-800 text-white flex flex-wrap items-center justify-between gap-3">
+      <div className="p-3.5 bg-gradient-to-r from-slate-950 via-slate-900 to-indigo-950 border-b border-slate-800/80 text-white flex flex-wrap items-center justify-between gap-3 shadow-xs">
         <div>
           <h2 className="text-sm font-bold tracking-tight" title="Éditeur intelligent avec assistant IA et conformité ATS">
             {t.headerTitle}
@@ -266,7 +266,7 @@ export const ResumeForm: React.FC<Props> = ({ data, onChange, onOpenATS, onOpenC
             onClick={onOpenATS}
             title="Scanner ATS IA : Analyser la compatibilité de votre CV avec une offre d'emploi"
             aria-label="Scanner ATS IA : Analyser la compatibilité de votre CV avec une offre d'emploi"
-            className="flex items-center gap-1.5 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 text-xs font-semibold px-3 py-1.5 rounded-xl transition"
+            className="win11-btn-interactive flex items-center gap-1.5 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 text-xs font-semibold px-3 py-1.5 rounded-xl shadow-2xs backdrop-blur-md"
           >
             <Target className="w-3.5 h-3.5" />
             <span>{t.scanATS}</span>
@@ -277,16 +277,16 @@ export const ResumeForm: React.FC<Props> = ({ data, onChange, onOpenATS, onOpenC
             onClick={onOpenCoverLetter}
             title="Lettre IA : Rédiger une lettre de motivation professionnelle sur-mesure"
             aria-label="Lettre IA : Rédiger une lettre de motivation professionnelle sur-mesure"
-            className="flex items-center gap-1.5 bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-300 border border-indigo-500/40 text-xs font-semibold px-3 py-1.5 rounded-xl transition"
+            className="win11-btn-interactive flex items-center gap-1.5 bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-300 border border-indigo-500/40 text-xs font-semibold px-3 py-1.5 rounded-xl shadow-2xs backdrop-blur-md"
           >
-            <Sparkles className="w-3.5 h-3.5" />
+            <Sparkles className="w-3.5 h-3.5 text-indigo-300" />
             <span>{t.coverLetterAI}</span>
           </button>
         </div>
       </div>
 
       {/* Navigation Tabs with Aliases */}
-      <div className="flex border-b border-slate-200 bg-slate-50/70 p-1.5 gap-1 overflow-x-auto scrollbar-none">
+      <div className="flex border-b border-slate-200/70 bg-slate-50/80 backdrop-blur-md p-1.5 gap-1 overflow-x-auto scrollbar-none">
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = activeSection === item.id;
@@ -297,16 +297,16 @@ export const ResumeForm: React.FC<Props> = ({ data, onChange, onOpenATS, onOpenC
               onClick={() => setActiveSection(item.id)}
               title={item.alias}
               aria-label={item.alias}
-              className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition ${
+              className={`win11-btn-interactive flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all duration-200 ${
                 isActive
-                  ? "bg-white text-slate-950 shadow-sm border border-slate-200 font-bold"
-                  : "text-slate-600 hover:text-slate-900 hover:bg-slate-100/70"
+                  ? "bg-white text-slate-950 shadow-fluent border border-slate-200/90 font-bold"
+                  : "text-slate-600 hover:text-slate-950 hover:bg-white/60"
               }`}
             >
-              <Icon className={`w-3.5 h-3.5 ${isActive ? "text-rose-600" : "text-slate-400"}`} />
+              <Icon className={`w-3.5 h-3.5 ${isActive ? "text-indigo-600" : "text-slate-400"}`} />
               <span>{item.label}</span>
               {item.count !== undefined && (
-                <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${isActive ? "bg-rose-100 text-rose-700" : "bg-slate-200 text-slate-600"}`}>
+                <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${isActive ? "bg-indigo-100 text-indigo-700" : "bg-slate-200/80 text-slate-600"}`}>
                   {item.count}
                 </span>
               )}

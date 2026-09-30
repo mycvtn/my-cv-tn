@@ -230,26 +230,29 @@ ${data.candidateName}`;
 
   return (
     <AuthGuard>
-      <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans">
-        {/* Top Navbar */}
-        <header className="bg-white/95 backdrop-blur-md text-slate-900 px-6 py-3.5 flex items-center justify-between border-b border-slate-200 shadow-2xs">
+      <div className="min-h-screen bg-[#f8fafc] text-slate-900 flex flex-col font-sans relative overflow-x-hidden selection:bg-indigo-500 selection:text-white">
+        {/* Windows 11 Aurora Ambient Glow */}
+        <div className="win11-aurora top-[-80px] left-1/2 -translate-x-1/2 w-[600px] h-[350px] bg-gradient-to-tr from-indigo-300/20 via-blue-200/25 to-rose-200/15" />
+
+        {/* Windows 11 Mica Acrylic Top Navbar */}
+        <header className="bg-white/80 backdrop-blur-2xl text-slate-900 px-6 py-3 flex items-center justify-between border-b border-slate-200/60 sticky top-0 z-30 shadow-[0_2px_15px_rgba(0,0,0,0.02)]">
           <div className="flex items-center gap-3">
-            <Link href="/builder" className="text-slate-600 hover:text-slate-950 flex items-center gap-1.5 text-xs font-semibold">
+            <Link href="/builder" className="win11-btn-interactive text-slate-600 hover:text-slate-950 flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1.5 rounded-lg hover:bg-slate-100/60">
               <ArrowLeft className="w-4 h-4" /> Retour au CV
             </Link>
             <span className="text-slate-300">|</span>
-            <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-bold text-xs shadow-sm">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-indigo-600 to-blue-500 flex items-center justify-center text-white font-bold text-xs shadow-md shadow-indigo-500/20">
                 LM
               </div>
-              <span className="font-bold text-sm text-slate-950">Générateur de Lettre de Motivation IA</span>
+              <span className="font-extrabold text-sm text-slate-950 tracking-tight">Générateur de Lettre de Motivation IA</span>
             </div>
           </div>
 
           <div className="flex items-center gap-2">
             <button
               onClick={handleCopy}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg border border-slate-200 transition shadow-2xs"
+              className="win11-btn-interactive flex items-center gap-1.5 px-3.5 py-1.5 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-xl border border-slate-200/90 shadow-2xs"
             >
               {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5 text-slate-500" />}
               {copied ? "Copié !" : "Copier le texte"}
@@ -257,7 +260,7 @@ ${data.candidateName}`;
             <button
               onClick={handleDownloadPDF}
               disabled={exportingPdf}
-              className="flex items-center gap-1.5 px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white text-xs font-bold rounded-lg shadow-sm transition"
+              className="win11-btn-interactive flex items-center gap-1.5 px-4 py-1.5 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 disabled:opacity-50 text-white text-xs font-bold rounded-xl shadow-md shadow-indigo-600/20 border border-indigo-400/30"
             >
               {exportingPdf ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Download className="w-3.5 h-3.5" />}
               {exportingPdf ? "Exportation..." : "Télécharger PDF"}
@@ -266,9 +269,9 @@ ${data.candidateName}`;
         </header>
 
         {/* Main Content */}
-        <div className="flex-grow max-w-7xl w-full mx-auto p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div className="flex-grow max-w-7xl w-full mx-auto p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 relative z-10">
           {/* Left Form (5 Cols) */}
-          <div className="lg:col-span-5 bg-white p-5 rounded-2xl shadow-sm border border-slate-200 space-y-4 h-fit">
+          <div className="lg:col-span-5 bg-white/85 backdrop-blur-xl p-5 sm:p-6 rounded-3xl shadow-fluent border border-slate-200/80 space-y-4 h-fit">
             <div className="flex items-center justify-between border-b pb-3">
               <div>
                 <h2 className="text-sm font-bold text-slate-900">Paramètres de Candidature</h2>

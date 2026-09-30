@@ -8,29 +8,69 @@
     --foreground: 222.2 84% 4.9%;
   }
 
-  html,
-  body,
-  input,
-  textarea,
-  select,
-  button,
-  p,
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6,
-  span,
-  a,
-  div {
-    font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
-  }
-
   body {
-    @apply bg-slate-50 text-slate-900 antialiased;
-    font-family: Arial, "Helvetica Neue", Helvetica, sans-serif !important;
+    @apply bg-slate-50/80 text-slate-900 antialiased selection:bg-rose-500 selection:text-white;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
+}
+
+/* Windows 11 Fluent Design & Mica / Acrylic Glassmorphism */
+.win11-acrylic {
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(24px) saturate(190%);
+  -webkit-backdrop-filter: blur(24px) saturate(190%);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  box-shadow: 0 8px 32px 0 rgba(15, 23, 42, 0.04);
+}
+
+.win11-acrylic-card {
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.05);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.win11-acrylic-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(203, 213, 225, 0.9);
+  box-shadow: 0 12px 28px -4px rgba(15, 23, 42, 0.08);
+}
+
+.win11-card-interactive {
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.win11-card-interactive:hover {
+  transform: translateY(-2px);
+}
+
+.win11-card-interactive:active {
+  transform: scale(0.99);
+}
+
+.win11-btn-interactive {
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.win11-btn-interactive:hover {
+  transform: translateY(-1px);
+}
+
+.win11-btn-interactive:active {
+  transform: scale(0.97);
+}
+
+/* Windows 11 Aurora Ambient Glow */
+.win11-aurora {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(70px);
+  pointer-events: none;
+  opacity: 0.6;
 }
 
 /* Document Font & Icon Alignment Engine */
