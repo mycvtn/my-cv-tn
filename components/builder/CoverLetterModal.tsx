@@ -2,10 +2,10 @@
 
 import React, { useState } from "react";
 import { ResumeData } from "@/types/resume";
-import { X, Sparkles, Loader2, Copy, Check, FileText, ArrowRight, Building2, Briefcase, Download, Coins } from "lucide-react";
+import { X, Sparkles, Loader2, Copy, Check, FileText, ArrowRight, Building2, Briefcase, Download, Crown, Lock } from "lucide-react";
 import confetti from "canvas-confetti";
 import { exportCoverLetterToPDF } from "@/lib/pdf/pdfExporter";
-import { getCurrentUser, consumeUserCredits, fetchServerUser, getStoredUsers } from "@/lib/auth/authStore";
+import { getCurrentUser, fetchServerUser, getStoredUsers } from "@/lib/auth/authStore";
 import { UserAccount } from "@/types/auth";
 import { CreditCalculatorModal } from "@/components/modals/CreditCalculatorModal";
 
@@ -72,21 +72,22 @@ export const CoverLetterModal: React.FC<Props> = ({ isOpen, onClose, resumeData,
   } | null>(null);
   const [copied, setCopied] = useState(false);
 
+  const isPro = currentUser?.role === "admin" || currentUser?.subscriptionTier === "semi_annual" || currentUser?.subscriptionTier === "annual";
+
   if (!isOpen) return null;
 
   const handleGenerate = async () => {
     if (!jobTitle || !companyName) return;
-    setCreditError(null);
 
     let user = getCurrentUser() || currentUser;
     if (!user) {
-      setCreditError("Veuillez vous connecter pour générer votre lettre.");
+      alert("Veuillez vous connecter pour générer votre lettre.");
       return;
     }
 
-    const isPro = user.role === "admin" || user.subscriptionTier === "semi_annual" || user.subscriptionTier === "annual";
+    const userIsPro = user.role === "admin" || user.subscriptionTier === "semi_annual" || user.subscriptionTier === "annual";
 
-    if (!isPro) {
+    if (!userIsPro) {
       if (onOpenRecharge) {
         onOpenRecharge();
       } else {
@@ -212,14 +213,37 @@ ${resumeData.personalInfo.fullName}`;
               </p>
             </div>
           </div>
-          <button 
-            onClick={onClose} 
-            title="Fermer la fenêtre du Générateur de Lettre IA"
-            aria-label="Fermer la fenêtre du Générateur de Lettre IA"
-            className="text-slate-400 hover:text-white p-1.5 rounded-lg transition hover:bg-slate-800"
-          >
-            <X className="w-5 h-5" />
-          </button>
+          <div className="flex items-center gap-3">
+            {currentUser && (
+              isPro ? (
+                <span className="text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/30 px-2.5 py-1 rounded-full font-bold flex items-center gap-1.5 shadow-xs">
+                  <Crown className="w-3 h-3 text-amber-400" />
+                  <span>{currentUser.role === "admin" ? "👑 Admin Pro" : currentUser.subscriptionTier === "annual" ? "👑 Pass Annuel" : "✨ Pass Semestriel"}</span>
+                </span>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (onOpenRecharge) onOpenRecharge();
+                    else setIsRechargeModalOpen(true);
+                  }}
+                  className="text-[10px] bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/40 px-2.5 py-1 rounded-full font-bold flex items-center gap-1.5 transition cursor-pointer"
+                  title="Abonnement requis pour la lettre de motivation IA"
+                >
+                  <Lock className="w-3 h-3 text-rose-400" />
+                  <span>Pass Pro Requis</span>
+                </button>
+              )
+            )}
+            <button 
+              onClick={onClose} 
+              title="Fermer la fenêtre du Générateur de Lettre IA"
+              aria-label="Fermer la fenêtre du Générateur de Lettre IA"
+              className="text-slate-400 hover:text-white p-1.5 rounded-lg transition hover:bg-slate-800"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
         </div>
 
         {/* Content */}
@@ -345,13 +369,23 @@ ${resumeData.personalInfo.fullName}`;
 
             <button
               onClick={handleGenerate}
-              disabled={loading || !jobTitle || !companyName}
-              title="Générer la lettre de motivation sur-mesure avec l'IA"
-              aria-label="Générer la lettre de motivation sur-mesure avec l'IA"
-              className="py-2.5 px-5 bg-gradient-to-r from-indigo-600 to-rose-600 hover:opacity-95 disabled:opacity-50 text-white text-xs font-bold rounded-xl transition flex items-center justify-center gap-2 shadow-md cursor-pointer"
+              disabled={loading || (isPro && (!jobTitle || !companyName))}
+              title={isPro ? "Générer la lettre de motivation sur-mesure avec l'IA" : "Abonnez-vous à un Pass pour débloquer la génération IA"}
+              aria-label={isPro ? "Générer la lettre de motivation sur-mesure avec l'IA" : "Abonnez-vous à un Pass pour débloquer la génération IA"}
+              className={`py-2.5 px-5 text-white text-xs font-bold rounded-xl transition flex items-center justify-center gap-2 shadow-md cursor-pointer ${
+                !isPro
+                  ? "bg-slate-800 hover:bg-slate-700 border border-amber-400/50"
+                  : "bg-gradient-to-r from-indigo-600 to-rose-600 hover:opacity-95 disabled:opacity-50"
+              }`}
             >
-              {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
-              {loading ? "Synthèse CV + Offre en cours..." : "Générer avec l'IA"}
+              {loading ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : !isPro ? (
+                <Lock className="w-4 h-4 text-amber-300" />
+              ) : (
+                <Sparkles className="w-4 h-4" />
+              )}
+              {loading ? "Synthèse CV + Offre en cours..." : isPro ? "Générer avec l'IA" : "Débloquer avec un Pass Pro"}
             </button>
           </div>
 

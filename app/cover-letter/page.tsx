@@ -5,12 +5,12 @@ import { INITIAL_COVER_LETTER_DATA, INITIAL_RESUME_DATA } from "@/lib/sampleData
 import { CoverLetterData, ResumeData } from "@/types/resume";
 import { 
   FileText, Sparkles, Copy, Download, Check, ArrowLeft, 
-  Building2, Briefcase, Loader2, Sparkle, Coins
+  Building2, Briefcase, Loader2, Crown, Lock
 } from "lucide-react";
 import Link from "next/link";
 import confetti from "canvas-confetti";
 import { AuthGuard } from "@/components/auth/AuthGuard";
-import { getCurrentUser, consumeUserCredits, fetchServerUser, getStoredUsers } from "@/lib/auth/authStore";
+import { getCurrentUser, fetchServerUser, getStoredUsers } from "@/lib/auth/authStore";
 import { UserAccount } from "@/types/auth";
 import { exportCoverLetterToPDF } from "@/lib/pdf/pdfExporter";
 import { CreditCalculatorModal } from "@/components/modals/CreditCalculatorModal";
@@ -49,11 +49,10 @@ export default function CoverLetterPage() {
 
     refreshUser();
 
-    // Listen for balance updates & poll every 1.5s
+    // Listen for user updates via storage & custom events
     const handleStorage = () => refreshUser();
     window.addEventListener("storage", handleStorage);
     window.addEventListener("user_credits_updated", handleStorage);
-    const interval = setInterval(refreshUser, 1500);
 
     const user = getCurrentUser();
     try {
@@ -86,9 +85,10 @@ export default function CoverLetterPage() {
     return () => {
       window.removeEventListener("storage", handleStorage);
       window.removeEventListener("user_credits_updated", handleStorage);
-      clearInterval(interval);
     };
   }, []);
+
+  const isPro = currentUser?.role === "admin" || currentUser?.subscriptionTier === "semi_annual" || currentUser?.subscriptionTier === "annual";
 
   const handleGenerateAI = async () => {
     let user = getCurrentUser() || currentUser;
@@ -99,30 +99,16 @@ export default function CoverLetterPage() {
 
     if (!user) return;
 
-    const availableCredits = user.credits ?? 0;
+    const userIsPro = user.role === "admin" || user.subscriptionTier === "semi_annual" || user.subscriptionTier === "annual";
 
-    // Check if user has less than 5 credits (Admins have unlimited)
-    if (user.role !== "admin" && availableCredits < 5) {
+    // Subscription Pass required (Pass Semestriel or Pass Annuel)
+    if (!userIsPro) {
       setIsRechargeModalOpen(true);
       return;
     }
 
     // Immediate 0ms UI feedback
     setLoading(true);
-
-    // Consume 5 credits immediately on click
-    if (user.role !== "admin") {
-      const consumption = consumeUserCredits(user.id || user.email, 5);
-      if (!consumption.success) {
-        setLoading(false);
-        setIsRechargeModalOpen(true);
-        return;
-      }
-    }
-
-    // Refresh current user state with new balance immediately
-    const updatedUser = getCurrentUser();
-    if (updatedUser) setCurrentUser(updatedUser);
     try {
       const candidateData = activeResume
         ? {
@@ -284,11 +270,24 @@ ${data.candidateName}`;
                   {currentUser && (
                     <button
                       onClick={() => setIsRechargeModalOpen(true)}
-                      className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200 px-1.5 py-0.5 rounded-md transition"
-                      title="Cliquez pour recharger"
+                      className={`inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-md border transition cursor-pointer ${
+                        isPro 
+                          ? "text-amber-800 bg-amber-50 hover:bg-amber-100 border-amber-300"
+                          : "text-rose-700 bg-rose-50 hover:bg-rose-100 border-rose-200"
+                      }`}
+                      title={isPro ? "Abonnement Pro Actif" : "Pass Pro Requis"}
                     >
-                      <Coins className="w-2.5 h-2.5 text-amber-500" />
-                      {currentUser.role === "admin" ? "Illimité" : `${currentUser.credits ?? 0} crédits`}
+                      {isPro ? (
+                        <>
+                          <Crown className="w-2.5 h-2.5 text-amber-600" />
+                          <span>{currentUser.role === "admin" ? "👑 Admin Pro" : currentUser.subscriptionTier === "annual" ? "👑 Pass Annuel" : "✨ Pass Semestriel"}</span>
+                        </>
+                      ) : (
+                        <>
+                          <Lock className="w-2.5 h-2.5 text-rose-500" />
+                          <span>Pass Pro Requis</span>
+                        </>
+                      )}
                     </button>
                   )}
                 </div>
@@ -296,10 +295,20 @@ ${data.candidateName}`;
               <button
                 onClick={handleGenerateAI}
                 disabled={loading || !data.jobTitle || !data.companyName}
-                className="flex items-center gap-1.5 bg-gradient-to-r from-indigo-600 to-rose-600 hover:opacity-90 disabled:opacity-50 text-white text-xs font-bold px-3.5 py-2 rounded-xl shadow-sm transition"
+                className={`flex items-center gap-1.5 text-white text-xs font-bold px-3.5 py-2 rounded-xl shadow-sm transition cursor-pointer ${
+                  !isPro
+                    ? "bg-slate-800 hover:bg-slate-700 border border-amber-400/50"
+                    : "bg-gradient-to-r from-indigo-600 to-rose-600 hover:opacity-90 disabled:opacity-50"
+                }`}
               >
-                {loading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
-                {loading ? "Génération IA..." : "Rédiger avec l'IA (5 crédits)"}
+                {loading ? (
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                ) : !isPro ? (
+                  <Lock className="w-3.5 h-3.5 text-amber-300" />
+                ) : (
+                  <Sparkles className="w-3.5 h-3.5" />
+                )}
+                {loading ? "Génération IA..." : isPro ? "Rédiger avec l'IA" : "Débloquer avec un Pass Pro"}
               </button>
             </div>
 
