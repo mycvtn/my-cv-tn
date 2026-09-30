@@ -258,8 +258,8 @@ export default function DashboardPage() {
           <header className="bg-white/80 backdrop-blur-2xl border-b border-slate-200/70 px-4 sm:px-8 py-3 flex items-center justify-between sticky top-0 z-30 shadow-[0_2px_15px_rgba(0,0,0,0.02)]">
             <div className="flex items-center gap-3">
               <a href="/dashboard" className="flex items-center gap-2.5 group">
-                <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-indigo-600 to-blue-500 flex items-center justify-center font-black text-white text-base shadow-sm shadow-indigo-500/20 group-hover:scale-105 transition-transform duration-200">
-                  ⚡
+                <div className="w-8 h-8 rounded-xl bg-white border border-slate-200 shadow-2xs p-0.5 flex items-center justify-center group-hover:scale-105 transition-transform duration-200">
+                  <img src="/logo.png" alt="MY-CV.TN" className="w-full h-full object-contain rounded-lg" />
                 </div>
                 <span className="font-black text-base tracking-tight text-slate-950 hidden sm:inline">
                   MY-CV<span className="bg-gradient-to-r from-indigo-600 to-blue-600 bg-clip-text text-transparent">.TN</span>

@@ -123,8 +123,8 @@ export default function RegisterPage() {
       {/* Brand Header */}
       <div className="text-center mb-6 z-10">
         <Link href="/" className="inline-flex items-center gap-2.5 mb-2 group">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-rose-600 via-rose-500 to-amber-500 flex items-center justify-center font-black text-white text-2xl shadow-xl shadow-rose-600/40 group-hover:scale-105 group-hover:rotate-3 transition-transform duration-300">
-            ⚡
+          <div className="w-12 h-12 rounded-2xl bg-white border border-white/40 shadow-xl p-1.5 flex items-center justify-center group-hover:scale-105 transition-transform duration-300">
+            <img src="/logo.png" alt="MY-CV.TN" className="w-full h-full object-contain" />
           </div>
           <span className="font-extrabold text-2xl tracking-tight text-white drop-shadow-md">
             MY-CV<span className="text-rose-500">.TN</span>

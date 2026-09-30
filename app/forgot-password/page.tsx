@@ -58,8 +58,8 @@ export default function ForgotPasswordPage() {
       {/* Top Brand Logo */}
       <div className="text-center mb-6 z-10">
         <a href="/" className="inline-flex items-center gap-2.5 mb-2 group">
-          <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-rose-600 via-rose-500 to-amber-500 flex items-center justify-center font-black text-white text-xl shadow-lg shadow-rose-600/30 group-hover:scale-105 transition-transform duration-300">
-            ⚡
+          <div className="w-11 h-11 rounded-2xl bg-white border border-white/40 shadow-lg p-1.5 flex items-center justify-center group-hover:scale-105 transition-transform duration-300">
+            <img src="/logo.png" alt="MY-CV.TN" className="w-full h-full object-contain" />
           </div>
           <span className="font-extrabold text-2xl tracking-tight text-white drop-shadow-sm">
             MY-CV<span className="text-rose-500">.TN</span>

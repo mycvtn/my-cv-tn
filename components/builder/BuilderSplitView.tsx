@@ -353,8 +353,8 @@ Formation: ${activeResume.education.map((ed) => `${ed.degree} (${ed.institution}
       <header className="bg-white/95 backdrop-blur-xl text-slate-900 px-3 sm:px-5 py-2.5 flex items-center justify-between border-b border-slate-200/80 flex-shrink-0 z-20 shadow-2xs no-print">
         <div className="flex items-center gap-3">
           <a href="/" className="flex items-center gap-2.5 group">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-rose-600 via-rose-500 to-amber-500 flex items-center justify-center font-black text-white text-base shadow-sm shadow-rose-600/25 group-hover:scale-105 transition-transform duration-200">
-              ⚡
+            <div className="w-8 h-8 rounded-xl bg-white border border-slate-200 shadow-2xs p-0.5 flex items-center justify-center group-hover:scale-105 transition-transform duration-200">
+              <img src="/logo.png" alt="MY-CV.TN" className="w-full h-full object-contain rounded-lg" />
             </div>
             <div className="hidden sm:block">
               <span className="font-extrabold text-sm tracking-tight text-slate-950">

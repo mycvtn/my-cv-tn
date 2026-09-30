@@ -18,9 +18,20 @@ export default function LandingPage() {
   const [isAiOptimized, setIsAiOptimized] = useState(false);
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null);
   const [paymentTab, setPaymentTab] = useState<"d17" | "flouci">("d17");
+  const [d17Phone, setD17Phone] = useState("52 897 726");
 
   useEffect(() => {
     setCurrentUser(getCurrentUser());
+    fetch("/api/payments/settings")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data?.settings?.d17PhoneNumber) {
+          const raw = String(data.settings.d17PhoneNumber).replace(/\s+/g, "");
+          const formatted = raw.length === 8 ? raw.replace(/(\d{2})(\d{3})(\d{3})/, "$1 $2 $3") : data.settings.d17PhoneNumber;
+          setD17Phone(formatted);
+        }
+      })
+      .catch(() => {});
   }, []);
 
   const toggleFaq = (index: number) => {
@@ -87,8 +98,8 @@ export default function LandingPage() {
       <header className="sticky top-3 z-40 px-4 sm:px-6 max-w-7xl w-full mx-auto">
         <nav className="win11-dock rounded-2xl px-5 py-3 flex items-center justify-between transition-all duration-300">
           <Link href="/" className="flex items-center gap-3 group">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-indigo-600 to-blue-500 flex items-center justify-center font-black text-white text-lg shadow-md shadow-indigo-500/25 group-hover:scale-105 transition-transform duration-300">
-              ⚡
+            <div className="w-10 h-10 rounded-2xl bg-white border border-slate-200/80 shadow-md shadow-indigo-500/10 p-1 flex items-center justify-center group-hover:scale-105 transition-transform duration-300">
+              <img src="/logo.png" alt="MY-CV.TN Logo" className="w-full h-full object-contain rounded-xl" />
             </div>
             <div>
               <span className="font-black text-xl tracking-tight text-slate-950 flex items-center gap-1">
@@ -131,7 +142,7 @@ export default function LandingPage() {
                   className="win11-btn-interactive px-4 py-2 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white font-bold text-xs rounded-xl shadow-md shadow-indigo-600/20 border border-indigo-400/30 flex items-center gap-1.5"
                 >
                   <Sparkles className="w-3.5 h-3.5 text-indigo-200" />
-                  <span>Commencer (+5 Crédits)</span>
+                  <span>Commencer</span>
                 </Link>
               </div>
             )}
@@ -295,7 +306,7 @@ export default function LandingPage() {
                     <div className="text-[11px] text-slate-500 flex items-center gap-3 pt-1">
                       <span>📍 Tunis, Tunisie</span>
                       <span>✉️ yassine.mansour@insat.tn</span>
-                      <span>📞 +216 98 123 456</span>
+                      <span>📞 +216 {d17Phone || "52 897 726"}</span>
                     </div>
                   </div>
 
@@ -586,7 +597,7 @@ export default function LandingPage() {
                 <div className="text-left space-y-2 text-xs">
                   <div className="p-3 bg-rose-50/70 border border-rose-100 rounded-xl space-y-1">
                     <div className="text-[10px] text-rose-600 font-bold uppercase">Numéro D17 Officiel</div>
-                    <div className="text-base font-black text-rose-900 tracking-wider">98 123 456</div>
+                    <div className="text-base font-black text-rose-900 tracking-wider">{d17Phone}</div>
                     <div className="text-[10px] text-slate-500">Titulaire : my-cv.tn Administration</div>
                   </div>
                   <p className="text-[11px] text-slate-500">Envoyez le montant souhaité via l'application D17 puis téléversez votre reçu.</p>
@@ -697,8 +708,8 @@ export default function LandingPage() {
       <footer className="border-t border-slate-200/60 bg-white/80 backdrop-blur-xl py-10 mt-auto text-xs text-slate-500">
         <div className="max-w-6xl w-full mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-3">
-            <div className="w-7 h-7 rounded-xl bg-gradient-to-tr from-indigo-600 to-blue-500 flex items-center justify-center font-bold text-white text-xs">
-              ⚡
+            <div className="w-8 h-8 rounded-xl bg-white border border-slate-200 shadow-2xs p-1 flex items-center justify-center">
+              <img src="/logo.png" alt="MY-CV.TN Logo" className="w-full h-full object-contain rounded-lg" />
             </div>
             <div>
               <div className="font-extrabold text-slate-800 text-xs">MY-CV.TN (سيرتي)</div>
@@ -710,7 +721,6 @@ export default function LandingPage() {
             <Link href="/builder" className="hover:text-indigo-600 transition">Éditeur de CV</Link>
             <Link href="/cover-letter" className="hover:text-indigo-600 transition">Lettre de Motivation</Link>
             <Link href="/login" className="hover:text-indigo-600 transition">Connexion</Link>
-            <Link href="/admin/login" className="hover:text-indigo-600 transition">Portail Admin</Link>
           </div>
 
           <div>© {new Date().getFullYear()} MY-CV.TN. Tous droits réservés.</div>
