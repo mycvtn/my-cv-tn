@@ -68,9 +68,81 @@
 .win11-aurora {
   position: absolute;
   border-radius: 9999px;
-  filter: blur(70px);
+  filter: blur(80px);
   pointer-events: none;
-  opacity: 0.6;
+  opacity: 0.65;
+}
+
+/* Windows 11 Fluent Dynamic Keyframe Animations */
+@keyframes float-slow {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-8px) rotate(0.5deg);
+  }
+}
+
+@keyframes float-delayed {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(8px) rotate(-0.5deg);
+  }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.85;
+    transform: scale(1.05);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.animate-float-slow {
+  animation: float-slow 5s ease-in-out infinite;
+}
+
+.animate-float-delayed {
+  animation: float-delayed 6s ease-in-out infinite 1.5s;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 4s ease-in-out infinite;
+}
+
+.win11-shimmer-btn {
+  background-size: 200% auto;
+  animation: shimmer 3s linear infinite;
+}
+
+.win11-window-shadow {
+  box-shadow: 
+    0 24px 60px -12px rgba(15, 23, 42, 0.16),
+    0 12px 24px -8px rgba(15, 23, 42, 0.10),
+    0 0 0 1px rgba(255, 255, 255, 0.8) inset,
+    0 0 0 1px rgba(226, 232, 240, 0.8);
+}
+
+.win11-dock {
+  background: rgba(255, 255, 255, 0.78);
+  backdrop-filter: blur(28px) saturate(200%);
+  -webkit-backdrop-filter: blur(28px) saturate(200%);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  box-shadow: 0 16px 40px -8px rgba(15, 23, 42, 0.08);
 }
 
 /* Document Font & Icon Alignment Engine */
