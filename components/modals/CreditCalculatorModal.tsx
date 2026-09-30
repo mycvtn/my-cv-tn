@@ -196,30 +196,30 @@ export const CreditCalculatorModal: React.FC<Props> = ({
   const methodDetails = getSelectedMethodDetails();
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-xl flex items-center justify-center p-4 overflow-y-auto">
-      <div className="win11-acrylic-card win11-window-shadow border border-white/20 rounded-3xl max-w-2xl w-full max-h-[92vh] flex flex-col overflow-hidden text-slate-100 animate-in fade-in zoom-in-95 duration-200 relative">
-        {/* Top Window Accent Glow */}
-        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-rose-500 via-amber-400 to-indigo-500 opacity-90" />
+    <div className="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto font-sans">
+      <div className="bg-white border border-slate-200/90 rounded-3xl max-w-2xl w-full max-h-[92vh] flex flex-col overflow-hidden shadow-2xl text-slate-900 animate-in fade-in zoom-in-95 duration-200 relative">
+        {/* Top Window Accent Line */}
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-rose-600 via-amber-500 to-rose-600 opacity-90" />
 
         {/* Header */}
-        <div className="p-5 sm:p-6 border-b border-white/10 relative flex items-center justify-between">
+        <div className="p-5 sm:p-6 border-b border-slate-200/80 bg-slate-50/70 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-rose-600 to-amber-500 flex items-center justify-center shadow-lg shadow-rose-600/30">
-              <Crown className="w-5 h-5 text-white" />
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-rose-600 via-rose-500 to-amber-500 flex items-center justify-center shadow-md shadow-rose-600/20 text-white flex-shrink-0">
+              <Crown className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-lg font-black text-white flex items-center gap-2">
+              <h2 className="text-lg font-black text-slate-950 flex items-center gap-2">
                 <span>Formules d'Abonnement MY-CV Pro</span>
               </h2>
-              <p className="text-xs text-slate-400">
-                Téléchargez vos CVs Pro sans filigrane en illimité
+              <p className="text-xs text-slate-500 mt-0.5">
+                Téléchargez vos CVs professionnels sans filigrane en illimité
               </p>
             </div>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="p-2 text-slate-400 hover:text-white hover:bg-white/10 rounded-xl transition win11-btn-interactive"
+            className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-200/70 rounded-xl transition cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -234,14 +234,14 @@ export const CreditCalculatorModal: React.FC<Props> = ({
               
               {/* Subscription Status Banner if already subscribed */}
               {subInfo.isSubscribed && (
-                <div className="p-3.5 bg-emerald-950/50 border border-emerald-800/80 rounded-2xl flex items-center justify-between text-xs text-emerald-300">
+                <div className="p-3.5 bg-emerald-50 border border-emerald-200 rounded-2xl flex items-center justify-between text-xs text-emerald-900">
                   <div className="flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
                     <span>
                       Abonnement actif : <strong>{subInfo.tier === "annual" ? "Annuel" : "Semestriel"}</strong> (Expire le {subInfo.expiresAt ? new Date(subInfo.expiresAt).toLocaleDateString("fr-FR") : "N/A"})
                     </span>
                   </div>
-                  <span className="font-extrabold bg-emerald-900/60 px-2.5 py-1 rounded-lg">
+                  <span className="font-extrabold bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-lg">
                     {subInfo.remainingThisMonth}/{subInfo.monthlyLimit} CVs restants ce mois
                   </span>
                 </div>
@@ -255,46 +255,46 @@ export const CreditCalculatorModal: React.FC<Props> = ({
                   onClick={() => setSelectedPlan("semi_annual")}
                   className={`p-5 rounded-2xl border-2 transition cursor-pointer relative flex flex-col justify-between ${
                     selectedPlan === "semi_annual" 
-                      ? "border-rose-500 bg-rose-950/20 shadow-lg shadow-rose-950/40" 
-                      : "border-slate-800 bg-slate-800/40 hover:border-slate-700"
+                      ? "border-rose-600 bg-rose-50/40 shadow-sm" 
+                      : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/50 shadow-2xs"
                   }`}
                 >
                   <div>
                     <div className="flex justify-between items-center mb-2">
-                      <span className="text-xs font-bold uppercase tracking-wider text-slate-400">Pass Semestriel</span>
+                      <span className="text-xs font-bold uppercase tracking-wider text-slate-500">Pass Semestriel</span>
                       {selectedPlan === "semi_annual" && (
-                        <span className="w-5 h-5 rounded-full bg-rose-600 text-white flex items-center justify-center">
+                        <span className="w-5 h-5 rounded-full bg-rose-600 text-white flex items-center justify-center shadow-xs">
                           <Check className="w-3 h-3" />
                         </span>
                       )}
                     </div>
-                    <div className="text-2xl font-black text-white mb-1">
-                      {semiAnnualPrice.toFixed(3)} <span className="text-sm font-semibold text-slate-400">TND</span>
+                    <div className="text-3xl font-black text-slate-950 mb-0.5">
+                      {semiAnnualPrice.toFixed(3)} <span className="text-sm font-semibold text-slate-500">TND</span>
                     </div>
-                    <p className="text-[11px] text-slate-400 mb-4">Validité 6 Mois complets</p>
+                    <p className="text-xs text-rose-700 font-semibold mb-4">Validité 6 Mois complets</p>
 
-                    <ul className="space-y-2 text-xs text-slate-300">
+                    <ul className="space-y-2 text-xs text-slate-600">
                       <li className="flex items-center gap-2">
-                        <Check className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
+                        <Check className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" />
                         <span><strong>Téléchargements CV Pro Illimités</strong> sans filigrane</span>
                       </li>
                       <li className="flex items-center gap-2">
-                        <Check className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
+                        <Check className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" />
                         <span>Générateur de CVs & Formats A4 illimités</span>
                       </li>
                       <li className="flex items-center gap-2">
-                        <Check className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
+                        <Check className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" />
                         <span>Tous les modèles & styles débloqués</span>
                       </li>
                       <li className="flex items-center gap-2">
-                        <Check className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
+                        <Check className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" />
                         <span>Exports LaTeX & PDF A4 Haute Définition</span>
                       </li>
                     </ul>
                   </div>
 
-                  <div className="mt-5 pt-3 border-t border-slate-800/60 text-center">
-                    <span className="text-[11px] font-bold text-slate-400">
+                  <div className="mt-5 pt-3 border-t border-slate-200/80 text-center">
+                    <span className="text-xs font-bold text-slate-500">
                       ~{(semiAnnualPrice / 6).toFixed(2)} TND / mois
                     </span>
                   </div>
@@ -305,52 +305,52 @@ export const CreditCalculatorModal: React.FC<Props> = ({
                   onClick={() => setSelectedPlan("annual")}
                   className={`p-5 rounded-2xl border-2 transition cursor-pointer relative flex flex-col justify-between ${
                     selectedPlan === "annual" 
-                      ? "border-amber-500 bg-amber-950/20 shadow-lg shadow-amber-950/40" 
-                      : "border-slate-800 bg-slate-800/40 hover:border-slate-700"
+                      ? "border-amber-500 bg-amber-50/40 shadow-sm" 
+                      : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/50 shadow-2xs"
                   }`}
                 >
-                  <div className="absolute -top-3 right-4 bg-gradient-to-r from-amber-500 to-rose-500 text-slate-950 text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full shadow-md">
-                    Meilleure Offre (Économisez 30%)
+                  <div className="absolute -top-3 right-4 bg-gradient-to-r from-rose-600 to-amber-500 text-white text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full shadow-sm">
+                    Meilleure Offre (-30%)
                   </div>
 
                   <div>
                     <div className="flex justify-between items-center mb-2">
-                      <span className="text-xs font-bold uppercase tracking-wider text-amber-400 flex items-center gap-1">
-                        <Star className="w-3 h-3 fill-amber-400" /> Pass Annuel
+                      <span className="text-xs font-bold uppercase tracking-wider text-amber-700 flex items-center gap-1">
+                        <Star className="w-3 h-3 fill-amber-500 text-amber-500" /> Pass Annuel
                       </span>
                       {selectedPlan === "annual" && (
-                        <span className="w-5 h-5 rounded-full bg-amber-500 text-slate-950 flex items-center justify-center">
+                        <span className="w-5 h-5 rounded-full bg-amber-500 text-slate-950 flex items-center justify-center shadow-xs">
                           <Check className="w-3 h-3" />
                         </span>
                       )}
                     </div>
-                    <div className="text-2xl font-black text-white mb-1">
-                      {annualPrice.toFixed(3)} <span className="text-sm font-semibold text-slate-400">TND</span>
+                    <div className="text-3xl font-black text-slate-950 mb-0.5">
+                      {annualPrice.toFixed(3)} <span className="text-sm font-semibold text-slate-500">TND</span>
                     </div>
-                    <p className="text-[11px] text-amber-300/80 mb-4">Validité 12 Mois (1 an)</p>
+                    <p className="text-xs text-amber-700 font-semibold mb-4">Validité 12 Mois (1 an)</p>
 
-                    <ul className="space-y-2 text-xs text-slate-200">
+                    <ul className="space-y-2 text-xs text-slate-600">
                       <li className="flex items-center gap-2">
-                        <Check className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
+                        <Check className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" />
                         <span><strong>Téléchargements CV Pro Illimités</strong> sans filigrane</span>
                       </li>
                       <li className="flex items-center gap-2">
-                        <Check className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
+                        <Check className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" />
                         <span>Validité 12 mois sans aucune restriction</span>
                       </li>
                       <li className="flex items-center gap-2">
-                        <Check className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
+                        <Check className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" />
                         <span>Génération Lettre de motivation IA incluse</span>
                       </li>
                       <li className="flex items-center gap-2">
-                        <Check className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
+                        <Check className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" />
                         <span>Accès prioritaire aux nouveaux templates</span>
                       </li>
                     </ul>
                   </div>
 
-                  <div className="mt-5 pt-3 border-t border-slate-800/60 text-center">
-                    <span className="text-[11px] font-bold text-amber-400">
+                  <div className="mt-5 pt-3 border-t border-slate-200/80 text-center">
+                    <span className="text-xs font-bold text-amber-700">
                       ~{(annualPrice / 12).toFixed(2)} TND / mois
                     </span>
                   </div>
@@ -359,18 +359,18 @@ export const CreditCalculatorModal: React.FC<Props> = ({
               </div>
 
               {/* Free Plan Reminder */}
-              <div className="p-3 bg-slate-800/30 border border-slate-800 rounded-xl flex items-center justify-between text-xs text-slate-400">
+              <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between text-xs text-slate-600">
                 <span>Vous préférez rester sur la version gratuite ?</span>
-                <span className="text-slate-300 font-bold">Téléchargements avec filigrane illimités</span>
+                <span className="text-slate-900 font-bold">Téléchargements avec filigrane illimités</span>
               </div>
 
               {/* Action Button */}
               <button
                 type="button"
                 onClick={() => setStep("payment_proof")}
-                className="w-full py-3.5 bg-gradient-to-r from-rose-600 via-rose-500 to-amber-500 hover:from-rose-500 hover:to-amber-400 text-white text-sm font-black rounded-2xl shadow-xl shadow-rose-900/30 transition flex items-center justify-center gap-2"
+                className="w-full py-3.5 bg-gradient-to-r from-rose-600 via-rose-600 to-amber-600 hover:from-rose-500 hover:to-amber-500 text-white text-xs sm:text-sm font-black rounded-2xl shadow-lg shadow-rose-600/25 transition flex items-center justify-center gap-2 cursor-pointer win11-btn-interactive"
               >
-                <span>Souscrire au Pass {selectedPlan === "annual" ? "Annuel (12 Mois)" : "Semestriel (6 Mois)"} - {currentPriceFormatted} TND</span>
+                <span>Souscrire au Pass {selectedPlan === "annual" ? "Annuel (12 Mois)" : "Semestriel (6 Mois)"} — {currentPriceFormatted} TND</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
             </div>
@@ -383,29 +383,29 @@ export const CreditCalculatorModal: React.FC<Props> = ({
               <button
                 type="button"
                 onClick={() => setStep("plans")}
-                className="text-xs text-slate-400 hover:text-white flex items-center gap-1 transition"
+                className="text-xs text-slate-500 hover:text-slate-900 flex items-center gap-1 transition font-semibold"
               >
                 <ArrowLeft className="w-3.5 h-3.5" />
                 <span>Changer de formule</span>
               </button>
 
               {/* Summary Header */}
-              <div className="p-4 bg-slate-800/50 border border-slate-700/60 rounded-2xl flex items-center justify-between">
+              <div className="p-4 bg-slate-50 border border-slate-200/90 rounded-2xl flex items-center justify-between">
                 <div>
-                  <div className="text-xs text-slate-400">Formule sélectionnée :</div>
-                  <div className="text-sm font-extrabold text-white">
+                  <div className="text-xs text-slate-500">Formule sélectionnée :</div>
+                  <div className="text-sm font-extrabold text-slate-950">
                     Pass {selectedPlan === "annual" ? "Annuel (12 Mois)" : "Semestriel (6 Mois)"}
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="text-xs text-slate-400">Montant total :</div>
-                  <div className="text-base font-black text-rose-400">{currentPriceFormatted} TND</div>
+                  <div className="text-xs text-slate-500">Montant total :</div>
+                  <div className="text-base font-black text-rose-600">{currentPriceFormatted} TND</div>
                 </div>
               </div>
 
               {/* Payment Methods Selection */}
               <div>
-                <label className="block text-xs font-bold text-slate-300 mb-2">
+                <label className="block text-xs font-bold text-slate-800 mb-2">
                   Choisissez votre méthode de transfert en Tunisie :
                 </label>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
@@ -413,14 +413,14 @@ export const CreditCalculatorModal: React.FC<Props> = ({
                     <button
                       type="button"
                       onClick={() => setSelectedMethod("flouci")}
-                      className={`p-3 rounded-xl border text-left transition ${
+                      className={`p-3 rounded-xl border text-left transition cursor-pointer ${
                         selectedMethod === "flouci"
-                          ? "border-rose-500 bg-rose-950/30 text-white"
-                          : "border-slate-800 bg-slate-800/40 text-slate-400 hover:border-slate-700"
+                          ? "border-rose-600 bg-rose-50 text-slate-950 shadow-2xs"
+                          : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50"
                       }`}
                     >
-                      <div className="text-xs font-bold">📲 Flouci</div>
-                      <div className="text-[10px] text-slate-400">Transfert instantané</div>
+                      <div className="text-xs font-bold text-slate-950">📲 Flouci</div>
+                      <div className="text-[10px] text-slate-500">Transfert instantané</div>
                     </button>
                   )}
 
@@ -428,14 +428,14 @@ export const CreditCalculatorModal: React.FC<Props> = ({
                     <button
                       type="button"
                       onClick={() => setSelectedMethod("d17")}
-                      className={`p-3 rounded-xl border text-left transition ${
+                      className={`p-3 rounded-xl border text-left transition cursor-pointer ${
                         selectedMethod === "d17"
-                          ? "border-rose-500 bg-rose-950/30 text-white"
-                          : "border-slate-800 bg-slate-800/40 text-slate-400 hover:border-slate-700"
+                          ? "border-rose-600 bg-rose-50 text-slate-950 shadow-2xs"
+                          : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50"
                       }`}
                     >
-                      <div className="text-xs font-bold">💳 D17 Poste</div>
-                      <div className="text-[10px] text-slate-400">Mobile ou Guichet</div>
+                      <div className="text-xs font-bold text-slate-950">💳 D17 Poste</div>
+                      <div className="text-[10px] text-slate-500">Mobile ou Guichet</div>
                     </button>
                   )}
 
@@ -444,14 +444,14 @@ export const CreditCalculatorModal: React.FC<Props> = ({
                       key={m.id}
                       type="button"
                       onClick={() => setSelectedMethod(m.id)}
-                      className={`p-3 rounded-xl border text-left transition ${
+                      className={`p-3 rounded-xl border text-left transition cursor-pointer ${
                         selectedMethod === m.id
-                          ? "border-rose-500 bg-rose-950/30 text-white"
-                          : "border-slate-800 bg-slate-800/40 text-slate-400 hover:border-slate-700"
+                          ? "border-rose-600 bg-rose-50 text-slate-950 shadow-2xs"
+                          : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50"
                       }`}
                     >
-                      <div className="text-xs font-bold">{m.icon || "🏦"} {m.name}</div>
-                      <div className="text-[10px] text-slate-400">Virement bancaire</div>
+                      <div className="text-xs font-bold text-slate-950">{m.icon || "🏦"} {m.name}</div>
+                      <div className="text-[10px] text-slate-500">Virement bancaire</div>
                     </button>
                   ))}
                 </div>
@@ -459,33 +459,34 @@ export const CreditCalculatorModal: React.FC<Props> = ({
 
               {/* Instructions Box */}
               {methodDetails && (
-                <div className="p-4 bg-slate-950/80 border border-slate-800 rounded-2xl space-y-3">
-                  <div className="text-xs font-bold text-rose-400 uppercase tracking-wider flex items-center gap-1.5">
-                    <Clock className="w-3.5 h-3.5" />
+                <div className="p-4 bg-slate-50 border border-slate-200/90 rounded-2xl space-y-3">
+                  <div className="text-xs font-bold text-rose-700 uppercase tracking-wider flex items-center gap-1.5">
+                    <Clock className="w-3.5 h-3.5 text-rose-600" />
                     <span>Instructions de Virement</span>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                     <div>
-                      <span className="text-slate-400 block text-[11px]">Bénéficiaire :</span>
-                      <strong className="text-slate-200">{methodDetails.recipientName}</strong>
+                      <span className="text-slate-500 block text-[11px]">Bénéficiaire :</span>
+                      <strong className="text-slate-900">{methodDetails.recipientName}</strong>
                     </div>
                     <div>
-                      <span className="text-slate-400 block text-[11px]">{methodDetails.accountLabel} :</span>
+                      <span className="text-slate-500 block text-[11px]">{methodDetails.accountLabel} :</span>
                       <div className="flex items-center gap-2">
-                        <strong className="text-amber-400 font-mono">{methodDetails.accountNumber}</strong>
+                        <strong className="text-slate-950 font-mono text-xs">{methodDetails.accountNumber}</strong>
                         <button
                           type="button"
                           onClick={() => handleCopy(methodDetails.accountNumber, "acc")}
-                          className="p-1 hover:bg-slate-800 rounded text-slate-400 hover:text-white transition"
+                          className="p-1 hover:bg-slate-200/80 rounded text-slate-500 hover:text-slate-900 transition"
+                          title="Copier le numéro"
                         >
-                          {copiedKey === "acc" ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                          {copiedKey === "acc" ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
                         </button>
                       </div>
                     </div>
                   </div>
 
-                  <p className="text-[11px] text-slate-400 leading-relaxed pt-1 border-t border-slate-900">
+                  <p className="text-[11px] text-slate-600 leading-relaxed pt-2 border-t border-slate-200">
                     {methodDetails.instructions}
                   </p>
                 </div>
@@ -493,7 +494,7 @@ export const CreditCalculatorModal: React.FC<Props> = ({
 
               {/* Upload Proof */}
               <div className="space-y-2">
-                <label className="block text-xs font-bold text-slate-300">
+                <label className="block text-xs font-bold text-slate-800">
                   Téléversez votre capture d'écran ou reçu de paiement :
                 </label>
                 
@@ -506,20 +507,20 @@ export const CreditCalculatorModal: React.FC<Props> = ({
                 />
 
                 {receiptImage ? (
-                  <div className="relative p-3 bg-slate-950 border border-emerald-500/50 rounded-2xl flex items-center justify-between">
+                  <div className="relative p-3 bg-emerald-50/60 border border-emerald-300 rounded-2xl flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <img src={receiptImage} alt="Reçu" className="w-12 h-12 object-cover rounded-xl border border-slate-800" />
+                      <img src={receiptImage} alt="Reçu" className="w-12 h-12 object-cover rounded-xl border border-emerald-200 shadow-2xs" />
                       <div>
-                        <div className="text-xs font-bold text-emerald-400 flex items-center gap-1">
-                          <CheckCircle2 className="w-3.5 h-3.5" /> Reçu attaché
+                        <div className="text-xs font-bold text-emerald-900 flex items-center gap-1">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" /> Reçu attaché avec succès
                         </div>
-                        <div className="text-[10px] text-slate-400">Prêt pour validation administrateur</div>
+                        <div className="text-[10px] text-emerald-700">Prêt pour validation administrateur</div>
                       </div>
                     </div>
                     <button
                       type="button"
                       onClick={() => fileInputRef.current?.click()}
-                      className="text-xs text-slate-400 hover:text-white underline px-2 py-1"
+                      className="text-xs text-slate-600 hover:text-slate-950 underline px-2 py-1 font-semibold"
                     >
                       Remplacer
                     </button>
@@ -527,13 +528,13 @@ export const CreditCalculatorModal: React.FC<Props> = ({
                 ) : (
                   <div 
                     onClick={() => fileInputRef.current?.click()}
-                    className="p-6 border-2 border-dashed border-slate-700 hover:border-rose-500 bg-slate-950/40 rounded-2xl text-center cursor-pointer transition group"
+                    className="p-6 border-2 border-dashed border-slate-200 hover:border-rose-400 bg-slate-50/50 hover:bg-rose-50/20 rounded-2xl text-center cursor-pointer transition group"
                   >
-                    <Upload className="w-8 h-8 text-slate-500 group-hover:text-rose-400 mx-auto mb-2 transition" />
-                    <div className="text-xs font-bold text-slate-300 group-hover:text-white">
+                    <Upload className="w-8 h-8 text-slate-400 group-hover:text-rose-600 mx-auto mb-2 transition" />
+                    <div className="text-xs font-bold text-slate-700 group-hover:text-slate-950">
                       Cliquez pour sélectionner votre image ou capture d'écran
                     </div>
-                    <div className="text-[10px] text-slate-500 mt-1">Formats acceptés : JPG, PNG (Max 5 Mo)</div>
+                    <div className="text-[10px] text-slate-400 mt-1">Formats acceptés : JPG, PNG (Max 5 Mo)</div>
                   </div>
                 )}
               </div>
@@ -543,7 +544,7 @@ export const CreditCalculatorModal: React.FC<Props> = ({
                 type="button"
                 onClick={handleSubmitProof}
                 disabled={!receiptImage || isSubmitting}
-                className="w-full py-3.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-bold rounded-xl shadow-lg transition flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full py-3.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-bold rounded-xl shadow-lg shadow-emerald-600/20 transition flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed win11-btn-interactive"
               >
                 {isSubmitting ? (
                   <span>Envoi en cours...</span>
@@ -560,18 +561,18 @@ export const CreditCalculatorModal: React.FC<Props> = ({
           {/* STEP 3: Success Confirmation */}
           {step === "success" && (
             <div className="py-6 text-center space-y-4">
-              <div className="w-16 h-16 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center mx-auto shadow-xl">
+              <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto shadow-md">
                 <CheckCircle2 className="w-8 h-8" />
               </div>
-              <h3 className="text-lg font-black text-white">Demande d'abonnement transmise !</h3>
-              <p className="text-xs text-slate-300 max-w-md mx-auto leading-relaxed">
+              <h3 className="text-lg font-black text-slate-950">Demande d'abonnement transmise !</h3>
+              <p className="text-xs text-slate-600 max-w-md mx-auto leading-relaxed">
                 Votre reçu pour le <strong>Pass {selectedPlan === "annual" ? "Annuel (12 Mois)" : "Semestriel (6 Mois)"}</strong> a été transmis à notre équipe d'administration. Dès confirmation du virement, votre accès Pro avec vos <strong>téléchargements illimités</strong> sera activé immédiatement.
               </p>
               <div className="pt-2">
                 <button
                   type="button"
                   onClick={onClose}
-                  className="px-6 py-2.5 bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold rounded-xl transition"
+                  className="px-6 py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl transition cursor-pointer"
                 >
                   Fermer
                 </button>

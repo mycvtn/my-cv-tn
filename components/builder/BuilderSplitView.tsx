@@ -348,17 +348,19 @@ Formation: ${activeResume.education.map((ed) => `${ed.degree} (${ed.institution}
   }
 
   return (
-    <div className="flex flex-col h-screen bg-slate-900/5 overflow-hidden font-sans selection:bg-indigo-500 selection:text-white">
-      {/* Top Main Navigation Header (Windows 11 Mica Acrylic Theme) */}
-      <header className="win11-acrylic win11-dock text-slate-900 px-3 sm:px-5 py-2.5 flex items-center justify-between border-b border-slate-200/80 flex-shrink-0 z-20 shadow-2xs">
-        <div className="flex items-center gap-2.5 sm:gap-3">
-          <a href="/" className="flex items-center gap-2 group">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-indigo-600 to-blue-500 flex items-center justify-center font-black text-white text-base shadow-sm shadow-indigo-500/25 group-hover:scale-105 transition-transform duration-200">
+    <div className="flex flex-col h-screen bg-slate-100/80 overflow-hidden font-sans selection:bg-rose-500 selection:text-white">
+      {/* Top Main Navigation Header (Clean Windows 11 Fluent Design) */}
+      <header className="bg-white/95 backdrop-blur-xl text-slate-900 px-3 sm:px-5 py-2.5 flex items-center justify-between border-b border-slate-200/80 flex-shrink-0 z-20 shadow-2xs">
+        <div className="flex items-center gap-3">
+          <a href="/" className="flex items-center gap-2.5 group">
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-rose-600 via-rose-500 to-amber-500 flex items-center justify-center font-black text-white text-base shadow-sm shadow-rose-600/25 group-hover:scale-105 transition-transform duration-200">
               ⚡
             </div>
             <div className="hidden sm:block">
-              <span className="font-extrabold text-sm tracking-tight text-slate-950">MY-CV<span className="bg-gradient-to-r from-indigo-600 to-blue-600 bg-clip-text text-transparent">.TN</span></span>
-              <span className="text-[10px] text-slate-500 block -mt-1 font-medium">Plateforme Trilingue Pro</span>
+              <span className="font-extrabold text-sm tracking-tight text-slate-950">
+                MY-CV<span className="text-rose-600">.TN</span>
+              </span>
+              <span className="text-[10px] text-slate-500 block -mt-1 font-medium">Éditeur Intelligent & Recrutement</span>
             </div>
           </a>
 
@@ -366,15 +368,15 @@ Formation: ${activeResume.education.map((ed) => `${ed.degree} (${ed.institution}
           <div className="flex items-center gap-1.5 ml-1 sm:ml-2">
             <button
               onClick={() => setIsManagerOpen(true)}
-              className="win11-btn-interactive flex items-center gap-1.5 sm:gap-2 bg-white/90 hover:bg-white text-slate-800 px-2.5 sm:px-3 py-1.5 rounded-xl border border-slate-200/90 text-xs font-semibold shadow-2xs backdrop-blur-md"
+              className="win11-btn-interactive flex items-center gap-2 bg-slate-100/80 hover:bg-slate-100 text-slate-800 px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-semibold shadow-2xs transition"
               title="Gérer, dupliquer ou créer une nouvelle version de vos CVs"
               aria-label="Gérer, dupliquer ou créer une nouvelle version de vos CVs"
             >
-              <FolderOpen className="w-3.5 h-3.5 text-indigo-600" />
+              <FolderOpen className="w-3.5 h-3.5 text-rose-600" />
               <span className="max-w-[100px] sm:max-w-[160px] truncate font-bold text-slate-900">
                 {activeResume ? (activeResume.title || "Mon CV") : "Aucun CV"}
               </span>
-              <span className="text-[10px] bg-slate-100 text-slate-700 border border-slate-200 px-1.5 py-0.2 rounded-full font-bold">
+              <span className="text-[10px] bg-white text-slate-700 border border-slate-200 px-1.5 py-0.2 rounded-full font-bold">
                 {resumesList.length}
               </span>
               <ChevronDown className="w-3 h-3 text-slate-400" />
@@ -383,15 +385,15 @@ Formation: ${activeResume.education.map((ed) => `${ed.degree} (${ed.institution}
 
           {/* Fast Language Switcher (FR / EN / AR) - Visible when CV exists */}
           {activeResume && (
-            <div className="hidden md:flex items-center gap-1 win11-acrylic p-1 rounded-xl border border-slate-200/80 shadow-2xs">
+            <div className="hidden md:flex items-center gap-1 bg-slate-100/90 p-1 rounded-xl border border-slate-200/80">
               <button
                 onClick={() => handleLanguageSwitch("fr")}
                 title="Afficher et éditer le CV en langue Française"
                 aria-label="Afficher et éditer le CV en langue Française"
-                className={`win11-btn-interactive px-2.5 py-1 text-xs font-bold rounded-lg transition-all duration-200 ${
+                className={`px-2.5 py-1 text-xs rounded-lg transition-all duration-150 ${
                   activeResume.settings.language === "fr" || !activeResume.settings.language
-                    ? "bg-white text-slate-950 shadow-xs border border-slate-200/80 font-black"
-                    : "text-slate-600 hover:text-slate-950 hover:bg-white/60"
+                    ? "bg-white text-slate-950 font-bold shadow-2xs border border-slate-200/80"
+                    : "text-slate-600 hover:text-slate-950 font-medium"
                 }`}
               >
                 🇫🇷 FR
@@ -400,10 +402,10 @@ Formation: ${activeResume.education.map((ed) => `${ed.degree} (${ed.institution}
                 onClick={() => handleLanguageSwitch("en")}
                 title="Afficher et éditer le CV en langue Anglaise (English)"
                 aria-label="Afficher et éditer le CV en langue Anglaise (English)"
-                className={`win11-btn-interactive px-2.5 py-1 text-xs font-bold rounded-lg transition-all duration-200 ${
+                className={`px-2.5 py-1 text-xs rounded-lg transition-all duration-150 ${
                   activeResume.settings.language === "en"
-                    ? "bg-white text-slate-950 shadow-xs border border-slate-200/80 font-black"
-                    : "text-slate-600 hover:text-slate-950 hover:bg-white/60"
+                    ? "bg-white text-slate-950 font-bold shadow-2xs border border-slate-200/80"
+                    : "text-slate-600 hover:text-slate-950 font-medium"
                 }`}
               >
                 🇬🇧 EN
@@ -412,10 +414,10 @@ Formation: ${activeResume.education.map((ed) => `${ed.degree} (${ed.institution}
                 onClick={() => handleLanguageSwitch("ar")}
                 title="Afficher et éditer le CV en langue Arabe (العربية avec support RTL)"
                 aria-label="Afficher et éditer le CV en langue Arabe (العربية avec support RTL)"
-                className={`win11-btn-interactive px-2.5 py-1 text-xs font-bold rounded-lg transition-all duration-200 font-sans ${
+                className={`px-2.5 py-1 text-xs rounded-lg transition-all duration-150 font-sans ${
                   activeResume.settings.language === "ar"
-                    ? "bg-rose-600 text-white shadow-xs font-black"
-                    : "text-slate-600 hover:text-slate-950 hover:bg-white/60"
+                    ? "bg-white text-slate-950 font-bold shadow-2xs border border-slate-200/80"
+                    : "text-slate-600 hover:text-slate-950 font-medium"
                 }`}
               >
                 🇸🇦 العربية
@@ -425,15 +427,15 @@ Formation: ${activeResume.education.map((ed) => `${ed.degree} (${ed.institution}
 
           {/* Template Fast Switcher Badges */}
           {activeResume && (
-            <div className="hidden xl:flex items-center gap-1 win11-acrylic p-1 rounded-xl border border-slate-200/80 shadow-2xs">
+            <div className="hidden xl:flex items-center gap-1 bg-slate-100/90 p-1 rounded-xl border border-slate-200/80">
               <button
                 onClick={() => handleTemplateSwitch("tunisian")}
                 title="Bascule vers le Modèle Tunisien Pro (Format standard national)"
                 aria-label="Bascule vers le Modèle Tunisien Pro"
-                className={`win11-btn-interactive px-2.5 py-1 text-xs rounded-lg transition-all duration-200 ${
+                className={`px-2.5 py-1 text-xs rounded-lg transition-all duration-150 ${
                   activeResume.settings.template === "tunisian"
-                    ? "bg-rose-600 text-white shadow-xs font-black"
-                    : "text-slate-700 hover:text-slate-950 hover:bg-white/60 font-medium"
+                    ? "bg-slate-900 text-white font-bold shadow-2xs"
+                    : "text-slate-600 hover:text-slate-950 font-medium"
                 }`}
               >
                 🇹🇳 Tunisien
@@ -442,10 +444,10 @@ Formation: ${activeResume.education.map((ed) => `${ed.degree} (${ed.institution}
                 onClick={() => handleTemplateSwitch("europass")}
                 title="Bascule vers le Modèle Europass Pro (Format Union Européenne)"
                 aria-label="Bascule vers le Modèle Europass Pro"
-                className={`win11-btn-interactive px-2.5 py-1 text-xs rounded-lg transition-all duration-200 ${
+                className={`px-2.5 py-1 text-xs rounded-lg transition-all duration-150 ${
                   activeResume.settings.template === "europass"
-                    ? "bg-blue-600 text-white shadow-xs font-black"
-                    : "text-slate-700 hover:text-slate-950 hover:bg-white/60 font-medium"
+                    ? "bg-slate-900 text-white font-bold shadow-2xs"
+                    : "text-slate-600 hover:text-slate-950 font-medium"
                 }`}
               >
                 🇪🇺 Europass
@@ -454,10 +456,10 @@ Formation: ${activeResume.education.map((ed) => `${ed.degree} (${ed.institution}
                 onClick={() => handleTemplateSwitch("canadian")}
                 title="Bascule vers le Modèle Canadien ATS (Format Amérique du Nord optimisé ATS)"
                 aria-label="Bascule vers le Modèle Canadien ATS"
-                className={`win11-btn-interactive px-2.5 py-1 text-xs rounded-lg transition-all duration-200 ${
+                className={`px-2.5 py-1 text-xs rounded-lg transition-all duration-150 ${
                   activeResume.settings.template === "canadian"
-                    ? "bg-emerald-600 text-white shadow-xs font-black"
-                    : "text-slate-700 hover:text-slate-950 hover:bg-white/60 font-medium"
+                    ? "bg-slate-900 text-white font-bold shadow-2xs"
+                    : "text-slate-600 hover:text-slate-950 font-medium"
                 }`}
               >
                 🍁 Canadien ATS
@@ -476,12 +478,12 @@ Formation: ${activeResume.education.map((ed) => `${ed.degree} (${ed.institution}
                 onClick={() => setIsCreditCalculatorOpen(true)}
                 title="Consulter ou modifier votre formule d'abonnement"
                 aria-label="Consulter ou modifier votre formule d'abonnement"
-                className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl border text-xs font-bold transition shadow-2xs cursor-pointer ${
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold transition-all duration-150 cursor-pointer win11-btn-interactive ${
                   subInfo.isSubscribed
                     ? subInfo.tier === "annual"
-                      ? "bg-amber-50 hover:bg-amber-100 text-amber-950 border-amber-300"
-                      : "bg-blue-50 hover:bg-blue-100 text-blue-950 border-blue-300"
-                    : "bg-slate-100 hover:bg-rose-50 text-slate-700 hover:text-rose-700 border-slate-200 hover:border-rose-300"
+                      ? "bg-amber-50 hover:bg-amber-100 text-amber-900 border-amber-300/80 shadow-2xs"
+                      : "bg-blue-50 hover:bg-blue-100 text-blue-900 border-blue-300/80 shadow-2xs"
+                    : "bg-rose-50 hover:bg-rose-100 text-rose-700 border-rose-200/90 shadow-2xs"
                 }`}
               >
                 {subInfo.isSubscribed ? (
@@ -491,16 +493,16 @@ Formation: ${activeResume.education.map((ed) => `${ed.degree} (${ed.institution}
                     ) : (
                       <Sparkles className="w-3.5 h-3.5 text-blue-600" />
                     )}
-                    <span>{subInfo.tier === "annual" ? "👑 Pass Annuel" : "✨ Pass Semestriel"}</span>
-                    <span className="text-[10px] bg-white/90 text-slate-800 px-1.5 py-0.2 rounded border border-slate-200 font-bold ml-0.5">
-                      ✨ Illimité
+                    <span>{subInfo.tier === "annual" ? "Pass Annuel" : "Pass Semestriel"}</span>
+                    <span className="text-[10px] bg-white text-slate-800 px-1.5 py-0.2 rounded border border-slate-200 font-bold ml-0.5">
+                      Illimité
                     </span>
                   </>
                 ) : (
                   <>
                     <Sparkles className="w-3.5 h-3.5 text-rose-600" />
                     <span>Pass Pro</span>
-                    <span className="text-[10px] bg-rose-600 text-white font-black px-1.5 py-0.2 rounded shadow-xs ml-0.5">
+                    <span className="text-[10px] bg-rose-600 text-white font-bold px-1.5 py-0.2 rounded shadow-2xs ml-0.5">
                       S'abonner
                     </span>
                   </>
