@@ -87,7 +87,8 @@ export async function exportResumeToPDF(
       return true;
     }
 
-    throw new Error(`Server returned status: ${response.status}`);
+    const errData = await response.json().catch(() => ({}));
+    throw new Error(errData?.error || `Server returned status: ${response.status}`);
   } catch (error) {
     console.warn("Server vector PDF failed, using high-DPI client canvas fallback:", error);
 
@@ -204,7 +205,8 @@ export async function exportCoverLetterToPDF(
       if (onProgress) onProgress(100);
       return true;
     }
-    throw new Error(`Server PDF export returned status ${response.status}`);
+    const errData = await response.json().catch(() => ({}));
+    throw new Error(errData?.error || `Server PDF export returned status ${response.status}`);
   } catch (error) {
     console.warn("Server PDF export failed, using client-side html2pdf / canvas fallback:", error);
 

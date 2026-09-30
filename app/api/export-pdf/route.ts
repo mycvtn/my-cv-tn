@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import puppeteer from "puppeteer";
+import fs from "fs";
 
 export async function POST(req: NextRequest) {
-  let browser = null;
+  let browser: any = null;
   try {
     const body = await req.json();
     const { html, styles = "", fileName = "Mon_CV_A4.pdf", isWatermarked = false, margin = "10mm" } = body;
@@ -22,7 +23,10 @@ export async function POST(req: NextRequest) {
           <meta charset="utf-8" />
           <meta name="viewport" content="width=device-width, initial-scale=1" />
           <base href="${baseUrl}" />
-          <script src="https://cdn.tailwindcss.com"></script>
+          <!-- Google Fonts Inter for identical cross-platform rendering (Windows, Ubuntu, macOS) -->
+          <link rel="preconnect" href="https://fonts.googleapis.com">
+          <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+          <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
           ${styles}
           <style>
             @page {
@@ -39,9 +43,10 @@ export async function POST(req: NextRequest) {
               margin: 0 !important;
               padding: 0 !important;
               background: #ffffff !important;
-              font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
+              font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif !important;
               width: 100% !important;
               -webkit-font-smoothing: antialiased;
+              text-rendering: geometricPrecision;
             }
             header, aside, div, span, p, h1, h2, h3, ul, li {
               -webkit-print-color-adjust: exact !important;
@@ -90,24 +95,52 @@ export async function POST(req: NextRequest) {
       </html>
     `;
 
-    browser = await puppeteer.launch({
+    // Detect Linux system Chromium/Chrome path automatically
+    let executablePath: string | undefined = process.env.PUPPETEER_EXECUTABLE_PATH;
+    if (!executablePath && process.platform === "linux") {
+      const possiblePaths = [
+        "/usr/bin/chromium-browser",
+        "/usr/bin/chromium",
+        "/usr/bin/google-chrome-stable",
+        "/usr/bin/google-chrome",
+        "/snap/bin/chromium",
+      ];
+      for (const p of possiblePaths) {
+        try {
+          if (fs.existsSync(p)) {
+            executablePath = p;
+            break;
+          }
+        } catch (e) {}
+      }
+    }
+
+    const launchConfig: any = {
       headless: true,
       args: [
         "--no-sandbox",
         "--disable-setuid-sandbox",
         "--disable-dev-shm-usage",
         "--disable-gpu",
+        "--no-first-run",
+        "--no-zygote",
+        "--single-process",
+        "--disable-extensions",
         "--font-render-hinting=none",
       ],
-    });
+    };
+
+    if (executablePath) {
+      launchConfig.executablePath = executablePath;
+    }
+
+    browser = await puppeteer.launch(launchConfig);
 
     const page = await browser.newPage();
     await page.setViewport({ width: 794, height: 1123, deviceScaleFactor: 2 });
     
     // Load content and wait for full load and fonts
-    await page.setContent(fullHtml, { waitUntil: ["load", "domcontentloaded"], timeout: 15000 }).catch(() => {
-      // If timeout, continue
-    });
+    await page.setContent(fullHtml, { waitUntil: ["load", "domcontentloaded"], timeout: 15000 }).catch(() => {});
 
     await page.evaluate(async () => {
       // Ensure all images are loaded
