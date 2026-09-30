@@ -348,12 +348,12 @@ Formation: ${activeResume.education.map((ed) => `${ed.degree} (${ed.institution}
   }
 
   return (
-    <div className="flex flex-col h-screen bg-[#f1f5f9] overflow-hidden font-sans selection:bg-indigo-500 selection:text-white">
+    <div className="flex flex-col h-screen bg-slate-900/5 overflow-hidden font-sans selection:bg-indigo-500 selection:text-white">
       {/* Top Main Navigation Header (Windows 11 Mica Acrylic Theme) */}
-      <header className="bg-white/80 backdrop-blur-2xl text-slate-900 px-3 sm:px-5 py-2.5 flex items-center justify-between border-b border-slate-200/70 flex-shrink-0 z-20 shadow-[0_2px_15px_rgba(0,0,0,0.02)]">
+      <header className="win11-acrylic win11-dock text-slate-900 px-3 sm:px-5 py-2.5 flex items-center justify-between border-b border-slate-200/80 flex-shrink-0 z-20 shadow-2xs">
         <div className="flex items-center gap-2.5 sm:gap-3">
           <a href="/" className="flex items-center gap-2 group">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-indigo-600 to-blue-500 flex items-center justify-center font-black text-white text-base shadow-sm shadow-indigo-500/20 group-hover:scale-105 transition-transform duration-200">
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-indigo-600 to-blue-500 flex items-center justify-center font-black text-white text-base shadow-sm shadow-indigo-500/25 group-hover:scale-105 transition-transform duration-200">
               ⚡
             </div>
             <div className="hidden sm:block">
@@ -366,7 +366,7 @@ Formation: ${activeResume.education.map((ed) => `${ed.degree} (${ed.institution}
           <div className="flex items-center gap-1.5 ml-1 sm:ml-2">
             <button
               onClick={() => setIsManagerOpen(true)}
-              className="win11-btn-interactive flex items-center gap-1.5 sm:gap-2 bg-white/80 hover:bg-white text-slate-800 px-2.5 sm:px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-semibold shadow-2xs backdrop-blur-md"
+              className="win11-btn-interactive flex items-center gap-1.5 sm:gap-2 bg-white/90 hover:bg-white text-slate-800 px-2.5 sm:px-3 py-1.5 rounded-xl border border-slate-200/90 text-xs font-semibold shadow-2xs backdrop-blur-md"
               title="Gérer, dupliquer ou créer une nouvelle version de vos CVs"
               aria-label="Gérer, dupliquer ou créer une nouvelle version de vos CVs"
             >
@@ -383,15 +383,15 @@ Formation: ${activeResume.education.map((ed) => `${ed.degree} (${ed.institution}
 
           {/* Fast Language Switcher (FR / EN / AR) - Visible when CV exists */}
           {activeResume && (
-            <div className="hidden md:flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200">
+            <div className="hidden md:flex items-center gap-1 win11-acrylic p-1 rounded-xl border border-slate-200/80 shadow-2xs">
               <button
                 onClick={() => handleLanguageSwitch("fr")}
                 title="Afficher et éditer le CV en langue Française"
                 aria-label="Afficher et éditer le CV en langue Française"
-                className={`px-2 py-1 text-xs font-bold rounded-lg transition ${
+                className={`win11-btn-interactive px-2.5 py-1 text-xs font-bold rounded-lg transition-all duration-200 ${
                   activeResume.settings.language === "fr" || !activeResume.settings.language
-                    ? "bg-white text-slate-950 shadow-xs border border-slate-200/60"
-                    : "text-slate-600 hover:text-slate-950"
+                    ? "bg-white text-slate-950 shadow-xs border border-slate-200/80 font-black"
+                    : "text-slate-600 hover:text-slate-950 hover:bg-white/60"
                 }`}
               >
                 🇫🇷 FR
@@ -400,10 +400,10 @@ Formation: ${activeResume.education.map((ed) => `${ed.degree} (${ed.institution}
                 onClick={() => handleLanguageSwitch("en")}
                 title="Afficher et éditer le CV en langue Anglaise (English)"
                 aria-label="Afficher et éditer le CV en langue Anglaise (English)"
-                className={`px-2 py-1 text-xs font-bold rounded-lg transition ${
+                className={`win11-btn-interactive px-2.5 py-1 text-xs font-bold rounded-lg transition-all duration-200 ${
                   activeResume.settings.language === "en"
-                    ? "bg-white text-slate-950 shadow-xs border border-slate-200/60"
-                    : "text-slate-600 hover:text-slate-950"
+                    ? "bg-white text-slate-950 shadow-xs border border-slate-200/80 font-black"
+                    : "text-slate-600 hover:text-slate-950 hover:bg-white/60"
                 }`}
               >
                 🇬🇧 EN
@@ -412,10 +412,10 @@ Formation: ${activeResume.education.map((ed) => `${ed.degree} (${ed.institution}
                 onClick={() => handleLanguageSwitch("ar")}
                 title="Afficher et éditer le CV en langue Arabe (العربية avec support RTL)"
                 aria-label="Afficher et éditer le CV en langue Arabe (العربية avec support RTL)"
-                className={`px-2.5 py-1 text-xs font-bold rounded-lg transition font-sans ${
+                className={`win11-btn-interactive px-2.5 py-1 text-xs font-bold rounded-lg transition-all duration-200 font-sans ${
                   activeResume.settings.language === "ar"
-                    ? "bg-rose-600 text-white shadow-xs"
-                    : "text-slate-600 hover:text-slate-950"
+                    ? "bg-rose-600 text-white shadow-xs font-black"
+                    : "text-slate-600 hover:text-slate-950 hover:bg-white/60"
                 }`}
               >
                 🇸🇦 العربية
@@ -425,15 +425,15 @@ Formation: ${activeResume.education.map((ed) => `${ed.degree} (${ed.institution}
 
           {/* Template Fast Switcher Badges */}
           {activeResume && (
-            <div className="hidden xl:flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200">
+            <div className="hidden xl:flex items-center gap-1 win11-acrylic p-1 rounded-xl border border-slate-200/80 shadow-2xs">
               <button
                 onClick={() => handleTemplateSwitch("tunisian")}
                 title="Bascule vers le Modèle Tunisien Pro (Format standard national)"
                 aria-label="Bascule vers le Modèle Tunisien Pro"
-                className={`px-2.5 py-1 text-xs font-semibold rounded-lg transition ${
+                className={`win11-btn-interactive px-2.5 py-1 text-xs rounded-lg transition-all duration-200 ${
                   activeResume.settings.template === "tunisian"
-                    ? "bg-rose-600 text-white shadow-xs font-bold"
-                    : "text-slate-700 hover:text-slate-950"
+                    ? "bg-rose-600 text-white shadow-xs font-black"
+                    : "text-slate-700 hover:text-slate-950 hover:bg-white/60 font-medium"
                 }`}
               >
                 🇹🇳 Tunisien
@@ -442,10 +442,10 @@ Formation: ${activeResume.education.map((ed) => `${ed.degree} (${ed.institution}
                 onClick={() => handleTemplateSwitch("europass")}
                 title="Bascule vers le Modèle Europass Pro (Format Union Européenne)"
                 aria-label="Bascule vers le Modèle Europass Pro"
-                className={`px-2.5 py-1 text-xs font-semibold rounded-lg transition ${
+                className={`win11-btn-interactive px-2.5 py-1 text-xs rounded-lg transition-all duration-200 ${
                   activeResume.settings.template === "europass"
-                    ? "bg-blue-600 text-white shadow-xs font-bold"
-                    : "text-slate-700 hover:text-slate-950"
+                    ? "bg-blue-600 text-white shadow-xs font-black"
+                    : "text-slate-700 hover:text-slate-950 hover:bg-white/60 font-medium"
                 }`}
               >
                 🇪🇺 Europass
@@ -454,10 +454,10 @@ Formation: ${activeResume.education.map((ed) => `${ed.degree} (${ed.institution}
                 onClick={() => handleTemplateSwitch("canadian")}
                 title="Bascule vers le Modèle Canadien ATS (Format Amérique du Nord optimisé ATS)"
                 aria-label="Bascule vers le Modèle Canadien ATS"
-                className={`px-2.5 py-1 text-xs font-semibold rounded-lg transition ${
+                className={`win11-btn-interactive px-2.5 py-1 text-xs rounded-lg transition-all duration-200 ${
                   activeResume.settings.template === "canadian"
-                    ? "bg-emerald-600 text-white shadow-xs font-bold"
-                    : "text-slate-700 hover:text-slate-950"
+                    ? "bg-emerald-600 text-white shadow-xs font-black"
+                    : "text-slate-700 hover:text-slate-950 hover:bg-white/60 font-medium"
                 }`}
               >
                 🍁 Canadien ATS
@@ -697,42 +697,46 @@ Formation: ${activeResume.education.map((ed) => `${ed.degree} (${ed.institution}
 
             {/* Right Pane: Live Sheet Preview Canvas (50% on desktop) */}
             <div
-              className={`w-full md:w-1/2 bg-slate-200/90 flex flex-col overflow-hidden relative ${
+              className={`w-full md:w-1/2 bg-slate-200/70 flex flex-col overflow-hidden relative ${
                 activeTabMobile === "preview" ? "block" : "hidden md:flex"
               }`}
             >
+              {/* Subtle Ambient Aurora Light in Canvas Background */}
+              <div className="absolute top-1/4 -right-20 w-80 h-80 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none animate-float-slow" />
+              <div className="absolute bottom-1/4 -left-20 w-80 h-80 bg-rose-500/10 rounded-full blur-3xl pointer-events-none animate-float-delayed" />
+
               {/* Preview Toolbar */}
-              <div className="bg-white/90 backdrop-blur-md px-4 py-2 border-b border-slate-300 flex items-center justify-between z-10 flex-shrink-0 shadow-sm">
-                <div className="flex items-center gap-2 text-xs font-semibold text-slate-700">
-                  <Eye className="w-3.5 h-3.5 text-slate-500" />
+              <div className="win11-acrylic px-4 py-2 border-b border-slate-200/80 flex items-center justify-between z-10 flex-shrink-0 shadow-2xs">
+                <div className="flex items-center gap-2 text-xs font-bold text-slate-800">
+                  <Eye className="w-3.5 h-3.5 text-indigo-600" />
                   <span>Aperçu Document A4</span>
-                  <span className="text-[10px] text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded uppercase font-bold">
+                  <span className="text-[10px] text-slate-600 bg-white/80 border border-slate-200/80 px-2 py-0.5 rounded-full uppercase font-mono font-bold shadow-2xs">
                     {activeResume.settings.template} ({activeResume.settings.language || "fr"})
                   </span>
                 </div>
 
                 {/* Zoom Controls */}
-                <div className="flex items-center gap-1.5 bg-slate-100 p-1 rounded-lg border border-slate-200">
+                <div className="flex items-center gap-1.5 win11-acrylic p-1 rounded-xl border border-slate-200/80 shadow-2xs">
                   <button
                     onClick={() => setZoom(Math.max(0.5, zoom - 0.1))}
-                    className="p-1 text-slate-600 hover:text-slate-900 rounded"
+                    className="p-1 text-slate-600 hover:text-slate-900 rounded-lg transition hover:bg-white/80"
                     title="Dézoomer"
                   >
                     <ZoomOut className="w-3.5 h-3.5" />
                   </button>
-                  <span className="text-[11px] font-bold text-slate-700 w-10 text-center">
+                  <span className="text-[11px] font-black font-mono text-slate-800 w-10 text-center">
                     {Math.round(zoom * 100)}%
                   </span>
                   <button
                     onClick={() => setZoom(Math.min(1.2, zoom + 0.1))}
-                    className="p-1 text-slate-600 hover:text-slate-900 rounded"
+                    className="p-1 text-slate-600 hover:text-slate-900 rounded-lg transition hover:bg-white/80"
                     title="Zoomer"
                   >
                     <ZoomIn className="w-3.5 h-3.5" />
                   </button>
                   <button
                     onClick={() => setZoom(0.85)}
-                    className="p-1 text-slate-600 hover:text-slate-900 rounded ml-1"
+                    className="p-1 text-slate-600 hover:text-slate-900 rounded-lg ml-1 transition hover:bg-white/80"
                     title="Ajuster"
                   >
                     <Maximize2 className="w-3 h-3" />
@@ -741,7 +745,7 @@ Formation: ${activeResume.education.map((ed) => `${ed.degree} (${ed.institution}
               </div>
 
               {/* Canvas Scroll Area */}
-              <div className="flex-grow overflow-auto p-4 sm:p-8 flex justify-center items-start">
+              <div className="flex-grow overflow-auto p-4 sm:p-8 flex justify-center items-start relative z-0">
                 <div className="transition-transform duration-150">
                   <TemplateRenderer data={activeResume} scale={zoom} />
                 </div>

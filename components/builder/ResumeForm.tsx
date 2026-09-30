@@ -249,44 +249,76 @@ export const ResumeForm: React.FC<Props> = ({ data, onChange, onOpenATS, onOpenC
   return (
     <div
       dir={isRTL ? "rtl" : "ltr"}
-      className="bg-white/90 backdrop-blur-xl rounded-2xl shadow-fluent border border-slate-200/90 overflow-hidden flex flex-col h-full text-slate-800 font-sans"
+      className="win11-acrylic-card win11-window-shadow border border-white/80 rounded-2xl overflow-hidden flex flex-col h-full text-slate-800 font-sans relative"
     >
+      {/* Top Window Accent Glow */}
+      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-rose-500 via-amber-400 to-indigo-500 opacity-90 z-20" />
+
       {/* Top AI Action Bar */}
-      <div className="p-3.5 bg-gradient-to-r from-slate-950 via-slate-900 to-indigo-950 border-b border-slate-800/80 text-white flex flex-wrap items-center justify-between gap-3 shadow-xs">
-        <div>
-          <h2 className="text-sm font-bold tracking-tight" title="Éditeur intelligent avec assistant IA et conformité ATS">
-            {t.headerTitle}
-          </h2>
-          <p className="text-[11px] text-slate-300">{t.headerSubtitle}</p>
+      <div className="p-3 sm:p-4 bg-gradient-to-r from-slate-950 via-slate-900 to-indigo-950 border-b border-slate-800/80 text-white flex flex-col gap-3 shadow-md relative overflow-hidden">
+        {/* Subtle Background Glow */}
+        <div className="absolute -top-12 -right-12 w-44 h-44 bg-rose-600/15 rounded-full blur-2xl pointer-events-none" />
+        <div className="absolute -bottom-12 -left-12 w-44 h-44 bg-indigo-600/15 rounded-full blur-2xl pointer-events-none" />
+
+        {/* Simulated Window Control Bar */}
+        <div className="flex items-center justify-between pb-2 border-b border-white/10 relative z-10">
+          <div className="flex items-center gap-1.5">
+            <div className="w-2.5 h-2.5 rounded-full bg-rose-400/90 shadow-2xs hover:scale-110 transition cursor-pointer" />
+            <div className="w-2.5 h-2.5 rounded-full bg-amber-400/90 shadow-2xs hover:scale-110 transition cursor-pointer" />
+            <div className="w-2.5 h-2.5 rounded-full bg-emerald-400/90 shadow-2xs hover:scale-110 transition cursor-pointer" />
+          </div>
+          <span className="text-[9px] font-mono tracking-wider font-semibold text-slate-400 uppercase flex items-center gap-1.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            IA Copilot // Moteur Recrutement ATS v2.5
+          </span>
         </div>
 
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={onOpenATS}
-            title="Scanner ATS IA : Analyser la compatibilité de votre CV avec une offre d'emploi"
-            aria-label="Scanner ATS IA : Analyser la compatibilité de votre CV avec une offre d'emploi"
-            className="win11-btn-interactive flex items-center gap-1.5 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 text-xs font-semibold px-3 py-1.5 rounded-xl shadow-2xs backdrop-blur-md"
-          >
-            <Target className="w-3.5 h-3.5" />
-            <span>{t.scanATS}</span>
-          </button>
+        {/* Title & Action Buttons Row */}
+        <div className="flex flex-wrap items-center justify-between gap-3 relative z-10">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-rose-600 via-amber-500 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-rose-600/30 text-sm font-black animate-pulse-glow flex-shrink-0">
+              ⚡
+            </div>
+            <div>
+              <h2 className="text-sm font-black tracking-tight flex items-center gap-2" title="Éditeur intelligent avec assistant IA et conformité ATS">
+                <span>{t.headerTitle}</span>
+                <span className="text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                  Score ATS 100%
+                </span>
+              </h2>
+              <p className="text-[11px] text-slate-300 font-medium">{t.headerSubtitle}</p>
+            </div>
+          </div>
 
-          <button
-            type="button"
-            onClick={onOpenCoverLetter}
-            title="Lettre IA : Rédiger une lettre de motivation professionnelle sur-mesure"
-            aria-label="Lettre IA : Rédiger une lettre de motivation professionnelle sur-mesure"
-            className="win11-btn-interactive flex items-center gap-1.5 bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-300 border border-indigo-500/40 text-xs font-semibold px-3 py-1.5 rounded-xl shadow-2xs backdrop-blur-md"
-          >
-            <Sparkles className="w-3.5 h-3.5 text-indigo-300" />
-            <span>{t.coverLetterAI}</span>
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={onOpenATS}
+              title="Scanner ATS IA : Analyser la compatibilité de votre CV avec une offre d'emploi"
+              aria-label="Scanner ATS IA : Analyser la compatibilité de votre CV avec une offre d'emploi"
+              className="win11-btn-interactive flex items-center gap-1.5 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 text-xs font-bold px-3 py-1.5 rounded-xl shadow-2xs backdrop-blur-md hover:scale-105 transition-all duration-200"
+            >
+              <Target className="w-3.5 h-3.5 text-emerald-400" />
+              <span>{t.scanATS}</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={onOpenCoverLetter}
+              title="Lettre IA : Rédiger une lettre de motivation professionnelle sur-mesure"
+              aria-label="Lettre IA : Rédiger une lettre de motivation professionnelle sur-mesure"
+              className="win11-btn-interactive flex items-center gap-1.5 bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-300 border border-indigo-500/40 text-xs font-bold px-3 py-1.5 rounded-xl shadow-2xs backdrop-blur-md hover:scale-105 transition-all duration-200"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-indigo-300 animate-pulse" />
+              <span>{t.coverLetterAI}</span>
+            </button>
+          </div>
         </div>
       </div>
 
       {/* Navigation Tabs with Aliases */}
-      <div className="flex border-b border-slate-200/70 bg-slate-50/80 backdrop-blur-md p-1.5 gap-1 overflow-x-auto scrollbar-none">
+      <div className="flex border-b border-slate-200/70 win11-acrylic p-1.5 gap-1.5 overflow-x-auto scrollbar-none shadow-2xs">
         {navItems.map((item) => {
           const Icon = item.icon;
           const isActive = activeSection === item.id;
@@ -297,16 +329,16 @@ export const ResumeForm: React.FC<Props> = ({ data, onChange, onOpenATS, onOpenC
               onClick={() => setActiveSection(item.id)}
               title={item.alias}
               aria-label={item.alias}
-              className={`win11-btn-interactive flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all duration-200 ${
+              className={`win11-btn-interactive flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs whitespace-nowrap transition-all duration-200 ${
                 isActive
-                  ? "bg-white text-slate-950 shadow-fluent border border-slate-200/90 font-bold"
-                  : "text-slate-600 hover:text-slate-950 hover:bg-white/60"
+                  ? "bg-white text-slate-950 shadow-fluent border border-slate-200/90 font-black scale-102"
+                  : "text-slate-600 hover:text-slate-950 hover:bg-white/60 font-semibold"
               }`}
             >
-              <Icon className={`w-3.5 h-3.5 ${isActive ? "text-indigo-600" : "text-slate-400"}`} />
+              <Icon className={`w-3.5 h-3.5 transition-colors ${isActive ? "text-indigo-600" : "text-slate-400"}`} />
               <span>{item.label}</span>
               {item.count !== undefined && (
-                <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${isActive ? "bg-indigo-100 text-indigo-700" : "bg-slate-200/80 text-slate-600"}`}>
+                <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold transition-colors ${isActive ? "bg-indigo-100 text-indigo-700" : "bg-slate-200/80 text-slate-600"}`}>
                   {item.count}
                 </span>
               )}

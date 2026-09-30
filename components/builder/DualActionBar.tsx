@@ -71,18 +71,21 @@ export const DualActionBar: React.FC<Props> = ({
   };
 
   return (
-    <div className="bg-slate-900 border border-slate-800 p-3 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-3 shadow-xl">
+    <div className="win11-acrylic-card win11-window-shadow border border-white/20 p-3 sm:p-3.5 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-3 shadow-xl backdrop-blur-xl relative overflow-hidden">
+      {/* Top Accent Glow */}
+      <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-rose-500 via-amber-400 to-indigo-500 opacity-80" />
+
       {/* Option Gratuite avec Filigrane */}
       <button
         type="button"
         onClick={() => handleDownload("free_watermark")}
         disabled={downloadingType !== null}
-        className="w-full sm:flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold rounded-xl border border-slate-700 transition"
+        className="w-full sm:flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-white/10 hover:bg-white/15 text-slate-200 text-xs font-bold rounded-xl border border-white/10 transition-all duration-200 win11-btn-interactive shadow-2xs"
       >
         {downloadingType === "free" ? (
-          <Loader2 className="w-4 h-4 animate-spin text-slate-400" />
+          <Loader2 className="w-4 h-4 animate-spin text-slate-300" />
         ) : (
-          <Download className="w-4 h-4 text-slate-400" />
+          <Download className="w-4 h-4 text-slate-300" />
         )}
         <span>Télécharger avec filigrane my-cv.tn (Gratuit)</span>
       </button>
@@ -92,10 +95,10 @@ export const DualActionBar: React.FC<Props> = ({
         type="button"
         onClick={() => handleDownload("clean")}
         disabled={downloadingType !== null}
-        className={`w-full sm:flex-1 flex items-center justify-center gap-2 px-4 py-2.5 text-white text-xs font-extrabold rounded-xl shadow-md transition ${
+        className={`w-full sm:flex-1 flex items-center justify-center gap-2 px-4 py-2.5 text-white text-xs font-extrabold rounded-xl shadow-lg transition-all duration-200 win11-btn-interactive ${
           !proCheck.info.isSubscribed && !proCheck.info.isAdmin
-            ? "bg-slate-800/90 hover:bg-slate-800 border border-amber-500/50 text-slate-200"
-            : "bg-gradient-to-r from-rose-600 via-rose-500 to-indigo-600 hover:from-rose-500 hover:to-indigo-500 cursor-pointer"
+            ? "bg-slate-800/90 hover:bg-slate-800 border border-amber-500/50 text-slate-200 hover:border-amber-400"
+            : "bg-gradient-to-r from-rose-600 via-rose-500 to-indigo-600 hover:from-rose-500 hover:to-indigo-500 shadow-rose-600/30 cursor-pointer"
         }`}
       >
         {downloadingType === "pro" ? (
