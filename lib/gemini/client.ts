@@ -455,10 +455,12 @@ export async function generateCoverLetter(
     email: string;
     phone: string;
     address: string;
+    summary?: string;
     experiences: string;
     skills: string;
     education: string;
     projects?: string;
+    languages?: string;
   },
   jobData: {
     jobTitle: string;
@@ -483,35 +485,49 @@ export async function generateCoverLetter(
   }
 
   const prompt = `
-You are an expert Executive Career Coach and Head of Talent Acquisition.
-Write a highly persuasive, personalized, and ATS-optimized Cover Letter (Lettre de Motivation).
+Tu es un expert en recrutement international et coach exécutif de carrière.
+Rédige une lettre de motivation complète, percutante, personnalisée et optimisée pour les filtres ATS.
 
-Candidate Profile (From Resume):
-- Name: ${candidateData.name}
-- Email: ${candidateData.email} | Phone: ${candidateData.phone} | Location: ${candidateData.address}
-- Key Experiences & Achievements: ${candidateData.experiences}
-- Core Skills & Tech Stack: ${candidateData.skills}
-- Education & Credentials: ${candidateData.education}
-- Key Projects: ${candidateData.projects || "N/A"}
+PROFIL DU CANDIDAT (Issu de son CV connecté) :
+- Nom & Prénom : ${candidateData.name}
+- Coordonnées : ${candidateData.email} | ${candidateData.phone} | ${candidateData.address}
+- Synthèse / Titre : ${candidateData.summary || "Professionnel qualifié"}
+- Expériences professionnelles clés & réalisations : ${candidateData.experiences}
+- Compétences techniques & méthodologies : ${candidateData.skills}
+- Formation & Diplômes : ${candidateData.education}
+- Projets notables : ${candidateData.projects || "N/A"}
+- Langues : ${candidateData.languages || "N/A"}
 
-Target Job & Company:
-- Position: ${jobData.jobTitle}
-- Target Company: ${jobData.companyName}
-- Job Description & Key Requirements: ${jobData.jobDescription || "Standard requirements for " + jobData.jobTitle}
-- Tone: ${jobData.tone || "formal"}
-- Language: ${lang}
+OFFRE D'EMPLOI & ENTREPRISE CIBLE :
+- Poste visé : ${jobData.jobTitle}
+- Entreprise cible : ${jobData.companyName}
+- Description du poste & Exigences de l'offre :
+"""
+${jobData.jobDescription || "Poste de " + jobData.jobTitle + " chez " + jobData.companyName}
+"""
+- Tonalité : ${jobData.tone || "formal"} (formal = soutenu et professionnel, dynamic = énergique et orienté résultats, academic = axé recherche, stage PFE et méthodologie)
+- Langue : ${lang === "en" ? "English" : lang === "ar" ? "Arabic" : "Français"}
 
-Output format: STRICT JSON schema:
+DIRECTIVES STRICTES DE RÉDACTION :
+1. ANALYSE CROISÉE : Rapproche systématiquement les exigences clés mentionnées dans l'offre (missions, compétences recherchées, défis de l'entreprise) avec les réalisations réelles, technologies et projets du CV du candidat.
+2. COMPLET ET STRUCTURÉ : La lettre doit être complète, convaincante et développée (environ 300 à 450 mots).
+3. NON GÉNÉRIQUE : Évite tout cliché creux ("je suis travailleur et motivé"). Cite des projets, technologies, contextes ou réalisations concrètes du CV pour prouver la valeur ajoutée immédiate pour l'entreprise.
+4. "openingParagraph" : Accroche percutante qui mentionne le poste, montre une connaissance de l'entreprise et suscite immédiatement l'intérêt.
+5. "bodyParagraph" : Corps argumenté substantiel démontrant point par point l'adéquation entre le profil et les missions de l'offre. Tu peux séparer les idées avec des sauts de ligne clairs (\\n\\n) pour former 2 paragraphes fluides.
+6. "closingParagraph" : Proposition claire pour convenir d'un entretien et conclusion tournée vers l'avenir.
+7. "signoff" : Formule de politesse soignée adaptée au ton choisi.
+
+Format de sortie : STRICT JSON schema:
 {
-  "subject": "<Concise compelling subject line>",
-  "greeting": "<Formal greeting>",
-  "openingParagraph": "<Engaging introduction>",
-  "bodyParagraph": "<Substantive alignment between candidate CV milestones and job needs>",
-  "closingParagraph": "<Call to action for interview>",
-  "signoff": "<Formal signoff>"
+  "subject": "<Objet précis et percutant de la lettre>",
+  "greeting": "<Formule de salutation, ex: Madame, Monsieur,>",
+  "openingParagraph": "<Introduction accrocheuse>",
+  "bodyParagraph": "<Corps complet et argumenté reliant le CV aux exigences du poste>",
+  "closingParagraph": "<Conclusion invitant à l'entretien>",
+  "signoff": "<Formule de politesse professionnelle>"
 }
 
-Return ONLY raw valid JSON without markdown code fences.
+Renvoie UNIQUEMENT le JSON valide sans balises markdown ni texte supplémentaire.
 `;
 
   try {

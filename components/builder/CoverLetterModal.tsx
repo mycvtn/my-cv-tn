@@ -109,10 +109,11 @@ export const CoverLetterModal: React.FC<Props> = ({ isOpen, onClose, resumeData,
       email: resumeData.personalInfo.email,
       phone: resumeData.personalInfo.phone,
       address: resumeData.personalInfo.location,
+      summary: resumeData.personalInfo.summary || "",
       experiences: resumeData.experiences
         .map(
           (e) =>
-            `${e.title} chez ${e.company} (${e.startDate}-${e.current ? "Présent" : e.endDate}): ${e.bulletPoints.join(" ")}`
+            `${e.title} chez ${e.company} (${e.startDate}-${e.current ? "Présent" : e.endDate}): ${e.bulletPoints.join(" ")}${e.technologies && e.technologies.length > 0 ? " [Technologies: " + e.technologies.join(", ") + "]" : ""}`
         )
         .join(" | "),
       skills: resumeData.skills.map((s) => s.name).join(", "),
@@ -122,6 +123,9 @@ export const CoverLetterModal: React.FC<Props> = ({ isOpen, onClose, resumeData,
       projects: (resumeData.projects || [])
         .map((p) => `${p.name}: ${p.description}`)
         .join(" | "),
+      languages: (resumeData.languages || [])
+        .map((l) => `${l.name} (${l.level})`)
+        .join(", "),
     };
 
     try {
@@ -484,9 +488,9 @@ ${resumeData.personalInfo.fullName}`;
                       <p className="indent-4">{generatedLetter.openingParagraph}</p>
                     )}
                     {generatedLetter.bodyParagraph && (
-                      <p className="indent-4 p-3.5 rounded-xl bg-slate-50/60 border border-slate-100 font-normal">
+                      <div className="indent-4 p-3.5 rounded-xl bg-slate-50/60 border border-slate-100 font-normal whitespace-pre-line">
                         {generatedLetter.bodyParagraph}
-                      </p>
+                      </div>
                     )}
                     {generatedLetter.closingParagraph && (
                       <p className="indent-4">{generatedLetter.closingParagraph}</p>

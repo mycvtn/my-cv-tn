@@ -116,10 +116,11 @@ export default function CoverLetterPage() {
             email: activeResume.personalInfo.email || data.candidateEmail,
             phone: activeResume.personalInfo.phone || data.candidatePhone,
             address: activeResume.personalInfo.location || data.candidateAddress,
+            summary: activeResume.personalInfo.summary || "",
             experiences: activeResume.experiences
               .map(
                 (e) =>
-                  `${e.title} chez ${e.company} (${e.startDate}-${e.current ? "Présent" : e.endDate}): ${e.bulletPoints.join(" ")}`
+                  `${e.title} chez ${e.company} (${e.startDate}-${e.current ? "Présent" : e.endDate}): ${e.bulletPoints.join(" ")}${e.technologies && e.technologies.length > 0 ? " [Technologies: " + e.technologies.join(", ") + "]" : ""}`
               )
               .join(" | "),
             skills: activeResume.skills.map((s) => s.name).join(", "),
@@ -129,15 +130,21 @@ export default function CoverLetterPage() {
             projects: (activeResume.projects || [])
               .map((p) => `${p.name}: ${p.description}`)
               .join(" | "),
+            languages: (activeResume.languages || [])
+              .map((l) => `${l.name} (${l.level})`)
+              .join(", "),
           }
         : {
             name: data.candidateName,
             email: data.candidateEmail,
             phone: data.candidatePhone,
             address: data.candidateAddress,
+            summary: "Professionnel qualifié",
             experiences: "Expérience professionnelle confirmée et gestion de projets",
             skills: "Compétences techniques et méthodologiques avancées",
             education: "Formation supérieure",
+            projects: "",
+            languages: "Français, Anglais",
           };
 
       const res = await fetch("/api/ai/cover-letter", {
@@ -566,9 +573,9 @@ ${data.candidateName}`;
                     <p className="indent-4">{data.openingParagraph}</p>
                   )}
                   {data.bodyParagraph && (
-                    <p className="indent-4 p-4 rounded-xl bg-slate-50/60 border border-slate-100 font-normal">
+                    <div className="indent-4 p-4 rounded-xl bg-slate-50/60 border border-slate-100 font-normal whitespace-pre-line">
                       {data.bodyParagraph}
-                    </p>
+                    </div>
                   )}
                   {data.closingParagraph && (
                     <p className="indent-4">{data.closingParagraph}</p>
