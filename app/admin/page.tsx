@@ -397,36 +397,44 @@ export default function AdminDashboardPage() {
     .reduce((sum, p) => sum + p.amountTND, 0);
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans">
+    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans relative overflow-x-hidden">
+      {/* Background Animated Aurora Glows (Windows 11 Bloom Style) */}
+      <div className="absolute top-1/6 -left-48 w-[600px] h-[600px] bg-rose-500/10 rounded-full blur-3xl pointer-events-none animate-float-slow" />
+      <div className="absolute top-1/2 -right-48 w-[650px] h-[650px] bg-indigo-500/10 rounded-full blur-3xl pointer-events-none animate-float-delayed" />
+      <div className="absolute bottom-1/4 left-1/3 w-[700px] h-[450px] bg-amber-500/10 rounded-full blur-3xl pointer-events-none animate-pulse-glow" />
+
+      {/* Subtle Grid pattern overlay */}
+      <div className="absolute inset-0 bg-[radial-gradient(#ffffff06_1px,transparent_1px)] [background-size:24px_24px] pointer-events-none" />
+
       {/* Toast Notification */}
       {toastMessage && (
-        <div className="fixed top-5 right-5 z-50 bg-emerald-600 text-white px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-2 text-xs font-bold animate-in slide-in-from-top-2 duration-150">
-          <CheckCircle2 className="w-4 h-4" />
+        <div className="fixed top-5 right-5 z-50 bg-emerald-600 text-white px-5 py-3 rounded-2xl shadow-2xl flex items-center gap-2.5 text-xs font-bold animate-in slide-in-from-top-2 duration-150 backdrop-blur-md border border-emerald-400/40">
+          <CheckCircle2 className="w-4 h-4 text-emerald-200" />
           <span>{toastMessage}</span>
         </div>
       )}
 
       {/* Top Admin Header */}
-      <header className="h-16 border-b border-slate-200 bg-white/90 backdrop-blur-md px-6 flex items-center justify-between sticky top-0 z-30 shadow-2xs">
+      <header className="h-16 border-b border-white/10 win11-acrylic px-6 flex items-center justify-between sticky top-0 z-30 shadow-md">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-rose-600 to-amber-600 flex items-center justify-center text-white font-black text-sm shadow-sm">
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-rose-600 to-amber-500 flex items-center justify-center text-white font-black text-sm shadow-md shadow-rose-600/30">
             AD
           </div>
           <div>
-            <h1 className="text-sm font-black text-slate-950 flex items-center gap-1.5">
+            <h1 className="text-sm font-black text-white flex items-center gap-2">
               <span>Portail Administrateur</span>
-              <span className="text-[10px] bg-rose-50 text-rose-700 px-1.5 py-0.5 rounded border border-rose-200 font-bold">
+              <span className="text-[10px] bg-rose-500/20 text-rose-300 px-2 py-0.5 rounded-full border border-rose-500/30 font-bold uppercase tracking-wider">
                 my-cv.tn
               </span>
             </h1>
-            <p className="text-[10px] text-slate-500">Gestion des utilisateurs, rôles & méthodes de paiement</p>
+            <p className="text-[10px] text-slate-400">Supervision système, utilisateurs & passerelles de paiement</p>
           </div>
         </div>
 
         <div className="flex items-center gap-3">
           <button
             onClick={() => router.push("/builder")}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-slate-700 hover:text-slate-950 bg-slate-100 hover:bg-slate-200 rounded-xl border border-slate-200 transition shadow-2xs cursor-pointer"
+            className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs text-slate-300 hover:text-white bg-white/5 hover:bg-white/10 rounded-xl border border-white/10 transition-all duration-200 shadow-2xs cursor-pointer win11-btn-interactive"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             <span>Éditeur de CV</span>
@@ -434,7 +442,7 @@ export default function AdminDashboardPage() {
 
           <button
             onClick={handleLogout}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-rose-700 hover:text-white bg-rose-50 hover:bg-rose-600 rounded-xl border border-rose-200 transition shadow-2xs cursor-pointer"
+            className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs text-rose-300 hover:text-white bg-rose-500/10 hover:bg-rose-600 rounded-xl border border-rose-500/30 transition-all duration-200 shadow-2xs cursor-pointer win11-btn-interactive"
           >
             <LogOut className="w-3.5 h-3.5" />
             <span>Déconnexion</span>
@@ -443,90 +451,90 @@ export default function AdminDashboardPage() {
       </header>
 
       {/* Main Container */}
-      <div className="flex-grow p-6 max-w-7xl w-full mx-auto space-y-6">
+      <div className="flex-grow p-6 max-w-7xl w-full mx-auto space-y-6 relative z-10">
         
         {/* KPI Stats Overview */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div className="p-4 bg-white border border-slate-200/90 rounded-2xl space-y-1 shadow-2xs">
-            <div className="flex items-center justify-between text-slate-500 text-xs font-semibold">
+          <div className="p-5 win11-acrylic-card win11-window-shadow border border-white/10 rounded-2xl space-y-2 hover:-translate-y-1 transition-all duration-300">
+            <div className="flex items-center justify-between text-slate-400 text-xs font-semibold">
               <span>Utilisateurs Inscrits</span>
-              <Users className="w-4 h-4 text-blue-600" />
+              <Users className="w-4 h-4 text-blue-400" />
             </div>
-            <div className="text-2xl font-black text-slate-950 flex items-center gap-2">
+            <div className="text-3xl font-black text-white flex items-center gap-2">
               <span>{users.length}</span>
-              <span className="text-[10px] font-bold text-rose-700 bg-rose-50 px-1.5 py-0.5 rounded border border-rose-200">
+              <span className="text-[10px] font-bold text-rose-300 bg-rose-500/20 px-2 py-0.5 rounded-full border border-rose-500/30">
                 {users.filter(u => u.role === "admin").length} admin{users.filter(u => u.role === "admin").length > 1 ? "s" : ""}
               </span>
             </div>
-            <div className="text-[10px] text-slate-500">Comptes sur my-cv.tn</div>
+            <div className="text-[10px] text-slate-400">Comptes actifs sur my-cv.tn</div>
           </div>
 
           <div 
             onClick={() => setActiveTab("payments")}
-            className="p-4 bg-white border border-slate-200/90 hover:border-amber-400 rounded-2xl space-y-1 shadow-2xs cursor-pointer transition"
+            className="p-5 win11-acrylic-card win11-window-shadow border border-white/10 hover:border-amber-400/40 rounded-2xl space-y-2 cursor-pointer hover:-translate-y-1 transition-all duration-300"
           >
-            <div className="flex items-center justify-between text-slate-500 text-xs font-semibold">
+            <div className="flex items-center justify-between text-slate-400 text-xs font-semibold">
               <span>Paiements en Attente</span>
-              <Clock className="w-4 h-4 text-amber-600" />
+              <Clock className="w-4 h-4 text-amber-400" />
             </div>
-            <div className="text-2xl font-black text-amber-600 flex items-center gap-2">
+            <div className="text-3xl font-black text-amber-400 flex items-center gap-2">
               <span>{pendingCount}</span>
               {pendingCount > 0 && (
-                <span className="text-[10px] bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full font-bold animate-pulse">
+                <span className="text-[10px] bg-amber-400/20 text-amber-300 border border-amber-400/30 px-2 py-0.5 rounded-full font-bold animate-pulse">
                   À vérifier
                 </span>
               )}
             </div>
-            <div className="text-[10px] text-slate-500">Demandes D17, Flouci & Autres</div>
+            <div className="text-[10px] text-slate-400">Demandes D17, Flouci & Autres</div>
           </div>
 
-          <div className="p-4 bg-white border border-slate-200/90 rounded-2xl space-y-1 shadow-2xs">
-            <div className="flex items-center justify-between text-slate-500 text-xs font-semibold">
+          <div className="p-5 win11-acrylic-card win11-window-shadow border border-white/10 rounded-2xl space-y-2 hover:-translate-y-1 transition-all duration-300">
+            <div className="flex items-center justify-between text-slate-400 text-xs font-semibold">
               <span>Volume Ventes Validées</span>
-              <DollarSign className="w-4 h-4 text-emerald-600" />
+              <DollarSign className="w-4 h-4 text-emerald-400" />
             </div>
-            <div className="text-2xl font-black text-emerald-600">{totalVolumeTND.toFixed(3)} <span className="text-sm font-bold">TND</span></div>
-            <div className="text-[10px] text-slate-500">Virements approuvés</div>
+            <div className="text-3xl font-black text-emerald-400">{totalVolumeTND.toFixed(3)} <span className="text-sm font-bold">TND</span></div>
+            <div className="text-[10px] text-slate-400">Virements approuvés</div>
           </div>
 
-          <div className="p-4 bg-white border border-slate-200/90 rounded-2xl space-y-1 shadow-2xs">
-            <div className="flex items-center justify-between text-slate-500 text-xs font-semibold">
+          <div className="p-5 win11-acrylic-card win11-window-shadow border border-white/10 rounded-2xl space-y-2 hover:-translate-y-1 transition-all duration-300">
+            <div className="flex items-center justify-between text-slate-400 text-xs font-semibold">
               <span>Méthodes Actives</span>
-              <CreditCard className="w-4 h-4 text-rose-600" />
+              <CreditCard className="w-4 h-4 text-rose-400" />
             </div>
-            <div className="text-2xl font-black text-rose-600">
+            <div className="text-3xl font-black text-rose-400">
               {(settingsForm.d17Enabled !== false ? 1 : 0) + (settingsForm.flouciEnabled !== false ? 1 : 0) + ((settingsForm.customMethods || []).filter(m => m.enabled).length)}
             </div>
-            <div className="text-[10px] text-slate-500">Canaux de paiement activés</div>
+            <div className="text-[10px] text-slate-400">Canaux de paiement activés</div>
           </div>
         </div>
 
-        {/* Tab Switcher */}
-        <div className="flex items-center gap-2 bg-slate-100 p-1.5 rounded-2xl border border-slate-200 w-fit">
+        {/* Windows 11 Segmented Tab Switcher */}
+        <div className="flex items-center gap-2 win11-acrylic p-1.5 rounded-2xl border border-white/10 w-fit">
           <button
             onClick={() => setActiveTab("users")}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition cursor-pointer ${
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 cursor-pointer win11-btn-interactive ${
               activeTab === "users"
-                ? "bg-white text-slate-950 shadow-xs border border-slate-200/60"
-                : "text-slate-600 hover:text-slate-950"
+                ? "bg-white/15 text-white shadow-sm border border-white/20"
+                : "text-slate-400 hover:text-white hover:bg-white/5"
             }`}
           >
-            <Users className="w-3.5 h-3.5 text-blue-600" />
+            <Users className="w-3.5 h-3.5 text-blue-400" />
             <span>Gestion Utilisateurs & Rôles ({users.length})</span>
           </button>
 
           <button
             onClick={() => setActiveTab("payments")}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition cursor-pointer ${
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 cursor-pointer win11-btn-interactive ${
               activeTab === "payments"
-                ? "bg-white text-slate-950 shadow-xs border border-slate-200/60"
-                : "text-slate-600 hover:text-slate-950"
+                ? "bg-white/15 text-white shadow-sm border border-white/20"
+                : "text-slate-400 hover:text-white hover:bg-white/5"
             }`}
           >
-            <CreditCard className="w-3.5 h-3.5 text-amber-600" />
+            <CreditCard className="w-3.5 h-3.5 text-amber-400" />
             <span>Vérification Paiements</span>
             {pendingCount > 0 && (
-              <span className="bg-amber-500 text-slate-950 text-[10px] font-black px-1.5 py-0.2 rounded-full">
+              <span className="bg-amber-400 text-slate-950 text-[10px] font-black px-1.5 py-0.2 rounded-full shadow-sm">
                 {pendingCount}
               </span>
             )}
@@ -534,13 +542,13 @@ export default function AdminDashboardPage() {
 
           <button
             onClick={() => setActiveTab("settings")}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition cursor-pointer ${
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all duration-200 cursor-pointer win11-btn-interactive ${
               activeTab === "settings"
-                ? "bg-white text-slate-950 shadow-xs border border-slate-200/60"
-                : "text-slate-600 hover:text-slate-950"
+                ? "bg-white/15 text-white shadow-sm border border-white/20"
+                : "text-slate-400 hover:text-white hover:bg-white/5"
             }`}
           >
-            <Settings className="w-3.5 h-3.5 text-emerald-600" />
+            <Settings className="w-3.5 h-3.5 text-emerald-400" />
             <span>Configuration des Paiements & Méthodes</span>
           </button>
         </div>

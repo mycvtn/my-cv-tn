@@ -104,10 +104,13 @@ export const AccountModal: React.FC<Props> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-xl overflow-hidden shadow-2xl text-slate-100 flex flex-col max-h-[90vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-xl animate-in fade-in duration-200">
+      <div className="win11-acrylic-card win11-window-shadow border border-white/20 rounded-3xl w-full max-w-xl overflow-hidden text-slate-100 flex flex-col max-h-[90vh] relative">
+        {/* Top Window Accent Glow */}
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-rose-500 via-amber-400 to-indigo-500 opacity-90" />
+
         {/* Header Hero */}
-        <div className="p-6 bg-gradient-to-r from-slate-900 via-indigo-950/40 to-slate-900 border-b border-slate-800 flex items-center justify-between relative overflow-hidden">
+        <div className="p-6 border-b border-white/10 flex items-center justify-between relative overflow-hidden">
           <div className="absolute right-0 top-0 w-48 h-48 bg-rose-600/10 rounded-full blur-2xl pointer-events-none" />
 
           <div className="flex items-center gap-4 relative z-10">
@@ -132,7 +135,7 @@ export const AccountModal: React.FC<Props> = ({
 
           <button
             onClick={onClose}
-            className="text-slate-400 hover:text-white p-2 rounded-xl hover:bg-slate-800 transition relative z-10"
+            className="text-slate-400 hover:text-white p-2 rounded-xl hover:bg-white/10 transition relative z-10 win11-btn-interactive"
           >
             <X className="w-5 h-5" />
           </button>

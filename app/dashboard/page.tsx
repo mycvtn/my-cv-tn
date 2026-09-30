@@ -249,28 +249,32 @@ export default function DashboardPage() {
 
     return (
       <AuthGuard>
-        <div className="min-h-screen bg-slate-50 text-slate-900 font-sans flex flex-col">
-          {/* Top Header Navigation */}
-          <header className="bg-white/90 backdrop-blur-md border-b border-slate-200 px-4 sm:px-8 py-3 flex items-center justify-between sticky top-0 z-30 shadow-2xs">
+        <div className="min-h-screen bg-[#f8fafc] text-slate-900 font-sans flex flex-col relative overflow-x-hidden selection:bg-indigo-500 selection:text-white">
+          {/* Windows 11 Aurora Ambient Glows */}
+          <div className="win11-aurora top-[-100px] left-1/2 -translate-x-1/2 w-[700px] h-[400px] bg-gradient-to-tr from-blue-300/20 via-indigo-300/25 to-rose-300/20" />
+          <div className="win11-aurora top-[400px] -left-32 w-[500px] h-[400px] bg-sky-200/25" />
+
+          {/* Windows 11 Mica Acrylic Top Header Navigation */}
+          <header className="bg-white/80 backdrop-blur-2xl border-b border-slate-200/70 px-4 sm:px-8 py-3 flex items-center justify-between sticky top-0 z-30 shadow-[0_2px_15px_rgba(0,0,0,0.02)]">
             <div className="flex items-center gap-3">
-              <a href="/dashboard" className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-rose-600 to-amber-500 flex items-center justify-center font-black text-white text-base shadow-sm">
+              <a href="/dashboard" className="flex items-center gap-2.5 group">
+                <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-indigo-600 to-blue-500 flex items-center justify-center font-black text-white text-base shadow-sm shadow-indigo-500/20 group-hover:scale-105 transition-transform duration-200">
                   ⚡
                 </div>
                 <span className="font-black text-base tracking-tight text-slate-950 hidden sm:inline">
-                  MY-CV<span className="text-rose-600">.TN</span>
+                  MY-CV<span className="bg-gradient-to-r from-indigo-600 to-blue-600 bg-clip-text text-transparent">.TN</span>
                 </span>
               </a>
 
               {/* Navigation Tabs */}
-              <nav className="hidden md:flex items-center gap-1 ml-4 pl-4 border-l border-slate-200 text-xs font-semibold">
-                <a href="/dashboard" className="px-3 py-1.5 bg-slate-100 text-slate-950 border border-slate-200 rounded-xl font-bold shadow-2xs">
+              <nav className="hidden md:flex items-center gap-1.5 ml-4 pl-4 border-l border-slate-200/80 text-xs font-semibold">
+                <a href="/dashboard" className="win11-btn-interactive px-3.5 py-1.5 bg-white text-slate-950 border border-slate-200/90 rounded-xl font-bold shadow-2xs">
                   Tableau de bord
                 </a>
-                <a href="/builder" className="px-3 py-1.5 text-slate-600 hover:text-slate-950 hover:bg-slate-100 rounded-xl transition">
+                <a href="/builder" className="win11-btn-interactive px-3.5 py-1.5 text-slate-600 hover:text-slate-950 hover:bg-white/80 rounded-xl transition">
                   Éditeur de CV
                 </a>
-                <a href="/cover-letter" className="px-3 py-1.5 text-slate-600 hover:text-slate-950 hover:bg-slate-100 rounded-xl transition">
+                <a href="/cover-letter" className="win11-btn-interactive px-3.5 py-1.5 text-slate-600 hover:text-slate-950 hover:bg-white/80 rounded-xl transition">
                   Lettre de motivation IA
                 </a>
               </nav>
@@ -281,12 +285,12 @@ export default function DashboardPage() {
               {/* Subscription Status Button */}
               <button
                 onClick={() => setIsPricingOpen(true)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold transition shadow-2xs cursor-pointer ${
+                className={`win11-btn-interactive flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold shadow-2xs cursor-pointer ${
                   subInfo.isSubscribed
                     ? subInfo.tier === "annual"
                       ? "bg-amber-50 hover:bg-amber-100 text-amber-950 border-amber-300"
                       : "bg-blue-50 hover:bg-blue-100 text-blue-950 border-blue-300"
-                    : "bg-slate-100 hover:bg-rose-50 text-slate-700 hover:text-rose-700 border-slate-200 hover:border-rose-300"
+                    : "bg-white/80 hover:bg-rose-50 text-slate-700 hover:text-rose-700 border-slate-200 hover:border-rose-300 backdrop-blur-md"
                 }`}
               >
                 {subInfo.isSubscribed ? (
@@ -297,7 +301,7 @@ export default function DashboardPage() {
                       <Sparkles className="w-3.5 h-3.5 text-blue-600" />
                     )}
                     <span>{subInfo.tier === "annual" ? "👑 Pass Annuel" : "✨ Pass Semestriel"}</span>
-                    <span className="text-[10px] bg-white/80 text-emerald-800 px-2 py-0.5 rounded border border-slate-200 font-bold ml-0.5">
+                    <span className="text-[10px] bg-white/90 text-emerald-800 px-2 py-0.5 rounded border border-slate-200 font-bold ml-0.5">
                       ✨ Illimité
                     </span>
                   </>
@@ -315,9 +319,9 @@ export default function DashboardPage() {
               {/* Profile Avatar Trigger */}
               <button
                 onClick={() => setIsAccountOpen(true)}
-                className="flex items-center gap-2 bg-slate-100 hover:bg-slate-200/80 text-slate-800 px-2.5 py-1.5 rounded-xl border border-slate-200 text-xs transition cursor-pointer"
+                className="win11-btn-interactive flex items-center gap-2 bg-white/80 hover:bg-white text-slate-800 px-2.5 py-1.5 rounded-xl border border-slate-200 text-xs shadow-2xs backdrop-blur-md cursor-pointer"
               >
-                <div className="w-6 h-6 rounded-lg bg-gradient-to-tr from-rose-600 to-rose-700 flex items-center justify-center font-bold text-xs text-white shadow-xs">
+                <div className="w-6 h-6 rounded-lg bg-gradient-to-tr from-indigo-600 to-blue-600 flex items-center justify-center font-bold text-xs text-white shadow-xs">
                   {currentUser?.name ? currentUser.name.charAt(0).toUpperCase() : "U"}
                 </div>
                 <span className="hidden sm:inline font-bold text-xs max-w-[120px] truncate text-slate-900">
@@ -328,7 +332,7 @@ export default function DashboardPage() {
               {/* Logout Button */}
               <button
                 onClick={handleLogout}
-                className="p-1.5 text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition cursor-pointer"
+                className="win11-btn-interactive p-2 text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition cursor-pointer"
                 title="Déconnexion"
               >
                 <LogOut className="w-4 h-4" />
@@ -337,7 +341,7 @@ export default function DashboardPage() {
           </header>
 
           {/* Main Dashboard Body */}
-          <main className="flex-grow p-4 sm:p-8 max-w-7xl w-full mx-auto space-y-6">
+          <main className="flex-grow p-4 sm:p-8 max-w-7xl w-full mx-auto space-y-6 relative z-10">
             
             {/* ALERTE EXPIRATION ABONNEMENT (1 SEMAINE AVANT LA FIN OU EXPIRE) */}
             {isExpiringSoon && (
@@ -394,19 +398,19 @@ export default function DashboardPage() {
             )}
 
             {/* Welcome Banner Hero */}
-            <div className="relative overflow-hidden bg-gradient-to-r from-rose-50 via-white to-indigo-50 border border-rose-200/80 rounded-3xl p-6 sm:p-8 shadow-sm">
-              <div className="absolute -right-16 -top-16 w-64 h-64 bg-rose-200/40 rounded-full blur-3xl pointer-events-none" />
+            <div className="relative overflow-hidden win11-acrylic-card rounded-3xl p-6 sm:p-8 shadow-fluent bg-gradient-to-r from-indigo-50/70 via-white to-blue-50/70 border border-slate-200/90 backdrop-blur-xl">
+              <div className="absolute -right-16 -top-16 w-64 h-64 bg-indigo-200/30 rounded-full blur-3xl pointer-events-none" />
               
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 relative z-10">
                 <div className="space-y-2">
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rose-100 border border-rose-200 text-rose-700 text-xs font-bold">
-                    <Sparkles className="w-3.5 h-3.5 text-rose-600" />
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-100 text-indigo-700 text-xs font-bold border border-indigo-200/60">
+                    <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
                     <span>Espace Candidat Intelligent</span>
                   </div>
                   <h1 className="text-2xl sm:text-3xl font-black text-slate-950 tracking-tight">
                     Bonjour, {currentUser?.name} ! 👋
                   </h1>
-                  <p className="text-xs sm:text-sm text-slate-500 max-w-xl">
+                  <p className="text-xs sm:text-sm text-slate-600 max-w-xl leading-relaxed">
                     Gérez vos différents CVs professionnels, optimisez votre score ATS et téléchargez vos candidatures en haute définition.
                   </p>
                 </div>
@@ -414,7 +418,7 @@ export default function DashboardPage() {
                 <div className="flex items-center gap-3 w-full sm:w-auto">
                   <button
                     onClick={() => setIsCreateModalOpen(true)}
-                    className="w-full sm:w-auto px-5 py-3.5 bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-500 hover:to-rose-600 text-white text-xs font-extrabold rounded-2xl shadow-lg shadow-rose-600/30 transition flex items-center justify-center gap-2 cursor-pointer"
+                    className="win11-btn-interactive win11-shimmer-btn w-full sm:w-auto px-6 py-3.5 bg-gradient-to-r from-indigo-600 via-blue-600 to-indigo-700 hover:opacity-95 text-white text-xs font-extrabold rounded-2xl shadow-lg shadow-indigo-600/25 border border-indigo-400/40 flex items-center justify-center gap-2 cursor-pointer"
                   >
                     <Plus className="w-4 h-4" />
                     <span>+ Créer un nouveau CV</span>
@@ -425,9 +429,9 @@ export default function DashboardPage() {
 
             {/* Quick Metrics Bar */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="bg-white border border-slate-200/90 rounded-3xl p-5 shadow-2xs flex items-center gap-4">
-                <div className="p-3 bg-rose-50 border border-rose-200 rounded-2xl">
-                  <FileText className="w-6 h-6 text-rose-600" />
+              <div className="win11-acrylic-card rounded-3xl p-5 shadow-fluent border border-slate-200/90 flex items-center gap-4">
+                <div className="p-3 bg-indigo-50 border border-indigo-200 rounded-2xl">
+                  <FileText className="w-6 h-6 text-indigo-600" />
                 </div>
                 <div>
                   <div className="text-xs text-slate-500 font-medium">CVs Enregistrés</div>
@@ -437,7 +441,7 @@ export default function DashboardPage() {
 
               <div 
                 onClick={() => setIsPricingOpen(true)}
-                className="bg-white border border-slate-200/90 hover:border-amber-400 rounded-3xl p-5 shadow-2xs flex items-center gap-4 cursor-pointer transition"
+                className="win11-acrylic-card rounded-3xl p-5 shadow-fluent border border-slate-200/90 hover:border-amber-400 flex items-center gap-4 cursor-pointer"
               >
                 <div className={`p-3 rounded-2xl border ${subInfo.isSubscribed ? "bg-amber-50 border-amber-200 text-amber-600" : "bg-slate-100 border-slate-200 text-slate-600"}`}>
                   {subInfo.tier === "annual" ? <Crown className="w-6 h-6" /> : <Sparkles className="w-6 h-6" />}
@@ -459,7 +463,7 @@ export default function DashboardPage() {
                 </div>
               </div>
 
-              <div className="bg-white border border-slate-200/90 rounded-3xl p-5 shadow-2xs flex items-center gap-4">
+              <div className="win11-acrylic-card rounded-3xl p-5 shadow-fluent border border-slate-200/90 flex items-center gap-4">
                 <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-2xl">
                   <Download className="w-6 h-6 text-emerald-600" />
                 </div>
@@ -474,7 +478,7 @@ export default function DashboardPage() {
                 </div>
               </div>
 
-              <div className="bg-white border border-slate-200/90 rounded-3xl p-5 shadow-2xs flex items-center gap-4">
+              <div className="win11-acrylic-card rounded-3xl p-5 shadow-fluent border border-slate-200/90 flex items-center gap-4">
                 <div className="p-3 bg-blue-50 border border-blue-200 rounded-2xl">
                   <Layers className="w-6 h-6 text-blue-600" />
                 </div>
@@ -586,7 +590,7 @@ export default function DashboardPage() {
                 {resumesList.map((resume) => (
                   <div
                     key={resume.id}
-                    className="bg-white border border-slate-200/90 hover:border-rose-300 rounded-3xl p-5 shadow-2xs transition flex flex-col justify-between group hover:shadow-md"
+                    className="win11-acrylic-card rounded-3xl p-5 shadow-fluent border border-slate-200/90 hover:border-indigo-400 flex flex-col justify-between group hover:shadow-fluent-hover transition duration-300"
                   >
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
@@ -598,7 +602,7 @@ export default function DashboardPage() {
                       </div>
 
                       <div>
-                        <h3 className="text-base font-extrabold text-slate-950 tracking-tight group-hover:text-rose-600 transition">
+                        <h3 className="text-base font-extrabold text-slate-950 tracking-tight group-hover:text-indigo-600 transition">
                           {resume.title || "Mon CV"}
                         </h3>
                         <p className="text-xs text-slate-500 mt-0.5 line-clamp-1">
@@ -608,13 +612,13 @@ export default function DashboardPage() {
 
                       {/* Brief overview badges */}
                       <div className="flex flex-wrap gap-1.5 pt-1">
-                        <span className="text-[10px] bg-slate-100 text-slate-700 px-2 py-0.5 rounded-md font-medium">
+                        <span className="text-[10px] bg-slate-100 text-slate-700 px-2 py-0.5 rounded-lg font-medium border border-slate-200/60">
                           {resume.experiences.length} exp.
                         </span>
-                        <span className="text-[10px] bg-slate-100 text-slate-700 px-2 py-0.5 rounded-md font-medium">
+                        <span className="text-[10px] bg-slate-100 text-slate-700 px-2 py-0.5 rounded-lg font-medium border border-slate-200/60">
                           {resume.education.length} formations
                         </span>
-                        <span className="text-[10px] bg-slate-100 text-slate-700 px-2 py-0.5 rounded-md font-medium">
+                        <span className="text-[10px] bg-slate-100 text-slate-700 px-2 py-0.5 rounded-lg font-medium border border-slate-200/60">
                           {resume.skills.length} compétences
                         </span>
                       </div>
@@ -624,7 +628,7 @@ export default function DashboardPage() {
                     <div className="mt-5 pt-4 border-t border-slate-100 flex items-center justify-between gap-2">
                       <button
                         onClick={() => handleOpenBuilder(resume.id)}
-                        className="flex-1 py-2 bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-500 hover:to-rose-600 text-white text-xs font-bold rounded-xl transition shadow-xs flex items-center justify-center gap-1.5"
+                        className="win11-btn-interactive flex-1 py-2 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white text-xs font-bold rounded-xl shadow-xs flex items-center justify-center gap-1.5 cursor-pointer"
                       >
                         <Edit3 className="w-3.5 h-3.5" />
                         <span>Modifier</span>
@@ -632,7 +636,7 @@ export default function DashboardPage() {
 
                       <button
                         onClick={() => handleDuplicate(resume)}
-                        className="p-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl border border-slate-200 transition"
+                        className="win11-btn-interactive p-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl border border-slate-200 transition cursor-pointer"
                         title="Dupliquer ce CV"
                       >
                         <Copy className="w-3.5 h-3.5" />
@@ -640,7 +644,7 @@ export default function DashboardPage() {
 
                       <button
                         onClick={() => handleDelete(resume.id || "", resume.title || "ce CV")}
-                        className="p-2 bg-slate-100 hover:bg-rose-100 text-slate-500 hover:text-rose-700 rounded-xl border border-slate-200 hover:border-rose-300 transition"
+                        className="win11-btn-interactive p-2 bg-slate-100 hover:bg-rose-100 text-slate-500 hover:text-rose-700 rounded-xl border border-slate-200 hover:border-rose-300 transition cursor-pointer"
                         title="Supprimer ce CV"
                       >
                         <Trash2 className="w-3.5 h-3.5" />

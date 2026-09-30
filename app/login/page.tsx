@@ -157,16 +157,31 @@ function LoginForm() {
   };
 
   return (
-    <div className="w-full max-w-md bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-8 shadow-xl z-10">
+    <div className="w-full max-w-md win11-acrylic-card win11-window-shadow border border-white/80 rounded-3xl p-7 sm:p-9 z-10 relative overflow-hidden transition-all duration-300">
+      {/* Top Window Accent Glow */}
+      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-rose-500 via-amber-400 to-indigo-500 opacity-90" />
+      
+      {/* Simulated Window Control Bar */}
+      <div className="flex items-center justify-between pb-4 mb-5 border-b border-slate-200/60">
+        <div className="flex items-center gap-1.5">
+          <div className="w-3 h-3 rounded-full bg-rose-400/90 shadow-2xs hover:scale-110 transition cursor-pointer" />
+          <div className="w-3 h-3 rounded-full bg-amber-400/90 shadow-2xs hover:scale-110 transition cursor-pointer" />
+          <div className="w-3 h-3 rounded-full bg-emerald-400/90 shadow-2xs hover:scale-110 transition cursor-pointer" />
+        </div>
+        <span className="text-[10px] font-mono tracking-wider font-semibold text-slate-400 uppercase">
+          MY-CV // Authentification.exe
+        </span>
+      </div>
+
       <div className="mb-6">
-        <h1 className="text-xl font-extrabold text-slate-950 tracking-tight">Connexion à votre compte</h1>
+        <h1 className="text-2xl font-black text-slate-950 tracking-tight">Connexion à votre compte</h1>
         <p className="text-xs text-slate-500 mt-1">Accédez à vos CVs, candidatures et crédits IA</p>
       </div>
 
       {error && (
-        <div className="mb-4 p-3 bg-rose-50 border border-rose-200 rounded-2xl text-xs text-rose-700 flex items-center gap-2">
+        <div className="mb-5 p-3.5 bg-rose-50/90 border border-rose-200/90 rounded-2xl text-xs text-rose-700 flex items-center gap-2.5 backdrop-blur-sm animate-in fade-in slide-in-from-top-1">
           <AlertCircle className="w-4 h-4 flex-shrink-0 text-rose-600" />
-          <span>{error}</span>
+          <span className="font-medium">{error}</span>
         </div>
       )}
 
@@ -178,7 +193,7 @@ function LoginForm() {
           disabled={!!oauthLoading || loading}
           title="Se connecter avec votre compte Google"
           aria-label="Se connecter avec votre compte Google"
-          className="w-full py-2.5 px-4 bg-white hover:bg-slate-50 hover:border-slate-300 border border-slate-200 text-slate-800 rounded-xl text-xs font-semibold flex items-center justify-center gap-2.5 transition shadow-2xs disabled:opacity-50"
+          className="w-full py-2.5 px-4 bg-white/90 hover:bg-white hover:border-slate-300 border border-slate-200/80 text-slate-800 rounded-xl text-xs font-bold flex items-center justify-center gap-2.5 transition-all duration-200 shadow-2xs hover:shadow-md hover:-translate-y-0.5 win11-btn-interactive disabled:opacity-50"
         >
           {oauthLoading === "google" ? (
             <span>Redirection Google...</span>
@@ -201,7 +216,7 @@ function LoginForm() {
           disabled={!!oauthLoading || loading}
           title="Se connecter avec votre profil LinkedIn"
           aria-label="Se connecter avec votre profil LinkedIn"
-          className="w-full py-2.5 px-4 bg-sky-50 hover:bg-sky-100 border border-sky-200 text-sky-800 rounded-xl text-xs font-semibold flex items-center justify-center gap-2.5 transition shadow-2xs disabled:opacity-50"
+          className="w-full py-2.5 px-4 bg-sky-50/80 hover:bg-sky-50 hover:border-sky-300 border border-sky-200/80 text-sky-800 rounded-xl text-xs font-bold flex items-center justify-center gap-2.5 transition-all duration-200 shadow-2xs hover:shadow-md hover:-translate-y-0.5 win11-btn-interactive disabled:opacity-50"
         >
           {oauthLoading === "linkedin" ? (
             <span>Redirection LinkedIn...</span>
@@ -218,11 +233,11 @@ function LoginForm() {
 
       {/* Separator */}
       <div className="relative flex items-center justify-center mb-5">
-        <div className="border-t border-slate-200 w-full" />
-        <span className="bg-white px-3 text-[10px] uppercase font-bold text-slate-500 tracking-wider">
+        <div className="border-t border-slate-200/70 w-full" />
+        <span className="bg-transparent px-3 text-[10px] uppercase font-bold text-slate-400 tracking-wider">
           Ou avec votre email
         </span>
-        <div className="border-t border-slate-200 w-full" />
+        <div className="border-t border-slate-200/70 w-full" />
       </div>
 
       {/* Email/Password Form */}
@@ -237,7 +252,7 @@ function LoginForm() {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="votre.email@exemple.com"
               required
-              className="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-4 py-2.5 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500 transition"
+              className="w-full text-xs bg-white/70 border border-slate-200/90 rounded-xl pl-10 pr-4 py-2.5 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 transition-all"
             />
           </div>
         </div>
@@ -261,7 +276,7 @@ function LoginForm() {
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
               required
-              className="w-full text-xs bg-slate-50 border border-slate-200 rounded-xl pl-10 pr-4 py-2.5 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500 transition"
+              className="w-full text-xs bg-white/70 border border-slate-200/90 rounded-xl pl-10 pr-4 py-2.5 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-rose-500 focus:ring-4 focus:ring-rose-500/10 transition-all"
             />
           </div>
         </div>
@@ -271,7 +286,7 @@ function LoginForm() {
           disabled={loading || !!oauthLoading}
           title="Se connecter à votre compte MY-CV.TN"
           aria-label="Se connecter à votre compte MY-CV.TN"
-          className="w-full mt-2 py-3 bg-gradient-to-r from-rose-600 to-rose-700 hover:from-rose-500 hover:to-rose-600 text-white text-xs font-bold rounded-xl transition shadow-lg shadow-rose-600/25 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+          className="w-full mt-2 py-3 bg-gradient-to-r from-rose-600 via-rose-600 to-amber-600 hover:from-rose-500 hover:to-amber-500 text-white text-xs font-black rounded-xl transition shadow-lg shadow-rose-600/25 flex items-center justify-center gap-2 cursor-pointer win11-btn-interactive disabled:opacity-50"
         >
           {loading ? (
             <span>Connexion en cours...</span>
@@ -285,13 +300,13 @@ function LoginForm() {
       </form>
 
       {/* Link to Register */}
-      <div className="mt-6 pt-4 border-t border-slate-100 text-center text-xs text-slate-500">
+      <div className="mt-6 pt-4 border-t border-slate-200/60 text-center text-xs text-slate-500">
         Pas encore de compte ?{" "}
         <a 
           href="/register" 
           title="Créer un compte et recevoir 5 crédits offerts"
           aria-label="Créer un compte et recevoir 5 crédits offerts"
-          className="font-bold text-rose-600 hover:text-rose-700 transition"
+          className="font-bold text-rose-600 hover:text-rose-700 transition underline underline-offset-2"
         >
           Créer un compte (+5 Crédits Offerts)
         </a>
@@ -302,26 +317,30 @@ function LoginForm() {
 
 export default function LoginPage() {
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col justify-center items-center p-4 text-slate-900 font-sans relative overflow-hidden">
-      {/* Background Ambient Glows */}
-      <div className="absolute top-1/4 -left-32 w-96 h-96 bg-rose-200/40 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-1/4 -right-32 w-96 h-96 bg-indigo-200/40 rounded-full blur-3xl pointer-events-none" />
+    <div className="min-h-screen bg-slate-950 flex flex-col justify-center items-center p-4 text-slate-900 font-sans relative overflow-hidden">
+      {/* Background Animated Aurora Glows (Windows 11 Bloom Style) */}
+      <div className="absolute top-1/4 -left-32 w-[500px] h-[500px] bg-rose-500/20 rounded-full blur-3xl pointer-events-none animate-float-slow" />
+      <div className="absolute bottom-1/4 -right-32 w-[550px] h-[550px] bg-indigo-500/20 rounded-full blur-3xl pointer-events-none animate-float-delayed" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[400px] bg-amber-400/10 rounded-full blur-3xl pointer-events-none animate-pulse-glow" />
+
+      {/* Subtle Grid pattern overlay */}
+      <div className="absolute inset-0 bg-[radial-gradient(#ffffff08_1px,transparent_1px)] [background-size:24px_24px] pointer-events-none" />
 
       {/* Top Brand Logo */}
       <div className="text-center mb-6 z-10">
-        <a href="/" className="inline-flex items-center gap-2.5 mb-2">
-          <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-rose-600 to-amber-500 flex items-center justify-center font-black text-white text-lg shadow-md shadow-rose-600/20">
+        <a href="/" className="inline-flex items-center gap-2.5 mb-2 group">
+          <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-rose-600 via-rose-500 to-amber-500 flex items-center justify-center font-black text-white text-xl shadow-lg shadow-rose-600/30 group-hover:scale-105 transition-transform duration-300">
             ⚡
           </div>
-          <span className="font-extrabold text-2xl tracking-tight text-slate-950">
-            MY-CV<span className="text-rose-600">.TN</span>
+          <span className="font-extrabold text-2xl tracking-tight text-white drop-shadow-sm">
+            MY-CV<span className="text-rose-500">.TN</span>
           </span>
         </a>
-        <p className="text-xs text-slate-500">Plateforme Intelligente de Création de CV & Recrutement</p>
+        <p className="text-xs text-slate-400">Plateforme Intelligente de Création de CV & Recrutement</p>
       </div>
 
       <Suspense fallback={
-        <div className="w-full max-w-md bg-white border border-slate-200 rounded-3xl p-8 text-center text-xs text-slate-500">
+        <div className="w-full max-w-md win11-acrylic-card win11-window-shadow border border-white/40 rounded-3xl p-8 text-center text-xs text-slate-400">
           Chargement du formulaire...
         </div>
       }>

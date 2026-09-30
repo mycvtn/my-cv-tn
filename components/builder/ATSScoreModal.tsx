@@ -54,24 +54,27 @@ export const ATSScoreModal: React.FC<Props> = ({ isOpen, onClose, resumeText, on
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
-      <div className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] flex flex-col overflow-hidden border border-slate-200 animate-in fade-in zoom-in-95 duration-150">
+    <div className="fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-xl flex items-center justify-center p-4 overflow-y-auto">
+      <div className="win11-acrylic-card win11-window-shadow border border-white/80 rounded-3xl max-w-3xl w-full max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200 relative">
+        {/* Top Window Accent Glow */}
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 via-teal-400 to-indigo-500 opacity-90" />
+
         {/* Header */}
-        <div className="bg-gradient-to-r from-slate-900 to-indigo-950 p-5 text-white flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="p-2 bg-emerald-500/20 text-emerald-400 rounded-lg border border-emerald-500/30">
+        <div className="p-5 sm:p-6 border-b border-slate-200/60 bg-white/80 backdrop-blur-md flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 bg-emerald-500/10 text-emerald-600 rounded-2xl border border-emerald-500/20 shadow-2xs">
               <Target className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-base font-bold">Scanner ATS & Match d'Offre d'Emploi</h2>
-              <p className="text-xs text-slate-300">Analyse de compatibilité propulsée par Google Gemini</p>
+              <h2 className="text-base font-black text-slate-950">Scanner ATS & Match d'Offre d'Emploi</h2>
+              <p className="text-xs text-slate-500">Analyse de compatibilité propulsée par Google Gemini IA</p>
             </div>
           </div>
           <button 
             onClick={onClose} 
             title="Fermer la fenêtre du Scanner ATS"
             aria-label="Fermer la fenêtre du Scanner ATS"
-            className="text-slate-400 hover:text-white p-1 rounded-lg transition"
+            className="text-slate-400 hover:text-slate-700 p-2 rounded-xl hover:bg-slate-100 transition win11-btn-interactive"
           >
             <X className="w-5 h-5" />
           </button>

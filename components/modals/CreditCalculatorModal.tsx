@@ -196,13 +196,15 @@ export const CreditCalculatorModal: React.FC<Props> = ({
   const methodDetails = getSelectedMethodDetails();
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto">
-      <div className="bg-slate-900 border border-slate-800 rounded-3xl max-w-2xl w-full max-h-[92vh] flex flex-col overflow-hidden shadow-2xl text-slate-100 animate-in fade-in zoom-in-95 duration-150">
-        
+    <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-xl flex items-center justify-center p-4 overflow-y-auto">
+      <div className="win11-acrylic-card win11-window-shadow border border-white/20 rounded-3xl max-w-2xl w-full max-h-[92vh] flex flex-col overflow-hidden text-slate-100 animate-in fade-in zoom-in-95 duration-200 relative">
+        {/* Top Window Accent Glow */}
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-rose-500 via-amber-400 to-indigo-500 opacity-90" />
+
         {/* Header */}
-        <div className="bg-gradient-to-r from-slate-900 via-rose-950/60 to-slate-900 p-5 sm:p-6 border-b border-slate-800 relative flex items-center justify-between">
+        <div className="p-5 sm:p-6 border-b border-white/10 relative flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-rose-600 to-amber-500 flex items-center justify-center shadow-lg shadow-rose-600/20">
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-rose-600 to-amber-500 flex items-center justify-center shadow-lg shadow-rose-600/30">
               <Crown className="w-5 h-5 text-white" />
             </div>
             <div>
@@ -217,7 +219,7 @@ export const CreditCalculatorModal: React.FC<Props> = ({
           <button
             type="button"
             onClick={onClose}
-            className="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl transition"
+            className="p-2 text-slate-400 hover:text-white hover:bg-white/10 rounded-xl transition win11-btn-interactive"
           >
             <X className="w-5 h-5" />
           </button>
