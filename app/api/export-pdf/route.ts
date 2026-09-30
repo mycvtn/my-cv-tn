@@ -30,11 +30,17 @@ export async function POST(req: NextRequest) {
   let browser: any = null;
   try {
     const body = await req.json();
-    const { html, styles = "", fileName = "Mon_CV_A4.pdf", isWatermarked = false, margin = "0mm" } = body;
+    const { html, styles = "", fileName = "Mon_CV_A4.pdf", isWatermarked = false, margin = "0mm", documentType } = body;
 
     if (!html) {
       return NextResponse.json({ error: "Contenu HTML manquant" }, { status: 400 });
     }
+
+    const isCoverLetter = 
+      documentType === "cover_letter" || 
+      fileName.toLowerCase().includes("lettre") || 
+      fileName.toLowerCase().includes("motivation") || 
+      fileName.toLowerCase().includes("cover");
 
     const host = req.headers.get("host") || "localhost:1500";
     const forwardedProto = req.headers.get("x-forwarded-proto");
@@ -86,7 +92,28 @@ export async function POST(req: NextRequest) {
               -webkit-print-color-adjust: exact !important;
               print-color-adjust: exact !important;
             }
-            #resume-sheet-preview, #cover-letter-sheet, #modal-cover-letter-sheet {
+
+            /* Professional Margins for Motivation Letter (Lettre de Motivation) */
+            #cover-letter-sheet-export, .cover-letter-sheet-export {
+              box-shadow: none !important;
+              border: none !important;
+              border-radius: 0 !important;
+              margin: 0 auto !important;
+              padding: 18mm 20mm 16mm 20mm !important;
+              width: 210mm !important;
+              max-width: 210mm !important;
+              min-height: 297mm !important;
+              box-sizing: border-box !important;
+              position: relative !important;
+              background: #ffffff !important;
+              color: #0f172a !important;
+              display: flex !important;
+              flex-direction: column !important;
+              justify-content: space-between !important;
+            }
+
+            /* Zero/3mm Bleed Margins for CV / Resume */
+            #resume-sheet-preview {
               box-shadow: none !important;
               border: none !important;
               margin: 0 auto !important;
@@ -100,6 +127,7 @@ export async function POST(req: NextRequest) {
               color: #0f172a !important;
               box-sizing: border-box !important;
             }
+
             .break-inside-avoid {
               break-inside: avoid !important;
               page-break-inside: avoid !important;
@@ -124,7 +152,7 @@ export async function POST(req: NextRequest) {
           </style>
         </head>
         <body class="bg-white text-slate-900 m-0 p-0">
-          <div id="resume-sheet-preview">
+          <div id="${isCoverLetter ? "cover-letter-sheet-export" : "resume-sheet-preview"}" class="${isCoverLetter ? "cover-letter-sheet-export" : ""}">
             ${html}
             ${isWatermarked ? `<div class="full-page-watermark"></div>` : ""}
           </div>
