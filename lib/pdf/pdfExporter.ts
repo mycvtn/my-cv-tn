@@ -66,6 +66,7 @@ export async function exportResumeToPDF(
         styles: allStyles,
         fileName,
         isWatermarked: !!options.isWatermarked,
+        margin: "0mm",
       }),
     });
 
@@ -96,15 +97,35 @@ export async function exportResumeToPDF(
     try {
       if (onProgress) onProgress(60);
 
-      const canvas = await html2canvas(element, {
-        scale: 3,
+      // Create an unscaled offscreen clone so parent zoom/scale never distorts the capture
+      const offscreenWrapper = document.createElement("div");
+      offscreenWrapper.style.position = "fixed";
+      offscreenWrapper.style.top = "-99999px";
+      offscreenWrapper.style.left = "-99999px";
+      offscreenWrapper.style.width = "794px";
+      offscreenWrapper.style.zIndex = "-9999";
+      offscreenWrapper.style.transform = "none";
+
+      const unscaledClone = element.cloneNode(true) as HTMLElement;
+      unscaledClone.style.transform = "none";
+      unscaledClone.style.width = "794px";
+      unscaledClone.style.margin = "0";
+      unscaledClone.querySelectorAll(".export-ignore").forEach((n) => n.remove());
+
+      offscreenWrapper.appendChild(unscaledClone);
+      document.body.appendChild(offscreenWrapper);
+
+      const canvas = await html2canvas(unscaledClone, {
+        scale: 2.5,
         useCORS: true,
         allowTaint: true,
         backgroundColor: "#ffffff",
         logging: false,
-        ignoreElements: (el) => el.classList.contains("export-ignore"),
+        width: 794,
         windowWidth: 794,
       });
+
+      document.body.removeChild(offscreenWrapper);
 
       const imgData = canvas.toDataURL("image/png", 1.0);
       const pdf = new jsPDF({

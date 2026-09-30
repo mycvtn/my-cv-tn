@@ -6,7 +6,7 @@ export async function POST(req: NextRequest) {
   let browser: any = null;
   try {
     const body = await req.json();
-    const { html, styles = "", fileName = "Mon_CV_A4.pdf", isWatermarked = false, margin = "10mm" } = body;
+    const { html, styles = "", fileName = "Mon_CV_A4.pdf", isWatermarked = false, margin = "0mm" } = body;
 
     if (!html) {
       return NextResponse.json({ error: "Contenu HTML manquant" }, { status: 400 });
@@ -122,10 +122,6 @@ export async function POST(req: NextRequest) {
         "--disable-setuid-sandbox",
         "--disable-dev-shm-usage",
         "--disable-gpu",
-        "--no-first-run",
-        "--no-zygote",
-        "--single-process",
-        "--disable-extensions",
         "--font-render-hinting=none",
       ],
     };
