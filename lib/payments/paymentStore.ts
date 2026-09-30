@@ -119,7 +119,6 @@ export async function fetchServerPaymentSettings(): Promise<PaymentSettings> {
         if (typeof window !== "undefined") {
           localStorage.setItem(PAYMENT_SETTINGS_KEY, JSON.stringify(data.settings));
           window.dispatchEvent(new CustomEvent("payment_settings_updated", { detail: data.settings }));
-          window.dispatchEvent(new Event("storage"));
         }
         return data.settings;
       }
@@ -132,7 +131,6 @@ export async function savePaymentSettings(settings: PaymentSettings): Promise<vo
   if (typeof window !== "undefined") {
     localStorage.setItem(PAYMENT_SETTINGS_KEY, JSON.stringify(settings));
     window.dispatchEvent(new CustomEvent("payment_settings_updated", { detail: settings }));
-    window.dispatchEvent(new Event("storage"));
   }
   try {
     await fetch("/api/payments/settings", {

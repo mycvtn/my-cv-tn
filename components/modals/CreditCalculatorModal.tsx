@@ -52,17 +52,20 @@ export const CreditCalculatorModal: React.FC<Props> = ({
     const handleSettingsUpdated = (e: any) => {
       if (e.detail) {
         setPaymentSettings(e.detail);
-      } else {
-        syncSettings();
       }
     };
 
+    const handleStorage = () => {
+      const local = getPaymentSettings();
+      setPaymentSettings(local);
+    };
+
     window.addEventListener("payment_settings_updated", handleSettingsUpdated);
-    window.addEventListener("storage", syncSettings);
+    window.addEventListener("storage", handleStorage);
 
     return () => {
       window.removeEventListener("payment_settings_updated", handleSettingsUpdated);
-      window.removeEventListener("storage", syncSettings);
+      window.removeEventListener("storage", handleStorage);
     };
   }, []);
 
