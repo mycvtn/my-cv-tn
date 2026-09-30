@@ -120,7 +120,7 @@ export default function AdminLoginPage() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="admin@my-cv.tn"
+                placeholder="admin@domaine.com"
                 autoComplete="email"
                 required
                 className="w-full text-xs bg-white/70 border border-slate-200/90 rounded-xl pl-10 pr-4 py-2.5 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:bg-white focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 transition-all"
@@ -159,13 +159,6 @@ export default function AdminLoginPage() {
             )}
           </button>
         </form>
-
-        {/* Credentials hint */}
-        <div className="mt-5 p-3.5 bg-amber-50/80 border border-amber-200/80 rounded-2xl text-xs text-amber-900 space-y-1.5 backdrop-blur-sm">
-          <div className="font-bold flex items-center gap-1.5 text-amber-950">🔑 Comptes administrateurs autorisés :</div>
-          <div className="text-[11px]">• <strong>admin@my-cv.tn</strong> → mot de passe : <code className="bg-amber-100/90 px-1.5 py-0.5 rounded font-mono text-amber-950">admin123</code></div>
-          <div className="text-[11px]">• <strong>ramigouader@gmail.com</strong> → mot de passe : <code className="bg-amber-100/90 px-1.5 py-0.5 rounded font-mono text-amber-950">R@mail1603</code></div>
-        </div>
 
         <div className="mt-6 pt-4 border-t border-slate-200/60 text-center text-xs text-slate-500">
           <a href="/login" className="text-slate-500 hover:text-slate-900 transition flex items-center justify-center gap-1">
